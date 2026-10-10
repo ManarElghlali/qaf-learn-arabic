@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Mic, Volume2 } from "lucide-react";
+import { Check, CircleAlert, LoaderCircle, Mic, Trophy, Volume2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { AppShell, Ar } from "@/components/AppShell";
 import { WORDS, shuffle, stripTashkeel } from "@/lib/words";
 import { playWord, stopAudio } from "@/lib/audio";
@@ -95,14 +96,14 @@ function Test() {
     const pct = Math.round((correct / words.length) * 100);
     return (
       <AppShell title="Reading test">
-        <div className="rounded-3xl bg-card border border-border p-8 text-center">
-          <p className="text-6xl">🎉</p>
+        <div className="learning-surface p-7 text-center">
+          <Trophy className="mx-auto h-12 w-12 text-gold" />
           <h2 className="mt-3 text-2xl font-bold">Test complete</h2>
           <p className="mt-2 text-muted-foreground">You read {correct} of {words.length} words · {pct}%</p>
-          <button className="mt-6 rounded-2xl bg-primary px-6 py-3 font-semibold text-primary-foreground" onClick={() => {
+          <Button className="mt-6 w-full" onClick={() => {
             update((p) => ({ ...p, scores: [...p.scores, pct] })); touchStreak();
             setWords(shuffle(WORDS).slice(0, 10)); setI(0); setCorrect(0); setSt("idle");
-          }}>Save & try again</button>
+          }}>Save & try again</Button>
         </div>
       </AppShell>
     );
@@ -120,27 +121,27 @@ function Test() {
 
   return (
     <AppShell title="Reading test">
-      <div className="mb-3 flex justify-between text-sm text-muted-foreground"><span>Word {i + 1} of 10</span><span>{correct} correct</span></div>
+      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>Word {i + 1} of 10</span><span>{correct} correct</span></div>
       <div className="mb-4 flex gap-1">{words.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? "bg-primary" : "bg-muted"}`} />)}</div>
-      <div className="rounded-3xl border border-border bg-card p-8 text-center">
+      <div className="learning-surface p-6 text-center">
         <p className="mb-2 text-sm text-muted-foreground">Read this word aloud</p>
-        <Ar className="block text-7xl leading-relaxed">{w.ar}</Ar>
-        <p className={`mt-4 min-h-12 text-sm font-medium ${st === "correct" ? "text-primary text-lg" : st === "wrong" || st === "denied" ? "text-destructive" : "text-muted-foreground"}`}>{msg[st]}</p>
+        <Ar className="block text-7xl font-semibold leading-relaxed">{w.ar}</Ar>
+        <p role="status" aria-live="polite" className={`mt-4 flex min-h-16 items-center justify-center gap-2 rounded-2xl p-3 text-sm font-medium ${st === "correct" ? "bg-success-soft text-success" : st === "wrong" || st === "denied" ? "bg-error-soft text-destructive" : "bg-accent text-muted-foreground"}`}>{st === "correct" && <Check className="h-4 w-4 shrink-0" />}{(st === "wrong" || st === "denied" || st === "unsupported") && <CircleAlert className="h-4 w-4 shrink-0" />}{st === "analyzing" && <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" />}{msg[st]}</p>
         {st === "wrong" && heard && <p className="text-xs text-muted-foreground">We heard: <Ar>{heard}</Ar></p>}
       </div>
       <div className="mt-8 flex flex-col items-center gap-4">
-        <button aria-label="Press and hold to record"
+        <Button disabled={st === "analyzing" || st === "correct"} aria-label="Press and hold to record" aria-pressed={st === "recording"}
           onPointerDown={(e) => { e.preventDefault(); start(); }}
           onPointerUp={stop} onPointerLeave={stop} onPointerCancel={stop} onContextMenu={(e) => e.preventDefault()}
-          className={`flex h-24 w-24 touch-none select-none items-center justify-center rounded-full text-primary-foreground transition ${st === "recording" ? "scale-110 bg-destructive animate-pulse" : "bg-primary"}`}>
-          <Mic className="h-10 w-10" />
-        </button>
+          className={`mic-button touch-none select-none ${st === "recording" ? "recording-state bg-destructive" : "bg-primary"}`}>
+          {st === "analyzing" ? <LoaderCircle className="animate-spin" /> : st === "correct" ? <Check /> : <Mic />}
+        </Button>
         {(st === "wrong" || st === "idle" || st === "denied") && (
-          <button onClick={() => playWord(w.ar)} className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm">
+          <Button variant="outline" onClick={() => playWord(w.ar)}>
             <Volume2 className="h-4 w-4" /> Hear the word
-          </button>
+          </Button>
         )}
-        {st === "wrong" && <button className="text-sm text-muted-foreground" onClick={() => { setI((x) => x + 1); setSt("idle"); }}>Skip</button>}
+        {st === "wrong" && <Button variant="ghost" className="text-muted-foreground" onClick={() => { setI((x) => x + 1); setSt("idle"); }}>Skip</Button>}
       </div>
     </AppShell>
   );
