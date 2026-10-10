@@ -10,7 +10,7 @@ import { learningSummary } from "@/lib/learning-path";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/learn")({
-  validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s.lesson) }),
+  validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },

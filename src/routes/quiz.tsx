@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { WordIllustration } from "@/components/WordIllustration";
 
 export const Route = createFileRoute("/quiz")({
-  validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s.lesson) }),
+  validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
