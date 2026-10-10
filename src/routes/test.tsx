@@ -23,11 +23,11 @@ type State = "idle" | "recording" | "analyzing" | "correct" | "wrong" | "denied"
 // Levenshtein similarity on unvowelled letters (recognisers drop harakat).
 function similar(a: string, b: string) {
   const m = a.length, n = b.length;
-  const d = Array.from({ length: m + 1 }, (_, i) => [i, ...Array(n).fill(0)]);
-  for (let j = 1; j <= n; j++) d[0][j] = j;
+  const d: number[][] = Array.from({ length: m + 1 }, (_, i) => [i, ...Array<number>(n).fill(0)]);
+  for (let j = 1; j <= n; j++) d[0]![j] = j;
   for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
-    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-  return 1 - d[m][n] / Math.max(m, n, 1);
+    d[i]![j] = Math.min(d[i - 1]![j]! + 1, d[i]![j - 1]! + 1, d[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return 1 - d[m]![n]! / Math.max(m, n, 1);
 }
 
 function Test() {
@@ -40,7 +40,7 @@ function Test() {
   const media = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const alts = useRef<string[]>([]);
-  const w = words[i];
+  const w = words[i] ?? WORDS[0];
   const finished = i >= words.length;
 
   useEffect(() => { setWords(shuffle(WORDS).slice(0, 10)); return () => { stopAudio(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []);
