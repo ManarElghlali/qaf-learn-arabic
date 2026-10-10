@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/learn")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Learn Fatha words — Qaf" },
       { name: "description", content: "Tap each sound unit and hear the full word for 42 Fatha words." },
       { property: "og:title", content: "Learn Fatha words — Qaf" },

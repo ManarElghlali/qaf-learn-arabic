@@ -10,6 +10,8 @@ import { WORDS } from "@/lib/words";
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Profile & settings — Qaf" },
       { name: "description", content: "Your streak, words learned, test scores and reminders." },
       { property: "og:title", content: "Profile — Qaf" },

@@ -11,6 +11,8 @@ import observatory from "@/assets/stages/observatory.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Qaf ق — Learn to read Arabic step by step" },
       { name: "description", content: "Learn Arabic reading starting with short sounds: 42 Fatha words with audio, quizzes and a reading test." },
       { property: "og:title", content: "Qaf ق — Learn to read Arabic" },

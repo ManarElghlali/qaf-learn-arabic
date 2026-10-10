@@ -9,6 +9,8 @@ import { touchStreak, update } from "@/lib/progress";
 export const Route = createFileRoute("/test")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Reading test — Qaf" },
       { name: "description", content: "Read 10 Fatha words aloud and get instant pronunciation feedback." },
       { property: "og:title", content: "Reading test — Qaf" },

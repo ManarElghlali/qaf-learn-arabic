@@ -9,6 +9,8 @@ import { WordIllustration } from "@/components/WordIllustration";
 export const Route = createFileRoute("/quiz")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Fatha quiz — Qaf" },
       { name: "description", content: "Build words, listen and pick, and match pictures to Fatha words." },
       { property: "og:title", content: "Fatha quiz — Qaf" },
