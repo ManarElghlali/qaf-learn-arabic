@@ -10,7 +10,7 @@ export function WordIllustration({ word, className }: { word: Word; className?: 
       width={384}
       height={384}
       decoding="async"
-      className={cn("mx-auto aspect-square w-48 max-w-full rounded-2xl border border-border object-cover", className)}
+      className={cn("mx-auto aspect-square w-40 max-w-full rounded-2xl border border-border/60 object-cover", className)}
     />
   );
 }
