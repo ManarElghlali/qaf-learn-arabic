@@ -1,9 +1,10 @@
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Volume2 } from "lucide-react";
+import { Check, RotateCcw, Volume2, X } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { WORDS, shuffle, type Word } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
+import { Button } from "@/components/ui/button";
 import { WordIllustration } from "@/components/WordIllustration";
 
 export const Route = createFileRoute("/quiz")({
@@ -41,7 +42,7 @@ function Quiz() {
   };
   return (
     <AppShell title="Quiz">
-      <p className="mb-4 text-sm text-muted-foreground">Score {score} · Question {n + 1}</p>
+      <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>Fatha · Question {n + 1}</span><span className="flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
       {q.mode === "build" && <Build key={n} w={q.w} onDone={done} />}
       {q.mode !== "build" && <Pick key={n} w={q.w} opts={q.opts} mode={q.mode} onDone={done} />}
     </AppShell>
@@ -53,21 +54,22 @@ function Pick({ w, opts, mode, onDone }: { w: Word; opts: Word[]; mode: Mode; on
   useEffect(() => { if (mode === "listen") playWord(w.ar); }, [w, mode]);
   return (
     <div>
-      <div className="mb-5 rounded-3xl bg-card p-6 text-center border border-border">
-        <p className="mb-3 text-sm text-muted-foreground">{mode === "listen" ? "Listen and pick the word" : "Match the picture to the word"}</p>
+      <div className="learning-surface mb-5 p-5 text-center">
+        <p className="mb-4 text-base font-semibold">{mode === "listen" ? "Listen and pick the word" : "Match the picture to the word"}</p>
         {mode === "listen"
-          ? <button onClick={() => playWord(w.ar)} className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary text-primary-foreground"><Volume2 className="h-10 w-10" /></button>
+          ? <Button aria-label="Listen to the word" onClick={() => playWord(w.ar)} className="mx-auto h-20 w-20 rounded-full [&_svg]:size-7"><Volume2 className="h-10 w-10" /></Button>
           : <><WordIllustration word={w} /><p className="mt-2 font-medium">{w.en}</p></>}
       </div>
       <div className="grid grid-cols-2 gap-3">
         {opts.map((o) => {
-          const st = sel === null ? "border-border" : o.id === w.id ? "border-primary bg-accent" : sel === o.id ? "border-destructive" : "border-border opacity-50";
+          const st = sel === null ? "border-border" : o.id === w.id ? "border-success bg-success-soft text-success" : sel === o.id ? "border-destructive bg-error-soft text-destructive" : "border-border opacity-50";
           return (
-            <button key={o.id} disabled={sel !== null} onClick={() => { setSel(o.id); onDone(o.id === w.id); }}
-              className={`rounded-2xl border-2 bg-card py-5 text-4xl ${st}`}><Ar>{o.ar}</Ar></button>
+            <Button variant="outline" key={o.id} disabled={sel !== null} onClick={() => { setSel(o.id); onDone(o.id === w.id); }}
+              className={`answer-button h-auto rounded-2xl border disabled:opacity-100 ${st}`}><Ar>{o.ar}</Ar></Button>
           );
         })}
       </div>
+      {sel !== null && <p role="status" className={`mt-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl text-sm font-semibold ${sel === w.id ? "bg-success-soft text-success" : "bg-error-soft text-destructive"}`}>{sel === w.id ? <><Check className="h-4 w-4" />Correct</> : <><X className="h-4 w-4" />Not quite</>}</p>}
     </div>
   );
 }
@@ -91,23 +93,24 @@ function Build({ w, onDone }: { w: Word; onDone: (ok: boolean) => void }) {
   };
   return (
     <div>
-      <div className="mb-5 rounded-3xl border border-border bg-card p-6 text-center">
-        <p className="mb-2 text-sm text-muted-foreground">Build the word</p>
+      <div className="learning-surface mb-5 p-5 text-center">
+        <p className="mb-4 text-base font-semibold">Build the word</p>
         <WordIllustration word={w} />
         <p className="mt-2 font-medium">{w.en}</p>
-        <button onClick={() => playWord(w.ar)} className="mt-2 inline-flex items-center gap-1 text-sm text-primary"><Volume2 className="h-4 w-4" />Hear it</button>
+        <Button variant="ghost" onClick={() => playWord(w.ar)} className="mt-2 text-primary"><Volume2 className="h-4 w-4" />Hear it</Button>
       </div>
-      <div dir="rtl" className={`mb-5 flex min-h-20 justify-center gap-2 rounded-2xl border-2 border-dashed p-3 ${res === true ? "border-primary" : res === false ? "border-destructive" : "border-border"}`}>
+      <div dir="rtl" className={`mb-5 flex min-h-20 justify-center gap-2 rounded-2xl border-2 border-dashed p-3 ${res === true ? "border-primary" : res === false ? "border-destructive bg-error-soft text-destructive" : "border-border"}`}>
         {picked.map((p) => <span key={p.k} className="font-arabic text-4xl">{p.u}</span>)}
       </div>
+      {res === true && <p role="status" className="mb-3 flex items-center justify-center gap-2 text-sm font-semibold text-success"><Check className="h-4 w-4" />Correct</p>}
       {res === false && <p className="mb-3 text-center text-sm">Answer: <Ar className="text-2xl">{w.ar}</Ar></p>}
       <div dir="rtl" className="flex flex-wrap justify-center gap-3">
         {blocks.map((b) => (
-          <button key={b.k} onClick={() => tap(b)} disabled={picked.some((p) => p.k === b.k)}
-            className="h-16 w-16 rounded-2xl bg-secondary text-3xl disabled:opacity-30"><Ar>{b.u}</Ar></button>
+          <Button variant="secondary" key={b.k} onClick={() => tap(b)} disabled={picked.some((p) => p.k === b.k)}
+            className="sound-button disabled:opacity-30"><Ar>{b.u}</Ar></Button>
         ))}
       </div>
-      {picked.length > 0 && res === null && <button onClick={() => setPicked([])} className="mx-auto mt-4 block text-sm text-muted-foreground">Clear</button>}
+      {picked.length > 0 && res === null && <Button variant="ghost" onClick={() => setPicked([])} className="mx-auto mt-4 flex text-muted-foreground"><RotateCcw className="h-4 w-4" />Clear</Button>}
     </div>
   );
 }

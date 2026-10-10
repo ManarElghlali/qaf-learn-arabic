@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Bell, Crown, RotateCcw } from "lucide-react";
+import { Bell, ChevronRight, Crown, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { AppShell } from "@/components/AppShell";
 import { Paywall } from "@/components/Paywall";
 import { update, useProgress } from "@/lib/progress";
@@ -35,26 +37,26 @@ function Profile() {
   };
   return (
     <AppShell title="Profile">
-      <div className="grid grid-cols-3 gap-3">
-        {[["Streak", `${p.streak}🔥`], ["Words", `${p.learned.length}/${WORDS.length}`], ["Best test", `${best}%`]].map(([l, v]) => (
-          <div key={l} className="rounded-2xl border border-border bg-card p-4 text-center">
-            <p className="text-xl font-bold">{v}</p><p className="text-xs text-muted-foreground">{l}</p>
+      <h2 className="mb-3 text-base font-semibold">Your progress</h2>
+      <div className="grid grid-cols-3 gap-2">
+        {[["Streak", `${p.streak}`], ["Words", `${p.learned.length}/${WORDS.length}`], ["Best test", `${best}%`]].map(([l, v]) => (
+          <div key={l} className="rounded-2xl border border-border bg-card px-2 py-4 text-center">
+            <p className="text-xl font-bold text-primary">{v}</p><p className="text-xs text-muted-foreground">{l}</p>
           </div>
         ))}
       </div>
       {p.scores.length > 0 && <p className="mt-3 text-sm text-muted-foreground">Recent tests: {p.scores.slice(-5).join("%, ")}%</p>}
-      <div className="mt-6 divide-y divide-border rounded-2xl border border-border bg-card">
-        <button onClick={toggleRem} className="flex w-full items-center justify-between p-4">
-          <span className="flex items-center gap-3"><Bell className="h-5 w-5" />Daily reminder</span>
-          <span className={`h-7 w-12 rounded-full p-1 transition ${p.reminders ? "bg-primary" : "bg-muted"}`}>
-            <span className={`block h-5 w-5 rounded-full bg-card transition ${p.reminders ? "translate-x-5" : ""}`} />
-          </span>
-        </button>
-        <button onClick={() => setPay(true)} className="flex w-full items-center justify-between p-4">
-          <span className="flex items-center gap-3"><Crown className="h-5 w-5" />{p.premium ? "Premium active" : "Go Premium"}</span>
-        </button>
-        <button onClick={() => { if (confirm("Reset all progress?")) update((s) => ({ ...s, learned: [], streak: 0, scores: [], lastDay: "" })); }}
-          className="flex w-full items-center gap-3 p-4 text-destructive"><RotateCcw className="h-5 w-5" />Reset progress</button>
+      <h2 className="mb-2 mt-7 text-base font-semibold">Settings</h2>
+      <div className="divide-y divide-border">
+        <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+          <label htmlFor="reminders" className="flex min-w-0 items-center gap-3 text-sm font-medium"><Bell className="h-5 w-5 shrink-0 text-muted-foreground" />Daily reminder</label>
+          <Switch id="reminders" checked={p.reminders} onCheckedChange={toggleRem} />
+        </div>
+        <Button variant="ghost" onClick={() => setPay(true)} className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
+          <span className="flex items-center gap-3"><Crown className="h-5 w-5" />{p.premium ? "Premium active" : "Go Premium"}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Button>
+        <Button variant="ghost" onClick={() => { if (confirm("Reset all progress?")) update((s) => ({ ...s, learned: [], streak: 0, scores: [], lastDay: "" })); }}
+          className="h-16 w-full justify-start gap-3 rounded-none px-0 text-sm font-medium text-destructive"><RotateCcw className="h-5 w-5" />Reset progress</Button>
       </div>
       <Paywall open={pay} onClose={() => setPay(false)} />
     </AppShell>

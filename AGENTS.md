@@ -10,3 +10,5 @@
 <!-- LOVABLE:END -->
 
 - Keep word artwork keyed by the stable curriculum word ID in a shared illustration registry and render it through WordIllustration, so Learn and Quiz always show the same image without coupling artwork to pronunciation data.
+- Derive Home progress and Learn continuation through the shared learning-summary module using existing saved completion IDs, so both screens agree without changing the progress schema.
+- Apply learning surfaces, sound-control sizes, navigation safe areas and color roles through shared styles and the existing Button component, so the five screens remain visually coherent without altering their engines.

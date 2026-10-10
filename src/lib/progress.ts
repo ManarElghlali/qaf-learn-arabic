@@ -7,13 +7,13 @@ export type Progress = {
 const KEY = "qaf-progress-v1";
 const def: Progress = { learned: [], streak: 0, lastDay: "", scores: [], reminders: false, premium: false, translit: true };
 
-function read(): Progress {
+export function readProgress(): Progress {
   try { return { ...def, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return def; }
 }
 const subs = new Set<(p: Progress) => void>();
 
 export function update(fn: (p: Progress) => Progress) {
-  const next = fn(read());
+  const next = fn(readProgress());
   localStorage.setItem(KEY, JSON.stringify(next));
   subs.forEach((s) => s(next));
 }
@@ -29,6 +29,6 @@ export function touchStreak() {
 
 export function useProgress() {
   const [p, setP] = useState<Progress>(def);
-  useEffect(() => { setP(read()); subs.add(setP); return () => { subs.delete(setP); }; }, []);
+  useEffect(() => { setP(readProgress()); subs.add(setP); return () => { subs.delete(setP); }; }, []);
   return p;
 }
