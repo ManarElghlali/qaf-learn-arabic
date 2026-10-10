@@ -3,22 +3,25 @@ import { useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, LoaderCircle, Mic, Trophy, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppShell, Ar } from "@/components/AppShell";
-import { WORDS, shuffle, stripTashkeel } from "@/lib/words";
+import { shuffle, stripTashkeel } from "@/lib/words";
+import { LESSONS, parseLesson } from "@/lib/lessons";
+import { LessonSwitch } from "@/components/LessonSwitch";
 import { playWord, stopAudio } from "@/lib/audio";
 import { touchStreak, update } from "@/lib/progress";
 
 export const Route = createFileRoute("/test")({
+  validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "Reading test — Qaf" },
-      { name: "description", content: "Read 10 Fatha words aloud and get instant pronunciation feedback." },
+      { name: "description", content: "Read 10 Fatha or Fatha & Kasra words aloud and get instant pronunciation feedback." },
       { property: "og:title", content: "Reading test — Qaf" },
       { property: "og:description", content: "A 10-word Arabic reading assessment using your microphone." },
     ],
   }),
-  component: Test,
+  component: TestRoute,
 });
 
 type State = "idle" | "recording" | "analyzing" | "correct" | "wrong" | "denied" | "unsupported";
@@ -33,7 +36,13 @@ function similar(a: string, b: string) {
   return 1 - d[m]![n]! / Math.max(m, n, 1);
 }
 
-function Test() {
+function TestRoute() {
+  const { lesson } = Route.useSearch();
+  return <Test key={lesson} lesson={lesson} />;
+}
+
+function Test({ lesson }: { lesson: ReturnType<typeof parseLesson> }) {
+  const WORDS = LESSONS[lesson].words;
   const [words, setWords] = useState(WORDS.slice(0, 10));
   const [i, setI] = useState(0);
   const [st, setSt] = useState<State>("idle");
@@ -46,7 +55,7 @@ function Test() {
   const w = (words[i] ?? WORDS[0])!;
   const finished = i >= words.length;
 
-  useEffect(() => { setWords(shuffle(WORDS).slice(0, 10)); return () => { stopAudio(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []);
+  useEffect(() => { setWords(shuffle(WORDS).slice(0, 10)); return () => { stopAudio(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const analyze = () => {
     setSt("analyzing");
@@ -96,6 +105,7 @@ function Test() {
     const pct = Math.round((correct / words.length) * 100);
     return (
       <AppShell title="Reading test">
+        <LessonSwitch to="/test" current={lesson} />
         <div className="learning-surface p-7 text-center">
           <Trophy className="mx-auto h-12 w-12 text-gold" />
           <h2 className="mt-3 text-2xl font-bold">Test complete</h2>
@@ -121,7 +131,8 @@ function Test() {
 
   return (
     <AppShell title="Reading test">
-      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>Word {i + 1} of 10</span><span>{correct} correct</span></div>
+      <LessonSwitch to="/test" current={lesson} />
+      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{LESSONS[lesson].en} · Word {i + 1} of {words.length}</span><span>{correct} correct</span></div>
       <div className="mb-4 flex gap-1">{words.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? "bg-primary" : "bg-muted"}`} />)}</div>
       <div className="learning-surface p-6 text-center">
         <p className="mb-2 text-sm text-muted-foreground">Read this word aloud</p>
