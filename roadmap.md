@@ -1,4 +1,7 @@
-# Illustration update
-- [x] Add four pastel stage landmark illustrations.
-- [x] Replace all 42 word emojis in Learn and Quiz with framed watercolor illustrations.
-- [x] Verify image coverage and mobile presentation.
+# Qaf premium refinement
+- [x] Audit existing screens, functionality and assets.
+- [ ] Apply shared palette, typography, navigation and accessible controls.
+- [ ] Refine Home curriculum and saved-progress continuation.
+- [ ] Refine Learn, Quiz, Test and Profile without changing their engines.
+- [ ] Verify mobile layouts, navigation, saved progress, audio and assessment states.
+- [ ] Document pre-existing functional limitations separately.
