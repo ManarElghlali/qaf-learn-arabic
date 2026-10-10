@@ -194,3 +194,21 @@ body { letter-spacing: 0; }
 .qaf-progress::-webkit-progress-bar { background: var(--muted); border-radius: 99px; }
 .qaf-progress::-webkit-progress-value { background: var(--primary); border-radius: 99px; }
 .qaf-progress::-moz-progress-bar { background: var(--primary); border-radius: 99px; }
+
+/* Reference-led Home: compact framed tools and balanced landmark destinations. */
+.qaf-brand-symbol { font-size: 52px; line-height: 1.15; }
+.qaf-header + .qaf-main { padding-top: 8px; }
+.home-progress .qaf-progress { background: color-mix(in oklch, var(--primary-foreground) 20%, transparent); }
+.home-progress .qaf-progress::-webkit-progress-bar { background: color-mix(in oklch, var(--primary-foreground) 20%, transparent); }
+.home-progress .qaf-progress::-webkit-progress-value { background: var(--gold); }
+.home-progress .qaf-progress::-moz-progress-bar { background: var(--gold); }
+.continue-lesson { box-shadow: var(--shadow-soft); }
+.destination { overflow: hidden; border: 1px solid var(--border); border-radius: 22px; }
+.destination-heading { display: flex; align-items: center; gap: 12px; min-height: 112px; padding: 12px; }
+.destination-heading::-webkit-details-marker { display: none; }
+.destination-art { width: 88px; height: 88px; flex-shrink: 0; border-radius: 18px; object-fit: cover; }
+.destination[open] .destination-heading > svg { transform: rotate(90deg); }
+@media (max-width: 374px) {
+  .destination-art { width: 72px; height: 80px; }
+  .destination-heading { gap: 8px; }
+}
