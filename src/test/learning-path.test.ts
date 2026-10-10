@@ -15,9 +15,9 @@ describe("Existing curriculum and saved continuation", () => {
   it("offers review when all 42 words are complete", () => {
     expect(learningSummary(WORDS.map(w => w.id))).toEqual({ completed: 42, percent: 100, resumeIndex: 0, status: "Completed" });
   });
-  it("keeps only Fatha available within the four requested short lessons", () => {
+  it("opens Fatha and Fatha & Kasra within the four short lessons, in order", () => {
     expect(SHORT_LESSONS.map(l => l.ar)).toEqual(["الفتحة", "الفتحة والكسرة", "الفتحة والضمة والكسرة", "السكون"]);
-    expect(SHORT_LESSONS.filter(l => l.available).map(l => l.en)).toEqual(["Fatha"]);
+    expect(SHORT_LESSONS.filter(l => l.available).map(l => l.en)).toEqual(["Fatha", "Fatha & Kasra"]);
   });
   it("limits Long Sounds to the three madd lessons", () => {
     expect(MADD_LESSONS.map(l => l.en)).toEqual(["Madd Alif", "Madd Waw", "Madd Yaa"]);

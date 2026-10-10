@@ -1,10 +1,10 @@
-import { WORDS } from "@/lib/words";
+import { WORDS, type Word } from "@/lib/words";
 
 export const SHORT_LESSONS = [
-  { ar: "الفتحة", en: "Fatha", available: true },
-  { ar: "الفتحة والكسرة", en: "Fatha & Kasra", available: false },
-  { ar: "الفتحة والضمة والكسرة", en: "Fatha, Damma & Kasra", available: false },
-  { ar: "السكون", en: "Sukun", available: false },
+  { ar: "الفتحة", en: "Fatha", available: true, lesson: "fatha" as const },
+  { ar: "الفتحة والكسرة", en: "Fatha & Kasra", available: true, lesson: "kasra" as const },
+  { ar: "الفتحة والضمة والكسرة", en: "Fatha, Damma & Kasra", available: false, lesson: null },
+  { ar: "السكون", en: "Sukun", available: false, lesson: null },
 ];
 export const MADD_LESSONS = [
   { ar: "مد الألف", en: "Madd Alif" },
@@ -18,13 +18,13 @@ export const TANWEEN_LESSONS = [
 ];
 
 // Existing saved completion IDs determine the next word; no new progress schema.
-export function learningSummary(learned: number[]) {
-  const completed = WORDS.filter((w) => learned.includes(w.id)).length;
-  const next = WORDS.findIndex((w) => !learned.includes(w.id));
+export function learningSummary(learned: number[], words: Word[] = WORDS) {
+  const completed = words.filter((w) => learned.includes(w.id)).length;
+  const next = words.findIndex((w) => !learned.includes(w.id));
   return {
     completed,
-    percent: Math.round(completed / WORDS.length * 100),
+    percent: Math.round(completed / words.length * 100),
     resumeIndex: next < 0 ? 0 : next,
-    status: completed === WORDS.length ? "Completed" : completed > 0 ? "In progress" : "Available",
+    status: completed === words.length ? "Completed" : completed > 0 ? "In progress" : "Available",
   };
 }

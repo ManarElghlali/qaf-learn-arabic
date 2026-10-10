@@ -2,10 +2,11 @@ import { Link } from "@tanstack/react-router";
 import { Check, ChevronRight, LockKeyhole } from "lucide-react";
 import { Ar } from "@/components/AppShell";
 import { SHORT_LESSONS } from "@/lib/learning-path";
+import { LESSONS } from "@/lib/lessons";
 
 type DestinationProps = {
   ar: string; en: string; image: string; landmark: string; accent: string;
-  live: boolean; status: string; completed: number;
+  live: boolean; status: string; completed: Record<string, number>;
   lessons: { ar: string; en: string }[];
 };
 
@@ -26,8 +27,8 @@ export function CurriculumDestination({ ar, en, image, landmark, accent, live, s
       <summary className="destination-heading cursor-pointer list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Short Sounds lessons">{heading}</summary>
       <div className="mx-4 mb-3 border-t border-border">
         {SHORT_LESSONS.map(l => l.available ? (
-          <Link to="/learn" key={l.en} className="flex min-h-16 items-center justify-between gap-3 border-b border-border/60 py-3">
-            <span className="text-xs text-primary">{completed}/42</span>
+          <Link to="/learn" search={{ lesson: l.lesson! }} key={l.en} className="flex min-h-16 items-center justify-between gap-3 border-b border-border/60 py-3">
+            <span className="text-xs text-primary">{completed[l.lesson!]}/{LESSONS[l.lesson!].words.length}</span>
             <span className="text-right"><Ar className="block text-lg font-bold">{l.ar}</Ar><span className="text-xs text-muted-foreground">{l.en}</span></span>
           </Link>
         ) : (

@@ -1,3 +1,17 @@
+import kasra1 from "@/assets/kasra/kasra-01.jpg";
+import kasra2 from "@/assets/kasra/kasra-02.jpg";
+import kasra3 from "@/assets/kasra/kasra-03.jpg";
+import kasra4 from "@/assets/kasra/kasra-04.jpg";
+import kasra5 from "@/assets/kasra/kasra-05.jpg";
+import kasra6 from "@/assets/kasra/kasra-06.jpg";
+import kasra7 from "@/assets/kasra/kasra-07.jpg";
+import kasra8 from "@/assets/kasra/kasra-08.jpg";
+import kasra9 from "@/assets/kasra/kasra-09.jpg";
+import kasra10 from "@/assets/kasra/kasra-10.jpg";
+import kasra11 from "@/assets/kasra/kasra-11.jpg";
+import kasra12 from "@/assets/kasra/kasra-12.jpg";
+import kasra13 from "@/assets/kasra/kasra-13.jpg";
+import kasra14 from "@/assets/kasra/kasra-14.jpg";
 import word1 from "@/assets/words/word-01.jpg";
 import word2 from "@/assets/words/word-02.jpg";
 import word3 from "@/assets/words/word-03.jpg";
@@ -84,4 +98,18 @@ export const WORD_ILLUSTRATIONS: Record<number, string> = {
   40: word40,
   41: word41,
   42: word42,
+  101: kasra1,
+  102: kasra2,
+  103: kasra3,
+  104: kasra4,
+  105: kasra5,
+  106: kasra6,
+  107: kasra7,
+  108: kasra8,
+  109: kasra9,
+  110: kasra10,
+  111: kasra11,
+  112: kasra12,
+  113: kasra13,
+  114: kasra14,
 };
