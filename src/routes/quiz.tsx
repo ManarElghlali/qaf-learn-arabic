@@ -27,7 +27,7 @@ function Quiz() {
   const q = useMemo(() => {
     const pool: typeof WORDS = misses.length && Math.random() < 0.5 ? WORDS.filter((w) => misses.includes(w.id)) : WORDS;
     const w = pool[Math.floor(Math.random() * pool.length)]!;
-    const mode = (["build", "listen", "picture"] as Mode[])[n % 3];
+    const mode = (["build", "listen", "picture"] as Mode[])[n % 3]!;
     return { w, mode, opts: shuffle([w, ...shuffle(WORDS.filter((x) => x.id !== w.id)).slice(0, 3)]) };
   }, [n]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => stopAudio(), []);
