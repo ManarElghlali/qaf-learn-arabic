@@ -5,10 +5,14 @@ import { AppShell, Ar } from "@/components/AppShell";
 import { WORDS } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { touchStreak, update, useProgress } from "@/lib/progress";
+import { WordIllustration } from "@/components/WordIllustration";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/learn")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Learn Fatha words — Qaf" },
       { name: "description", content: "Tap each sound unit and hear the full word for 42 Fatha words." },
       { property: "og:title", content: "Learn Fatha words — Qaf" },
@@ -38,7 +42,7 @@ function Learn() {
       </div>
       <div className="mb-4 h-1.5 rounded-full bg-muted"><div className="h-1.5 rounded-full bg-primary transition-all" style={{ width: `${((i + 1) / WORDS.length) * 100}%` }} /></div>
       <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-sm">
-        <button aria-label="Play word" onClick={() => playWord(w.ar)} className="mx-auto mb-4 flex h-32 w-32 items-center justify-center rounded-full bg-accent text-6xl">{w.icon}</button>
+        <Button variant="ghost" aria-label="Play word" onClick={() => playWord(w.ar)} className="mx-auto mb-4 block h-auto w-48 max-w-full rounded-2xl p-0"><WordIllustration word={w} /></Button>
         <Ar className="block text-6xl leading-relaxed">{w.ar}</Ar>
         {p.translit && <p className="mt-1 text-muted-foreground">{w.tr}</p>}
         <p className="mt-1 font-medium">{w.en}</p>

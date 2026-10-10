@@ -3,10 +3,16 @@ import { AppShell, Ar } from "@/components/AppShell";
 import { useProgress } from "@/lib/progress";
 import { WORDS } from "@/lib/words";
 import { Flame } from "lucide-react";
+import castle from "@/assets/stages/castle.jpg";
+import lighthouse from "@/assets/stages/lighthouse.jpg";
+import garden from "@/assets/stages/garden.jpg";
+import observatory from "@/assets/stages/observatory.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { title: "Qaf ق — Learn to read Arabic step by step" },
       { name: "description", content: "Learn Arabic reading starting with short sounds: 42 Fatha words with audio, quizzes and a reading test." },
       { property: "og:title", content: "Qaf ق — Learn to read Arabic" },
@@ -17,10 +23,10 @@ export const Route = createFileRoute("/")({
 });
 
 const stages = [
-  { ar: "الحركات القصيرة", en: "Short Sounds", live: true },
-  { ar: "المدود", en: "Long Sounds" },
-  { ar: "التنوين", en: "Tanween" },
-  { ar: "الشدة", en: "Shadda" },
+  { ar: "الحركات القصيرة", en: "Short Sounds", live: true, image: castle, landmark: "Castle", accent: "stage-sage" },
+  { ar: "المدود", en: "Long Sounds", image: lighthouse, landmark: "Lighthouse", accent: "stage-sky" },
+  { ar: "التنوين", en: "Tanween", image: garden, landmark: "Garden", accent: "stage-lavender" },
+  { ar: "الشدة", en: "Shadda", image: observatory, landmark: "Observatory", accent: "stage-gold" },
 ];
 const lessons = [
   { ar: "الفتحة", en: "Fatha", live: true },
@@ -47,10 +53,10 @@ function Home() {
       <h2 className="mb-3 font-semibold">Stages</h2>
       <div className="space-y-3">
         {stages.map((s) => (
-          <div key={s.en} className="rounded-2xl border border-border bg-card p-4">
-            <div className="flex items-center justify-between">
-              <div><Ar className="block text-xl">{s.ar}</Ar><span className="text-sm text-muted-foreground">{s.en}</span></div>
-              {!s.live && <Soon />}
+          <div key={s.en} className={`rounded-2xl border border-border p-4 ${s.accent}`}>
+            <div className="flex items-center gap-4">
+              <img src={s.image} alt={`${s.landmark} illustration`} width={512} height={512} loading="lazy" className="h-24 w-24 shrink-0 rounded-xl object-cover sm:h-28 sm:w-28" />
+              <div className="min-w-0"><Ar className="block text-xl">{s.ar}</Ar><span className="block text-sm text-muted-foreground">{s.en}</span>{!s.live && <div className="mt-2"><Soon /></div>}</div>
             </div>
             {s.live && (
               <div className="mt-3 grid grid-cols-2 gap-2">

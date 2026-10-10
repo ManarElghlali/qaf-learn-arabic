@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep word artwork keyed by the stable curriculum word ID in a shared illustration registry and render it through WordIllustration, so Learn and Quiz always show the same image without coupling artwork to pronunciation data.
