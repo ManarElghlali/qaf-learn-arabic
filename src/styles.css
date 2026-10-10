@@ -48,6 +48,10 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
+  --color-gold: var(--gold);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-error-soft: var(--error-soft);
   --color-stage-sage: var(--stage-sage);
   --color-stage-sky: var(--stage-sky);
   --color-stage-lavender: var(--stage-lavender);
@@ -68,30 +72,35 @@
 }
 
 :root {
-  --stage-sage: oklch(0.95 0.024 150);
-  --stage-sky: oklch(0.96 0.021 230);
-  --stage-lavender: oklch(0.96 0.019 305);
-  --stage-gold: oklch(0.96 0.034 85);
-  --radius: 0.875rem;
-  --background: oklch(0.975 0.008 85);
-  --foreground: oklch(0.24 0.03 170);
-  --card: oklch(0.995 0.004 85);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --gold: oklch(0.799 0.096 80);
+  --success: var(--primary);
+  --success-soft: var(--stage-sage);
+  --error-soft: oklch(0.962 0.019 25);
+  --shadow-soft: 0 4px 18px oklch(0.302 0.037 175 / 0.035);
+  --stage-sage: oklch(0.962 0.009 163);
+  --stage-sky: oklch(0.963 0.012 233);
+  --stage-lavender: oklch(0.955 0.014 309);
+  --stage-gold: oklch(0.957 0.018 77);
+  --radius: 1.125rem;
+  --background: oklch(0.985 0.008 90);
+  --foreground: oklch(0.302 0.037 175);
+  --card: oklch(0.998 0.003 90);
+  --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.45 0.08 170);
-  --primary-foreground: oklch(0.98 0.01 85);
-  --secondary: oklch(0.93 0.03 80);
-  --secondary-foreground: oklch(0.3 0.04 170);
-  --muted: oklch(0.94 0.01 85);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.94 0.03 160);
-  --accent-foreground: oklch(0.208 0.042 265.755);
+  --primary: oklch(0.379 0.056 180);
+  --primary-foreground: oklch(0.985 0.008 90);
+  --secondary: oklch(0.957 0.018 77);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.953 0.007 100);
+  --muted-foreground: oklch(0.589 0.023 171);
+  --accent: oklch(0.962 0.009 163);
+  --accent-foreground: var(--foreground);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.9 0.015 85);
-  --input: oklch(0.9 0.015 85);
-  --ring: oklch(0.45 0.08 170);
+  --border: oklch(0.916 0.009 85);
+  --input: var(--border);
+  --ring: var(--primary);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -108,6 +117,10 @@
 }
 
 .dark {
+  --gold: oklch(0.799 0.096 80);
+  --success: oklch(0.78 0.08 160);
+  --success-soft: oklch(0.27 0.035 150);
+  --error-soft: oklch(0.27 0.035 25);
   --stage-sage: oklch(0.27 0.035 150);
   --stage-sky: oklch(0.27 0.035 230);
   --stage-lavender: oklch(0.27 0.035 305);
@@ -162,3 +175,18 @@
 .stage-sky { background-color: var(--stage-sky); }
 .stage-lavender { background-color: var(--stage-lavender); }
 .stage-gold { background-color: var(--stage-gold); }
+
+/* Shared learning surfaces keep Arabic diacritics clear and controls stable. */
+body { letter-spacing: 0; }
+.font-arabic { line-height: 1.65; }
+.qaf-shell { min-height: 100dvh; }
+.qaf-header { padding-top: max(16px, env(safe-area-inset-top)); }
+.qaf-main { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+.qaf-nav { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+.learning-surface { border: 1px solid var(--border); border-radius: 24px; background: var(--card); box-shadow: var(--shadow-soft); }
+.sound-button { width: 64px; height: 64px; border-radius: 18px; font-size: 32px; padding: 0; flex-shrink: 0; }
+.answer-button { min-height: 86px; font-size: 36px; white-space: normal; padding: 12px 8px; line-height: 1.7; }
+.mic-button { width: 96px; height: 96px; border-radius: 50%; }
+.mic-button svg { width: 32px; height: 32px; }
+.recording-state { box-shadow: 0 0 0 10px var(--error-soft); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
