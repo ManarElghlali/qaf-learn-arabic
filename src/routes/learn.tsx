@@ -4,8 +4,9 @@ import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { WORDS } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
-import { touchStreak, update, useProgress } from "@/lib/progress";
+import { touchStreak, update, useProgress, readProgress } from "@/lib/progress";
 import { WordIllustration } from "@/components/WordIllustration";
+import { learningSummary } from "@/lib/learning-path";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/learn")({
@@ -25,8 +26,9 @@ export const Route = createFileRoute("/learn")({
 function Learn() {
   const p = useProgress();
   const [i, setI] = useState(0);
-  const w = WORDS[i]!;
-  useEffect(() => () => stopAudio(), []);
+  const w = WORDS[i];
+  useEffect(() => { setI(learningSummary(readProgress().learned).resumeIndex); return () => stopAudio(); }, []);
+  if (!w) return null;
   const go = (d: number) => {
     update((s) => (s.learned.includes(w.id) ? s : { ...s, learned: [...s.learned, w.id] }));
     touchStreak();
@@ -34,32 +36,32 @@ function Learn() {
   };
   return (
     <AppShell title="Fatha · الفتحة">
-      <div className="mb-3 flex items-center justify-between text-sm text-muted-foreground">
+      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground">
         <span>Word {i + 1} of {WORDS.length}</span>
         <label className="flex items-center gap-2">Transliteration
           <input type="checkbox" checked={p.translit} onChange={(e) => update((s) => ({ ...s, translit: e.target.checked }))} className="accent-primary" />
         </label>
       </div>
       <div className="mb-4 h-1.5 rounded-full bg-muted"><div className="h-1.5 rounded-full bg-primary transition-all" style={{ width: `${((i + 1) / WORDS.length) * 100}%` }} /></div>
-      <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-sm">
-        <Button variant="ghost" aria-label="Play word" onClick={() => playWord(w.ar)} className="mx-auto mb-4 block h-auto w-48 max-w-full rounded-2xl p-0"><WordIllustration word={w} /></Button>
-        <Ar className="block text-6xl leading-relaxed">{w.ar}</Ar>
+      <div className="learning-surface p-5 text-center">
+        <Button variant="ghost" aria-label="Play word" onClick={() => playWord(w.ar)} className="mx-auto mb-2 block h-auto w-36 max-w-full rounded-2xl p-0"><WordIllustration word={w} className="w-36" /></Button>
+        <Ar className="block text-6xl font-semibold leading-relaxed">{w.ar}</Ar>
         {p.translit && <p className="mt-1 text-muted-foreground">{w.tr}</p>}
         <p className="mt-1 font-medium">{w.en}</p>
-        <div dir="rtl" className="mt-6 flex justify-center gap-3">
+        <div dir="rtl" className="mt-5 flex justify-center gap-3">
           {w.units.map((u, k) => (
-            <button key={k} onClick={() => playUnit(u)} className="h-16 w-16 rounded-2xl border-2 border-primary/30 bg-background text-3xl active:scale-95">
+            <Button key={k} variant="outline" aria-label={`Play sound ${u}`} onClick={() => playUnit(u)} className="sound-button border-primary/20 bg-accent text-primary">
               <Ar>{u}</Ar>
-            </button>
+            </Button>
           ))}
         </div>
-        <button onClick={() => playWord(w.ar)} className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground">
+        <Button onClick={() => playWord(w.ar)} className="mt-5 w-full">
           <Volume2 className="h-5 w-5" /> Listen
-        </button>
+        </Button>
       </div>
       <div className="mt-5 flex gap-3">
-        <button disabled={i === 0} onClick={() => go(-1)} className="flex flex-1 items-center justify-center gap-1 rounded-2xl border border-border py-3 disabled:opacity-40"><ChevronLeft className="h-4 w-4" />Back</button>
-        <button onClick={() => go(1)} className="flex flex-1 items-center justify-center gap-1 rounded-2xl bg-secondary py-3 font-semibold">Next<ChevronRight className="h-4 w-4" /></button>
+        <Button variant="outline" disabled={i === 0} onClick={() => go(-1)} className="flex-1"><ChevronLeft className="h-4 w-4" />Back</Button>
+        <Button onClick={() => go(1)} className="flex-1">Next<ChevronRight className="h-4 w-4" /></Button>
       </div>
     </AppShell>
   );

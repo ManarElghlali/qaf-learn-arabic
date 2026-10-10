@@ -190,3 +190,7 @@ body { letter-spacing: 0; }
 .mic-button svg { width: 32px; height: 32px; }
 .recording-state { box-shadow: 0 0 0 10px var(--error-soft); }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+.qaf-progress { appearance: none; display: block; overflow: hidden; border: 0; border-radius: 99px; background: var(--muted); }
+.qaf-progress::-webkit-progress-bar { background: var(--muted); border-radius: 99px; }
+.qaf-progress::-webkit-progress-value { background: var(--primary); border-radius: 99px; }
+.qaf-progress::-moz-progress-bar { background: var(--primary); border-radius: 99px; }
