@@ -40,7 +40,7 @@ function Test() {
   const media = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
   const alts = useRef<string[]>([]);
-  const w = words[i] ?? WORDS[0];
+  const w = (words[i] ?? WORDS[0])!;
   const finished = i >= words.length;
 
   useEffect(() => { setWords(shuffle(WORDS).slice(0, 10)); return () => { stopAudio(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []);

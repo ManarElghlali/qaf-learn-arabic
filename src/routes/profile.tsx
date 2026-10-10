@@ -26,7 +26,7 @@ function Profile() {
   const toggleRem = async () => {
     if (!p.reminders && "Notification" in window) {
       const r = await Notification.requestPermission();
-      if (r !== "granted") return toast.error("Notifications are blocked in your browser");
+      if (r !== "granted") { toast.error("Notifications are blocked in your browser"); return; }
       new Notification("Qaf", { body: "Daily reminders are on. See you tomorrow!" });
     }
     update((s) => ({ ...s, reminders: !s.reminders }));

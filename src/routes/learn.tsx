@@ -21,7 +21,7 @@ export const Route = createFileRoute("/learn")({
 function Learn() {
   const p = useProgress();
   const [i, setI] = useState(0);
-  const w = WORDS[i];
+  const w = WORDS[i]!;
   useEffect(() => () => stopAudio(), []);
   const go = (d: number) => {
     update((s) => (s.learned.includes(w.id) ? s : { ...s, learned: [...s.learned, w.id] }));
