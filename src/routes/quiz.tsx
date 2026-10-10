@@ -2,12 +2,14 @@ import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Check, RotateCcw, Volume2, X } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
-import { WORDS, shuffle, type Word } from "@/lib/words";
+import { shuffle, type Word } from "@/lib/words";
+import { LESSONS, parseLesson } from "@/lib/lessons";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { Button } from "@/components/ui/button";
 import { WordIllustration } from "@/components/WordIllustration";
 
 export const Route = createFileRoute("/quiz")({
+  validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s.lesson) }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -18,12 +20,17 @@ export const Route = createFileRoute("/quiz")({
       { property: "og:description", content: "Three quiz modes to practise reading Arabic." },
     ],
   }),
-  component: () => <ClientOnly fallback={<AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>}><Quiz /></ClientOnly>,
+  component: () => <ClientOnly fallback={<AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>}><QuizRoute /></ClientOnly>,
 });
 
 type Mode = "build" | "listen" | "picture";
 
-function Quiz() {
+function QuizRoute() {
+  const { lesson } = Route.useSearch();
+  return <Quiz key={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} />;
+}
+
+function Quiz({ words: WORDS, label }: { words: Word[]; label: string }) {
   const [n, setN] = useState(0);
   const [score, setScore] = useState(0);
   const [misses, setMisses] = useState<number[]>([]);
@@ -42,8 +49,8 @@ function Quiz() {
   };
   return (
     <AppShell title="Quiz">
-      <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>Fatha · Question {n + 1}</span><span className="flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
-      {q.mode === "build" && <Build key={n} w={q.w} onDone={done} />}
+      <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{label} · Question {n + 1}</span><span className="flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
+      {q.mode === "build" && <Build key={n} w={q.w} words={WORDS} onDone={done} />}
       {q.mode !== "build" && <Pick key={n} w={q.w} opts={q.opts} mode={q.mode} onDone={done} />}
     </AppShell>
   );
@@ -74,7 +81,7 @@ function Pick({ w, opts, mode, onDone }: { w: Word; opts: Word[]; mode: Mode; on
   );
 }
 
-function Build({ w, onDone }: { w: Word; onDone: (ok: boolean) => void }) {
+function Build({ w, words: WORDS, onDone }: { w: Word; words: Word[]; onDone: (ok: boolean) => void }) {
   const blocks = useMemo(() => {
     const extra = shuffle(WORDS.flatMap((x) => x.units).filter((u) => !w.units.includes(u))).slice(0, 2);
     return shuffle([...w.units, ...extra].map((u, k) => ({ u, k })));

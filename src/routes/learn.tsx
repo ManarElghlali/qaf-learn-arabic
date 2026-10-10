@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
-import { WORDS } from "@/lib/words";
+import { LESSONS, parseLesson, lessonLearned } from "@/lib/lessons";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { touchStreak, update, useProgress, readProgress } from "@/lib/progress";
 import { WordIllustration } from "@/components/WordIllustration";
@@ -10,6 +10,7 @@ import { learningSummary } from "@/lib/learning-path";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/learn")({
+  validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s.lesson) }),
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -24,18 +25,21 @@ export const Route = createFileRoute("/learn")({
 });
 
 function Learn() {
+  const { lesson } = Route.useSearch();
+  const L = LESSONS[lesson];
+  const WORDS = L.words;
   const p = useProgress();
   const [i, setI] = useState(0);
   const w = WORDS[i];
-  useEffect(() => { setI(learningSummary(readProgress().learned).resumeIndex); return () => stopAudio(); }, []);
+  useEffect(() => { setI(learningSummary(lessonLearned(readProgress(), lesson), WORDS).resumeIndex); return () => stopAudio(); }, [lesson]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!w) return null;
   const go = (d: number) => {
-    update((s) => (s.learned.includes(w.id) ? s : { ...s, learned: [...s.learned, w.id] }));
+    update((s) => (s[L.key].includes(w.id) ? s : { ...s, [L.key]: [...s[L.key], w.id] }));
     touchStreak();
     setI((x) => Math.min(WORDS.length - 1, Math.max(0, x + d)));
   };
   return (
-    <AppShell title="Fatha · الفتحة">
+    <AppShell title={`${L.en} · ${L.ar}`}>
       <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground">
         <span>Word {i + 1} of {WORDS.length}</span>
         <label className="flex items-center gap-2">Transliteration

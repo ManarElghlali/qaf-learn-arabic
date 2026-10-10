@@ -5,6 +5,7 @@ import { useProgress } from "@/lib/progress";
 import { WORDS } from "@/lib/words";
 import { learningSummary, SHORT_LESSONS, MADD_LESSONS, TANWEEN_LESSONS } from "@/lib/learning-path";
 import { ArrowRight, Flame } from "lucide-react";
+import { KASRA_WORDS } from "@/lib/lessons";
 import { CurriculumDestination } from "@/components/CurriculumDestination";
 import castle from "@/assets/stages/castle.jpg";
 import lighthouse from "@/assets/stages/lighthouse.jpg";
@@ -50,13 +51,13 @@ function Home() {
         <div className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-4">
           <img src={castle} alt="Fatha castle" width={80} height={80} className="aspect-square w-20 rounded-2xl object-cover" />
           <div className="min-w-0"><div className="flex items-start justify-between gap-2"><div><Ar className="block text-xl font-bold text-primary">الفَتْحَة</Ar><p className="text-[11px] text-muted-foreground">Fatha</p></div><span className="pt-2 text-[10px] text-muted-foreground">{summary.completed}/{WORDS.length}</span></div>
-            <Button asChild className="mt-2 h-11 w-full justify-between rounded-full px-4 text-xs"><Link to="/learn"><span>{completed ? "Review Fatha" : started ? "Continue" : "Start Learning"}</span><ArrowRight /></Link></Button>
+            <Button asChild className="mt-2 h-11 w-full justify-between rounded-full px-4 text-xs"><Link to="/learn" search={{ lesson: "fatha" }}><span>{completed ? "Review Fatha" : started ? "Continue" : "Start Learning"}</span><ArrowRight /></Link></Button>
           </div>
         </div>
         {started && !completed && <p className="mt-3 text-right text-[11px] text-muted-foreground">Word {summary.resumeIndex + 1} of {WORDS.length}</p>}
       </section>
       <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-bold">Learning journey</h2><Ar className="text-base text-muted-foreground">رحلة التعلّم</Ar></div>
-      <div className="space-y-3">{stages.map(s => <CurriculumDestination key={s.en} {...s} status={summary.status} completed={summary.completed} />)}</div>
+      <div className="space-y-3">{stages.map(s => <CurriculumDestination key={s.en} {...s} status={summary.status} completed={{ fatha: summary.completed, kasra: learningSummary(p.learnedKasra, KASRA_WORDS).completed }} />)}</div>
     </AppShell>
   );
 }
