@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { useProgress } from "@/lib/progress";
 import { WORDS } from "@/lib/words";
 import { learningSummary, SHORT_LESSONS, MADD_LESSONS, TANWEEN_LESSONS } from "@/lib/learning-path";
-import { ArrowRight, BookOpen, Check, ChevronLeft, Flame, LockKeyhole } from "lucide-react";
+import { ArrowRight, Flame } from "lucide-react";
+import { CurriculumDestination } from "@/components/CurriculumDestination";
 import castle from "@/assets/stages/castle.jpg";
 import lighthouse from "@/assets/stages/lighthouse.jpg";
 import garden from "@/assets/stages/garden.jpg";
@@ -36,43 +37,26 @@ function Home() {
   const completed = summary.completed === WORDS.length;
   return (
     <AppShell title="Qaf">
-      <section aria-label="Your learning progress" className="mb-5">
-        <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-          <p className="text-sm font-semibold">Fatha progress <span className="ml-1 text-xs font-medium text-muted-foreground">{summary.completed}/{WORDS.length}</span></p>
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground"><Flame className="h-4 w-4 text-gold" />{p.streak} day streak</span>
+      <section aria-label="Your learning progress" className="home-progress mb-4 grid grid-cols-[minmax(0,1fr)_48px] items-center gap-4 rounded-3xl bg-primary p-4 text-primary-foreground">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-sm font-semibold">Fatha progress</h2>{p.streak > 0 && <span className="flex items-center gap-1 text-[11px]"><Flame className="h-3.5 w-3.5 text-gold" />{p.streak} day streak</span>}</div>
+          <p className="mb-2 mt-1 text-xs opacity-80">{summary.completed}/{WORDS.length} words learned</p>
+          <progress aria-label="Fatha progress" value={summary.completed} max={WORDS.length} className="qaf-progress h-1.5 w-full" />
         </div>
-        <progress aria-label="Fatha progress" value={summary.completed} max={WORDS.length} className="qaf-progress h-1.5 w-full" />
+        <Ar className="text-center text-5xl text-gold">ق</Ar>
       </section>
-      <section aria-label="Continue your lesson" className="mb-7">
-        <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-          <div className="min-w-0"><h2 className="text-xl font-bold">{completed ? "Keep your reading fluent" : started ? "Your next word awaits" : "Your Arabic journey begins"}</h2><p className="mt-1 text-sm text-muted-foreground">Short Sounds · Fatha · {completed ? "42 words completed" : `Word ${summary.resumeIndex + 1} of ${WORDS.length}`}</p></div>
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent text-primary"><BookOpen className="h-5 w-5" /></span>
+      <section aria-label="Continue your lesson" className="continue-lesson mb-6 rounded-3xl border border-border bg-stage-sage p-4">
+        <h2 className="mb-3 text-sm font-bold">{completed ? "Review your lesson" : started ? "Continue Learning" : "Start Learning"}</h2>
+        <div className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-4">
+          <img src={castle} alt="Fatha castle" width={80} height={80} className="aspect-square w-20 rounded-2xl object-cover" />
+          <div className="min-w-0"><div className="flex items-start justify-between gap-2"><div><Ar className="block text-xl font-bold text-primary">الفَتْحَة</Ar><p className="text-[11px] text-muted-foreground">Fatha</p></div><span className="pt-2 text-[10px] text-muted-foreground">{summary.completed}/{WORDS.length}</span></div>
+            <Button asChild className="mt-2 h-11 w-full justify-between rounded-full px-4 text-xs"><Link to="/learn"><span>{completed ? "Review Fatha" : started ? "Continue" : "Start Learning"}</span><ArrowRight /></Link></Button>
+          </div>
         </div>
-        <Button asChild className="w-full justify-between"><Link to="/learn"><span>{completed ? "Review Fatha" : started ? "Continue Learning" : "Start Learning"}</span><ArrowRight className="h-4 w-4" /></Link></Button>
+        {started && !completed && <p className="mt-3 text-right text-[11px] text-muted-foreground">Word {summary.resumeIndex + 1} of {WORDS.length}</p>}
       </section>
-      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center"><h2 className="text-base font-bold">Learning journey</h2><Ar className="text-lg text-muted-foreground">رحلة التعلّم</Ar></div>
-      <div className="space-y-3">
-        {stages.map((s) => (
-          <article key={s.en} className={`overflow-hidden rounded-3xl border border-border/70 ${s.accent}`}>
-            <div dir="rtl" className="grid grid-cols-[72px_minmax(0,1fr)] items-center gap-3 p-4">
-              <img src={s.image} alt={`${s.landmark} illustration`} width={512} height={512} loading="lazy" className="h-[72px] w-[72px] shrink-0 rounded-2xl object-cover" />
-              <div className="min-w-0 text-right"><Ar className="block text-xl font-semibold">{s.ar}</Ar><p dir="ltr" className="text-right text-xs text-muted-foreground">{s.en}</p>
-                <p dir="ltr" className={`mt-1.5 flex items-center justify-end gap-1 text-[11px] font-semibold ${s.live ? "text-primary" : "text-muted-foreground"}`}>
-                  {s.live ? <>{summary.status === "Completed" && <Check className="h-3 w-3" />}{summary.status}</> : <><LockKeyhole className="h-3 w-3" /><Ar>قريبًا</Ar> · Coming Soon</>}
-                </p>
-              </div>
-            </div>
-            {s.live && <div className="mx-4 mb-2 border-t border-primary/10">
-              {SHORT_LESSONS.map((l) => l.available ? <Link key={l.en} to="/learn" dir="rtl" className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <div className="min-w-0"><Ar className="block text-lg font-semibold">{l.ar}</Ar><p dir="ltr" className="text-right text-[11px] text-muted-foreground">{l.en} · 42 words</p></div><ChevronLeft className="h-4 w-4 text-primary" />
-              </Link> : <div key={l.en} dir="rtl" aria-disabled="true" className="grid min-h-14 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-border/70 py-2 text-muted-foreground">
-                <div className="min-w-0"><Ar className="block text-base">{l.ar}</Ar><p dir="ltr" className="text-right text-[10px]">{l.en}</p></div><LockKeyhole aria-label="Coming Soon" className="h-3.5 w-3.5 shrink-0" />
-              </div>)}
-            </div>}
-            {!s.live && s.lessons.length > 0 && <div dir="rtl" aria-disabled="true" className="mx-4 mb-4 flex flex-wrap gap-x-3 gap-y-1 border-t border-border/70 pt-2 text-muted-foreground">{s.lessons.map(l => <Ar key={l.en} className="text-sm" >{l.ar}</Ar>)}</div>}
-          </article>
-        ))}
-      </div>
+      <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-bold">Learning journey</h2><Ar className="text-base text-muted-foreground">رحلة التعلّم</Ar></div>
+      <div className="space-y-3">{stages.map(s => <CurriculumDestination key={s.en} {...s} status={summary.status} completed={summary.completed} />)}</div>
     </AppShell>
   );
 }
