@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
@@ -67,6 +67,7 @@ function Learn() {
         <Button variant="outline" disabled={i === 0} onClick={() => go(-1)} className="flex-1"><ChevronLeft className="h-4 w-4" />Back</Button>
         <Button onClick={() => go(1)} className="flex-1">Next<ChevronRight className="h-4 w-4" /></Button>
       </div>
+      {i === WORDS.length - 1 && <Button asChild variant="outline" className="mt-3 w-full"><Link to="/quiz" search={{ lesson }}>Take the {L.en} quiz</Link></Button>}
     </AppShell>
   );
 }
