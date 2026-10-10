@@ -30,3 +30,14 @@ The two mentioned screenshots were not available as attachments. The existing li
 - Existing premium purchase and restore controls are demos, not real billing.
 
 These items require a separate functional phase; the redesign does not simulate results or conceal these limitations.
+
+## Validation
+- All five screens checked at 360×780 and 430×932, with no horizontal overflow; desktop presentation also reviewed.
+- Arabic words and tashkeel visually reviewed, including saved continuation to word 42.
+- All five navigation destinations opened their actual screens.
+- Saved IDs 1–3 resume at word 4; next-word completion and transliteration controls exercised.
+- Audio controls dispatched the exact full word أَكَلَ and isolated unit أَ to the existing playback engine. Actual voice quality remains device-dependent.
+- Actual build-answer checking, listen-mode progression and picture-match answers exercised in the existing quiz.
+- Microphone permission-denial state exercised. No successful recording or pronunciation result was simulated; real spoken assessment remains unverified in this headless environment.
+- Unavailable destinations contain no links or buttons.
+- Eight curriculum/continuation/routing tests passed; no browser runtime errors in the completed screen verification.

@@ -1,7 +1,7 @@
 # Qaf premium refinement
 - [x] Audit existing screens, functionality and assets.
-- [ ] Apply shared palette, typography, navigation and accessible controls.
-- [ ] Refine Home curriculum and saved-progress continuation.
-- [ ] Refine Learn, Quiz, Test and Profile without changing their engines.
-- [ ] Verify mobile layouts, navigation, saved progress, audio and assessment states.
-- [ ] Document pre-existing functional limitations separately.
+- [x] Apply shared palette, typography, navigation and accessible controls.
+- [x] Refine Home curriculum and saved-progress continuation.
+- [x] Refine Learn, Quiz, Test and Profile without changing their engines.
+- [x] Verify mobile layouts, navigation, saved progress, audio requests and microphone denial; real spoken assessment requires a supported device.
+- [x] Document pre-existing functional limitations separately.
