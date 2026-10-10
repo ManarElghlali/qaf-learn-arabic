@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Volume2 } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/quiz")({
       { property: "og:description", content: "Three quiz modes to practise reading Arabic." },
     ],
   }),
-  component: Quiz,
+  component: () => <ClientOnly fallback={<AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>}><Quiz /></ClientOnly>,
 });
 
 type Mode = "build" | "listen" | "picture";
