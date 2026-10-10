@@ -1,9 +1,11 @@
+import type React from "react";
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Check, RotateCcw, Volume2, X } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { shuffle, type Word } from "@/lib/words";
 import { LESSONS, parseLesson } from "@/lib/lessons";
+import { LessonSwitch } from "@/components/LessonSwitch";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { Button } from "@/components/ui/button";
 import { WordIllustration } from "@/components/WordIllustration";
@@ -27,10 +29,10 @@ type Mode = "build" | "listen" | "picture";
 
 function QuizRoute() {
   const { lesson } = Route.useSearch();
-  return <Quiz key={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} />;
+  return <Quiz key={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} switcher={<LessonSwitch to="/quiz" current={lesson} />} />;
 }
 
-function Quiz({ words: WORDS, label }: { words: Word[]; label: string }) {
+function Quiz({ words: WORDS, label, switcher }: { words: Word[]; label: string; switcher: React.ReactNode }) {
   const [n, setN] = useState(0);
   const [score, setScore] = useState(0);
   const [misses, setMisses] = useState<number[]>([]);
@@ -49,6 +51,7 @@ function Quiz({ words: WORDS, label }: { words: Word[]; label: string }) {
   };
   return (
     <AppShell title="Quiz">
+      {switcher}
       <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{label} · Question {n + 1}</span><span className="flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
       {q.mode === "build" && <Build key={n} w={q.w} words={WORDS} onDone={done} />}
       {q.mode !== "build" && <Pick key={n} w={q.w} opts={q.opts} mode={q.mode} onDone={done} />}

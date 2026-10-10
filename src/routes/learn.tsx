@@ -68,6 +68,7 @@ function Learn() {
         <Button onClick={() => go(1)} className="flex-1">Next<ChevronRight className="h-4 w-4" /></Button>
       </div>
       {i === WORDS.length - 1 && <Button asChild variant="outline" className="mt-3 w-full"><Link to="/quiz" search={{ lesson }}>Take the {L.en} quiz</Link></Button>}
+      {i === WORDS.length - 1 && <Button asChild variant="ghost" className="mt-2 w-full text-primary"><Link to="/test" search={{ lesson }}>Take the {L.en} reading test</Link></Button>}
     </AppShell>
   );
 }
