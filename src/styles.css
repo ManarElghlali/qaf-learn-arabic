@@ -48,6 +48,10 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
+  --color-stage-sage: var(--stage-sage);
+  --color-stage-sky: var(--stage-sky);
+  --color-stage-lavender: var(--stage-lavender);
+  --color-stage-gold: var(--stage-gold);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -64,6 +68,10 @@
 }
 
 :root {
+  --stage-sage: oklch(0.95 0.024 150);
+  --stage-sky: oklch(0.96 0.021 230);
+  --stage-lavender: oklch(0.96 0.019 305);
+  --stage-gold: oklch(0.96 0.034 85);
   --radius: 0.875rem;
   --background: oklch(0.975 0.008 85);
   --foreground: oklch(0.24 0.03 170);
@@ -100,6 +108,10 @@
 }
 
 .dark {
+  --stage-sage: oklch(0.27 0.035 150);
+  --stage-sky: oklch(0.27 0.035 230);
+  --stage-lavender: oklch(0.27 0.035 305);
+  --stage-gold: oklch(0.27 0.035 85);
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
@@ -145,3 +157,8 @@
     color: var(--color-foreground);
   }
 }
+
+.stage-sage { background-color: var(--stage-sage); }
+.stage-sky { background-color: var(--stage-sky); }
+.stage-lavender { background-color: var(--stage-lavender); }
+.stage-gold { background-color: var(--stage-gold); }

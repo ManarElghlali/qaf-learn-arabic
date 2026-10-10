@@ -4,6 +4,7 @@ import { Volume2 } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { WORDS, shuffle, type Word } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
+import { WordIllustration } from "@/components/WordIllustration";
 
 export const Route = createFileRoute("/quiz")({
   head: () => ({
@@ -54,7 +55,7 @@ function Pick({ w, opts, mode, onDone }: { w: Word; opts: Word[]; mode: Mode; on
         <p className="mb-3 text-sm text-muted-foreground">{mode === "listen" ? "Listen and pick the word" : "Match the picture to the word"}</p>
         {mode === "listen"
           ? <button onClick={() => playWord(w.ar)} className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-primary text-primary-foreground"><Volume2 className="h-10 w-10" /></button>
-          : <><div className="text-7xl">{w.icon}</div><p className="mt-2 font-medium">{w.en}</p></>}
+          : <><WordIllustration word={w} /><p className="mt-2 font-medium">{w.en}</p></>}
       </div>
       <div className="grid grid-cols-2 gap-3">
         {opts.map((o) => {
@@ -90,7 +91,7 @@ function Build({ w, onDone }: { w: Word; onDone: (ok: boolean) => void }) {
     <div>
       <div className="mb-5 rounded-3xl border border-border bg-card p-6 text-center">
         <p className="mb-2 text-sm text-muted-foreground">Build the word</p>
-        <div className="text-6xl">{w.icon}</div>
+        <WordIllustration word={w} />
         <p className="mt-2 font-medium">{w.en}</p>
         <button onClick={() => playWord(w.ar)} className="mt-2 inline-flex items-center gap-1 text-sm text-primary"><Volume2 className="h-4 w-4" />Hear it</button>
       </div>
