@@ -5,7 +5,7 @@ import { Check, RotateCcw, Volume2, X } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { shuffle, type Word } from "@/lib/words";
 import { LESSONS, parseLesson, unitState, recordUnitResult, QUIZ_LENGTH, PASS_PCT, type LessonId } from "@/lib/lessons";
-import { LessonSwitch, UnitLocked } from "@/components/LessonSwitch";
+import { UnitLocked } from "@/components/LessonSwitch";
 import { update, useLoadedProgress } from "@/lib/progress";
 import { Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AppShell, Ar } from "@/components/AppShell";
 import { shuffle, stripTashkeel } from "@/lib/words";
 import { LESSONS, parseLesson, unitState, recordUnitResult, PASS_PCT, UNIT_ORDER } from "@/lib/lessons";
-import { LessonSwitch, UnitLocked } from "@/components/LessonSwitch";
+import { UnitLocked } from "@/components/LessonSwitch";
 import { Link } from "@tanstack/react-router";
 import { playWord, stopAudio } from "@/lib/audio";
 import { touchStreak, update, useLoadedProgress, type Progress } from "@/lib/progress";
