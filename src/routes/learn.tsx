@@ -2,9 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
-import { LESSONS, parseLesson, lessonLearned } from "@/lib/lessons";
+import { LESSONS, parseLesson, lessonLearned, unitState } from "@/lib/lessons";
+import { LessonSwitch, UnitLocked } from "@/components/LessonSwitch";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
-import { touchStreak, update, useProgress, readProgress } from "@/lib/progress";
+import { touchStreak, update, useProgress, useLoadedProgress, readProgress } from "@/lib/progress";
 import { WordIllustration } from "@/components/WordIllustration";
 import { learningSummary } from "@/lib/learning-path";
 import { Button } from "@/components/ui/button";
@@ -29,10 +30,13 @@ function Learn() {
   const L = LESSONS[lesson];
   const WORDS = L.words;
   const p = useProgress();
+  const lp = useLoadedProgress();
   const [i, setI] = useState(0);
   const w = WORDS[i];
   useEffect(() => { setI(learningSummary(lessonLearned(readProgress(), lesson), WORDS).resumeIndex); return () => stopAudio(); }, [lesson]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!w) return null;
+  if (lp && !unitState(lp, lesson).unlocked) return <AppShell title={`${L.en} · ${L.ar}`}><LessonSwitch to="/learn" current={lesson} progress={lp} /><UnitLocked id={lesson} progress={lp} need="unit" /></AppShell>;
+  const unit = lp ? unitState(lp, lesson) : null;
   const go = (d: number) => {
     update((s) => (s[L.key].includes(w.id) ? s : { ...s, [L.key]: [...s[L.key], w.id] }));
     touchStreak();
@@ -40,6 +44,7 @@ function Learn() {
   };
   return (
     <AppShell title={`${L.en} · ${L.ar}`}>
+      {lp && <LessonSwitch to="/learn" current={lesson} progress={lp} />}
       <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground">
         <span>Word {i + 1} of {WORDS.length}</span>
         <label className="flex items-center gap-2">Transliteration
@@ -67,8 +72,13 @@ function Learn() {
         <Button variant="outline" disabled={i === 0} onClick={() => go(-1)} className="flex-1"><ChevronLeft className="h-4 w-4" />Back</Button>
         <Button onClick={() => go(1)} className="flex-1">Next<ChevronRight className="h-4 w-4" /></Button>
       </div>
-      {i === WORDS.length - 1 && <Button asChild variant="outline" className="mt-3 w-full"><Link to="/quiz" search={{ lesson }}>Take the {L.en} quiz</Link></Button>}
-      {i === WORDS.length - 1 && <Button asChild variant="ghost" className="mt-2 w-full text-primary"><Link to="/test" search={{ lesson }}>Take the {L.en} reading test</Link></Button>}
+      {unit?.lessonsDone && (
+        <div className="mt-4 rounded-2xl bg-accent p-4 text-center">
+          <p className="text-sm font-semibold text-primary">{unit.complete ? `${L.en} unit complete` : `All ${unit.total} words learned`}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{unit.step === "quiz" ? "Next: the unit quiz" : unit.step === "test" ? "Next: the final reading test" : "You can review the words or retake the quiz and test."}</p>
+          <Button asChild className="mt-3 w-full"><Link to={unit.step === "test" ? "/test" : "/quiz"} search={{ lesson }}>{unit.step === "test" ? "Take the reading test" : unit.step === "quiz" ? "Take the quiz" : "Practise with the quiz"}</Link></Button>
+        </div>
+      )}
     </AppShell>
   );
 }

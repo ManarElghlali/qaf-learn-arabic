@@ -4,10 +4,11 @@ import { Check, CircleAlert, LoaderCircle, Mic, Trophy, Volume2 } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { AppShell, Ar } from "@/components/AppShell";
 import { shuffle, stripTashkeel } from "@/lib/words";
-import { LESSONS, parseLesson } from "@/lib/lessons";
-import { LessonSwitch } from "@/components/LessonSwitch";
+import { LESSONS, parseLesson, unitState, recordUnitResult, PASS_PCT, UNIT_ORDER } from "@/lib/lessons";
+import { LessonSwitch, UnitLocked } from "@/components/LessonSwitch";
+import { Link } from "@tanstack/react-router";
 import { playWord, stopAudio } from "@/lib/audio";
-import { touchStreak, update } from "@/lib/progress";
+import { touchStreak, update, useLoadedProgress, type Progress } from "@/lib/progress";
 
 export const Route = createFileRoute("/test")({
   validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
@@ -38,10 +39,14 @@ function similar(a: string, b: string) {
 
 function TestRoute() {
   const { lesson } = Route.useSearch();
-  return <Test key={lesson} lesson={lesson} />;
+  const p = useLoadedProgress();
+  if (!p) return <AppShell title="Reading test"><div className="h-96" aria-busy="true" /></AppShell>;
+  const s = unitState(p, lesson);
+  if (!s.unlocked || !s.lessonsDone || !s.quizPassed) return <AppShell title="Reading test"><LessonSwitch to="/test" current={lesson} progress={p} /><UnitLocked id={lesson} progress={p} need={!s.unlocked ? "unit" : !s.lessonsDone ? "quiz" : "test"} /></AppShell>;
+  return <Test key={lesson} lesson={lesson} progress={p} />;
 }
 
-function Test({ lesson }: { lesson: ReturnType<typeof parseLesson> }) {
+function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; progress: Progress }) {
   const WORDS = LESSONS[lesson].words;
   const [words, setWords] = useState(WORDS.slice(0, 10));
   const [i, setI] = useState(0);
@@ -54,6 +59,11 @@ function Test({ lesson }: { lesson: ReturnType<typeof parseLesson> }) {
   const alts = useRef<string[]>([]);
   const w = (words[i] ?? WORDS[0])!;
   const finished = i >= words.length;
+  useEffect(() => {
+    if (!finished) return;
+    const pct = Math.round((correct / words.length) * 100);
+    update((p) => recordUnitResult({ ...p, scores: [...p.scores, pct] }, lesson, "test", pct)); touchStreak();
+  }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { setWords(shuffle(WORDS).slice(0, 10)); return () => { stopAudio(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -103,17 +113,21 @@ function Test({ lesson }: { lesson: ReturnType<typeof parseLesson> }) {
 
   if (finished) {
     const pct = Math.round((correct / words.length) * 100);
+    const passed = pct >= PASS_PCT;
+    const next = UNIT_ORDER[UNIT_ORDER.indexOf(lesson) + 1];
     return (
       <AppShell title="Reading test">
-        <LessonSwitch to="/test" current={lesson} />
+        <LessonSwitch to="/test" current={lesson} progress={progress} />
         <div className="learning-surface p-7 text-center">
           <Trophy className="mx-auto h-12 w-12 text-gold" />
-          <h2 className="mt-3 text-2xl font-bold">Test complete</h2>
+          <h2 className="mt-3 text-2xl font-bold">{passed ? `${LESSONS[lesson].en} unit complete` : "Test complete"}</h2>
           <p className="mt-2 text-muted-foreground">You read {correct} of {words.length} words · {pct}%</p>
-          <Button className="mt-6 w-full" onClick={() => {
-            update((p) => ({ ...p, scores: [...p.scores, pct] })); touchStreak();
+          {!passed && <p className="mt-1 text-xs text-muted-foreground">You need {PASS_PCT}% to complete this unit.</p>}
+          {passed && next && <Button asChild className="mt-6 w-full"><Link to="/learn" search={{ lesson: next }}>Start {LESSONS[next].en}</Link></Button>}
+          {passed && !next && <Button asChild className="mt-6 w-full"><Link to="/">Back to Home</Link></Button>}
+          <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => {
             setWords(shuffle(WORDS).slice(0, 10)); setI(0); setCorrect(0); setSt("idle");
-          }}>Save & try again</Button>
+          }}>Try the test again</Button>
         </div>
       </AppShell>
     );
@@ -131,7 +145,7 @@ function Test({ lesson }: { lesson: ReturnType<typeof parseLesson> }) {
 
   return (
     <AppShell title="Reading test">
-      <LessonSwitch to="/test" current={lesson} />
+      <LessonSwitch to="/test" current={lesson} progress={progress} />
       <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{LESSONS[lesson].en} · Word {i + 1} of {words.length}</span><span>{correct} correct</span></div>
       <div className="mb-4 flex gap-1">{words.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? "bg-primary" : "bg-muted"}`} />)}</div>
       <div className="learning-surface p-6 text-center">
