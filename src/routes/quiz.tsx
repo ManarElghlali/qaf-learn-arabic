@@ -35,12 +35,11 @@ function QuizRoute() {
   const p = useLoadedProgress();
   if (!p) return <AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>;
   const s = unitState(p, lesson);
-  const switcher = <LessonSwitch to="/quiz" current={lesson} progress={p} />;
-  if (!s.unlocked) return <AppShell title="Quiz">{switcher}<UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
-  return <Quiz key={lesson} lesson={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} switcher={switcher} />;
+  if (!s.unlocked) return <AppShell title="Quiz"><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
+  return <Quiz key={lesson} lesson={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} />;
 }
 
-function Quiz({ lesson, words: WORDS, label, switcher }: { lesson: LessonId; words: Word[]; label: string; switcher: React.ReactNode }) {
+function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]; label: string }) {
   const [n, setN] = useState(0);
   const [score, setScore] = useState(0);
   const [misses, setMisses] = useState<number[]>([]);
