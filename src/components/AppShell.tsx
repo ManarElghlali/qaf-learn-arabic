@@ -39,7 +39,7 @@ export function AppShell({ title, children, singleScreen = false }: { title: str
         <h1 className="min-w-0 text-lg font-bold">{title}</h1><Ar className="text-3xl font-bold text-primary">ق</Ar>
       </header>}
       <main className="qaf-main min-w-0 flex-1 px-5 pt-5 sm:px-7">{children}</main>
-      <nav aria-label="Main navigation" className="qaf-nav fixed bottom-0 left-1/2 z-20 grid w-full max-w-lg -translate-x-1/2 grid-cols-5 border-t border-border bg-background/95 px-2 pt-2 backdrop-blur">
+      <nav aria-label="Main navigation" className={`qaf-nav z-20 grid w-full max-w-lg grid-cols-5 border-t border-border bg-background/95 px-2 pt-2 backdrop-blur ${singleScreen ? "relative shrink-0" : "fixed bottom-0 left-1/2 -translate-x-1/2"}`}>
         {tabs.map(({ to, label, Icon }) => (
           <Link key={to} to={to} search={(to === "/learn" || to === "/quiz" || to === "/test" ? { lesson: unit } : {}) as never} activeOptions={{ exact: to === "/" }}
             className="flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-medium text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
