@@ -85,6 +85,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
     setSt("analyzing");
     try {
       const fd = new FormData();
+      fd.append("expected", w.ar);
       fd.append("file", new File([blob], "reading.webm", { type: blob.type.split(";")[0] || "audio/webm" }));
       const res = await fetch("/api/public/transcribe", { method: "POST", body: fd });
       const data = (await res.json()) as { text?: string; error?: string };
@@ -99,12 +100,13 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
     releaseEarly.current = false;
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") return setSt("unsupported");
     try {
-      if (!stream.current) stream.current = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      if (!stream.current) stream.current = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } });
     } catch { return setSt("denied"); }
     // Released while the permission prompt was open: don't start a stuck recording.
     if (releaseEarly.current) { setSt("idle"); return; }
     chunks.current = [];
-    const mr = new MediaRecorder(stream.current);
+    let mr: MediaRecorder;
+    try { mr = new MediaRecorder(stream.current, { audioBitsPerSecond: 24000 }); } catch { mr = new MediaRecorder(stream.current); }
     mr.ondataavailable = (e) => { if (e.data.size) chunks.current.push(e.data); };
     mr.onstop = () => {
       const blob = new Blob(chunks.current, { type: mr.mimeType || "audio/webm" });
