@@ -11,8 +11,12 @@ export const Route = createFileRoute("/api/public/transcribe")({
         const len = Number(request.headers.get("content-length") ?? 0);
         if (len > MAX_BYTES + 64 * 1024) return Response.json({ error: "Recording is too long." }, { status: 413 });
         let file: File | null = null;
+        let expected = "";
         try {
-          const v = (await request.formData()).get("file");
+          const fdIn = await request.formData();
+          const v = fdIn.get("file");
+          const e = fdIn.get("expected");
+          if (typeof e === "string") expected = e.slice(0, 40);
           file = v instanceof File ? v : null;
         } catch { /* invalid body */ }
         if (!file || !file.size || file.size > MAX_BYTES) return Response.json({ error: "No usable recording." }, { status: 400 });
@@ -24,7 +28,8 @@ export const Route = createFileRoute("/api/public/transcribe")({
         form.append("file", new File([file], "reading.webm", { type: file.type.startsWith("audio/") ? file.type : "audio/webm" }));
         form.append("response_format", "json");
         form.append("languages", "ar");
-        form.append("prompt", "A beginner reading one fully vocalised Arabic word aloud.");
+        form.append("prompt", expected ? `A beginner reading one fully vocalised Arabic word aloud. The word on screen is ${expected}. Write exactly the Arabic word heard.` : "A beginner reading one fully vocalised Arabic word aloud.");
+        form.append("stream", "false");
         const res = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
           method: "POST",
           headers: { Authorization: `Bearer ${apiKey}` },
