@@ -1,4 +1,3 @@
-import type React from "react";
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Check, RotateCcw, Volume2, X } from "lucide-react";
