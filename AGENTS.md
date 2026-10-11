@@ -16,3 +16,5 @@
 - Define each Short Sounds lesson (word bank, saved-progress key) in the shared lessons registry and select it via the ?lesson search param on Learn and Quiz, so new lessons reuse the same screens with independent progress.
 - Gate each Short Sounds unit through unitState in the lessons registry (all words learned → quiz pass → reading-test pass → next unit unlocks), storing quiz/test results per unit in progress.units, so units stay independent and sequential.
 - Judge reading-test answers syllable by syllable (consonant + exact short vowel) in the server route /api/public/check-reading with an audio-capable model, so harakat errors are caught rather than only the word's letters.
+- Keep unit selection on Home and completion-gated next-unit actions; in-unit Learn/Quiz/Test navigation preserves the selected lesson so activities never switch word banks.
+- Keep quiz question controls in a shared presentation module with explicit answer-gated advancement, so selection feedback stays visible without changing scoring or word selection.

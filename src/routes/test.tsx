@@ -52,7 +52,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   const startedAt = useRef(0);
   const releaseEarly = useRef(false);
   const [errMsg, setErrMsg] = useState("");
-  const w = (words[i] ?? WORDS[0])!;
+  const w = words[i] ?? WORDS[0];
   const finished = i >= words.length;
   useEffect(() => {
     if (!finished) return;
@@ -71,6 +71,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   };
 
   const analyze = async (blob: Blob) => {
+    if (!w) return;
     setSt("analyzing");
     try {
       const type = blob.type.split(";")[0] || "audio/webm";
@@ -117,16 +118,18 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   if (finished) {
     const pct = Math.round((correct / words.length) * 100);
     const passed = pct >= PASS_PCT;
+    const complete = unitState(recordUnitResult(progress, lesson, "test", pct), lesson).complete;
     const next = UNIT_ORDER[UNIT_ORDER.indexOf(lesson) + 1];
     return (
       <AppShell title="Reading test">
         <div className="learning-surface p-7 text-center">
           <Trophy className="mx-auto h-12 w-12 text-gold" />
-          <h2 className="mt-3 text-2xl font-bold">{passed ? `${LESSONS[lesson].en} unit complete` : "Test complete"}</h2>
+          <h2 className="mt-3 text-2xl font-bold">{complete ? `${LESSONS[lesson].en} unit complete` : passed ? "Reading test passed" : "Test complete"}</h2>
           <p className="mt-2 text-muted-foreground">You read {correct} of {words.length} words · {pct}%</p>
           {!passed && <p className="mt-1 text-xs text-muted-foreground">You need {PASS_PCT}% to complete this unit.</p>}
-          {passed && next && <Button asChild className="mt-6 w-full"><Link to="/learn" search={{ lesson: next }}>Start {LESSONS[next].en}</Link></Button>}
-          {passed && !next && <Button asChild className="mt-6 w-full"><Link to="/">Back to Home</Link></Button>}
+          {complete && next && <Button asChild className="mt-6 w-full"><Link to="/learn" search={{ lesson: next }}>Start {LESSONS[next].en}</Link></Button>}
+          {passed && !complete && <Button asChild className="mt-6 w-full"><Link to={unitState(progress, lesson).lessonsDone ? "/quiz" : "/learn"} search={{ lesson }}>Continue this unit</Link></Button>}
+          <Button asChild variant="outline" className="mt-3 w-full"><Link to="/">Back to Home</Link></Button>
           <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => {
             setWords(shuffle(WORDS).slice(0, 10)); setI(0); setCorrect(0); setSt("idle");
           }}>Try the test again</Button>
@@ -145,6 +148,8 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
     unsupported: "Recording isn't supported in this browser. Try an up-to-date Chrome or Safari.",
     error: errMsg,
   };
+
+  if (!w) return null;
 
   return (
     <AppShell title="Reading test">
