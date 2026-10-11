@@ -85,7 +85,9 @@ function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]
       <progress aria-label="Quiz progress" className="qaf-progress mb-5 h-1.5 w-full" value={n} max={total} />
       {q.mode === "build" && <BuildQuestion key={`${round}-${n}`} w={q.w} words={WORDS} onDone={done} />}
       {q.mode !== "build" && <PickQuestion key={`${round}-${n}`} w={q.w} opts={q.opts} mode={q.mode} onDone={done} />}
-      <Button disabled={!answered} className="mt-5 h-14 w-full" onClick={() => { stopAudio(); setAnswered(false); setN((x) => x + 1); }}>Continue<ChevronRight className="size-4" /></Button>
+      <div className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] mt-5 bg-background py-2">
+        <Button disabled={!answered} className="h-14 w-full" onClick={() => { stopAudio(); setAnswered(false); setN((x) => x + 1); window.scrollTo({ top: 0, behavior: "instant" }); }}>Continue<ChevronRight className="size-4" /></Button>
+      </div>
     </AppShell>
   );
 }

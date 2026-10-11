@@ -12,7 +12,7 @@
 - [x] Check mobile layouts, saved progress and all five destinations; leave individual screen redesigns for Phase 2.
 
 # Isolated unit screen refinement
-- [ ] Remove in-unit unit tabs; keep Home access and gate next-unit action on completion.
-- [ ] Refine lesson tiles, illustration size and Previous/Next controls.
-- [ ] Add highlighted quiz tiles, stacked answers, progress and answer-gated Continue.
-- [ ] Verify interactions, unit isolation and small-screen layouts.
+- [x] Remove in-unit unit tabs; keep Home access and gate next-unit action on completion.
+- [x] Refine lesson tiles, illustration size and Previous/Next controls.
+- [x] Add highlighted quiz tiles, stacked answers, progress and answer-gated Continue.
+- [x] Verify interactions, unit isolation and small-screen layouts.

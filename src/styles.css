@@ -187,6 +187,7 @@ body { letter-spacing: 0; }
 .sound-button { width: 76px; height: 76px; border-radius: 18px; font-size: 36px; padding: 0; flex-shrink: 0; }
 .answer-button { height: 76px; font-size: 36px; white-space: normal; padding: 8px 40px; line-height: 1.7; }
 .word-slot { display: flex; align-items: center; justify-content: center; height: 76px; min-width: 0; border-width: 2px; border-radius: 18px; font-size: 36px; }
+.sound-button[aria-pressed="true"], .sound-button[aria-pressed="true"]:hover { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); opacity: 1; }
 .mic-button { width: 96px; height: 96px; border-radius: 50%; }
 .mic-button svg { width: 32px; height: 32px; }
 .recording-state { box-shadow: 0 0 0 10px var(--error-soft); }
