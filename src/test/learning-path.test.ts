@@ -17,7 +17,7 @@ describe("Existing curriculum and saved continuation", () => {
   });
   it("opens Fatha and Fatha & Kasra within the four short lessons, in order", () => {
     expect(SHORT_LESSONS.map(l => l.ar)).toEqual(["الفتحة", "الفتحة والكسرة", "الفتحة والضمة والكسرة", "السكون"]);
-    expect(SHORT_LESSONS.filter(l => l.available).map(l => l.en)).toEqual(["Fatha", "Fatha & Kasra"]);
+    expect(SHORT_LESSONS.filter(l => l.available).map(l => l.en)).toEqual(["Fatha", "Fatha & Kasra", "Fatha, Damma & Kasra"]);
   });
   it("limits Long Sounds to the three madd lessons", () => {
     expect(MADD_LESSONS.map(l => l.en)).toEqual(["Madd Alif", "Madd Waw", "Madd Yaa"]);
