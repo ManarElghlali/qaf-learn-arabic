@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { THREE_WORDS, unitState, recordUnitResult, LESSONS } from "@/lib/lessons";
+import { THREE_WORDS, unitState, recordUnitResult, LESSONS, UNIT_LOCKING } from "@/lib/lessons";
 import { WORD_ILLUSTRATIONS } from "@/lib/illustrations";
 import { hasRecording } from "@/lib/audio";
 import { readProgress, type Progress } from "@/lib/progress";
