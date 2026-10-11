@@ -18,6 +18,6 @@
 - [x] Verify interactions, unit isolation and small-screen layouts.
 
 # Single-screen learning activities
-- [ ] Fit Learn content, audio and Previous/Next into the available screen height.
-- [ ] Fit every quiz mode, feedback and Continue without scrolling.
-- [ ] Verify all units on short and tall screens, including completed lessons.
+- [x] Fit Learn content, audio and Previous/Next into the available screen height.
+- [x] Fit every quiz mode, feedback and Continue without scrolling.
+- [x] Verify all units on short and tall screens, including completed lessons.
