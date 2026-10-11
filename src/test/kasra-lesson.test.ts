@@ -27,3 +27,26 @@ describe("Fatha & Kasra lesson", () => {
     expect(learningSummary([1, 2, 3], KASRA_WORDS).completed).toBe(0);
   });
 });
+
+import { unitState, recordUnitResult } from "@/lib/lessons";
+import { readProgress } from "@/lib/progress";
+describe("Unit flow", () => {
+  const base = () => ({ ...readProgress(), learned: [], learnedKasra: [], units: {} });
+  it("locks Fatha & Kasra until Fatha lessons, quiz and test are all passed", () => {
+    let p = { ...base(), learned: WORDS.map(w => w.id) };
+    expect(unitState(p, "fatha").step).toBe("quiz");
+    expect(unitState(p, "kasra").unlocked).toBe(false);
+    p = recordUnitResult(p, "fatha", "quiz", 60);
+    expect(unitState(p, "fatha").quizPassed).toBe(false);
+    p = recordUnitResult(p, "fatha", "quiz", 80);
+    p = recordUnitResult(p, "fatha", "test", 70);
+    expect(unitState(p, "fatha").complete).toBe(true);
+    expect(unitState(p, "kasra")).toMatchObject({ unlocked: true, step: "learn", learned: 0 });
+  });
+  it("keeps each unit's results separate and never loses a pass", () => {
+    let p = recordUnitResult(base(), "kasra", "quiz", 90);
+    p = recordUnitResult(p, "kasra", "quiz", 20);
+    expect(p.units["kasra"]).toEqual({ quizBest: 90, quizPassed: true });
+    expect(p.units["fatha"]).toBeUndefined();
+  });
+});

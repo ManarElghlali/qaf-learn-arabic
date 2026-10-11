@@ -42,7 +42,7 @@ export const QUIZ_LENGTH = 10;
 export type UnitStep = "learn" | "quiz" | "test" | "done";
 export type UnitState = {
   id: LessonId; learned: number; total: number; lessonsDone: boolean; quizPassed: boolean; testPassed: boolean;
-  complete: boolean; unlocked: boolean; prev: LessonId | null; step: UnitStep; quizBest?: number; testBest?: number;
+  complete: boolean; unlocked: boolean; prev: LessonId | null; step: UnitStep; quizBest: number | undefined; testBest: number | undefined;
 };
 export function unitState(p: Progress, id: LessonId): UnitState {
   const words = LESSONS[id].words;
