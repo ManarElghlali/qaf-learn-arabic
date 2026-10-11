@@ -59,6 +59,9 @@ export type UnitState = {
   id: LessonId; learned: number; total: number; lessonsDone: boolean; quizPassed: boolean; testPassed: boolean;
   complete: boolean; unlocked: boolean; prev: LessonId | null; step: UnitStep; quizBest: number | undefined; testBest: number | undefined;
 };
+/** Set to true before release to lock each unit until the previous one is complete. */
+export const UNIT_LOCKING = false;
+
 export function unitState(p: Progress, id: LessonId): UnitState {
   const words = LESSONS[id].words;
   const learned = words.filter((w) => p[LESSONS[id].key].includes(w.id)).length;
