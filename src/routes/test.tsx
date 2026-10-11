@@ -166,7 +166,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
           className={`mic-button touch-none select-none ${st === "recording" ? "recording-state bg-destructive" : "bg-primary"}`}>
           {st === "analyzing" ? <LoaderCircle className="animate-spin" /> : st === "correct" ? <Check /> : <Mic />}
         </Button>
-        {(st === "wrong" || st === "idle" || st === "denied" || st === "error") && (
+        {(st === "wrong" || st === "error") && (
           <Button variant="outline" onClick={() => playWord(w.ar)}>
             <Volume2 className="h-4 w-4" /> Hear the word
           </Button>
