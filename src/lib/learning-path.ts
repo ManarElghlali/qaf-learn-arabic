@@ -3,7 +3,7 @@ import { WORDS, type Word } from "@/lib/words";
 export const SHORT_LESSONS = [
   { ar: "الفتحة", en: "Fatha", available: true, lesson: "fatha" as const },
   { ar: "الفتحة والكسرة", en: "Fatha & Kasra", available: true, lesson: "kasra" as const },
-  { ar: "الفتحة والضمة والكسرة", en: "Fatha, Damma & Kasra", available: false, lesson: null },
+  { ar: "الفتحة والضمة والكسرة", en: "Fatha, Damma & Kasra", available: true, lesson: "three" as const },
   { ar: "السكون", en: "Sukun", available: false, lesson: null },
 ];
 export const MADD_LESSONS = [
