@@ -214,3 +214,51 @@ body { letter-spacing: 0; }
   .destination-art { width: 72px; height: 80px; }
   .destination-heading { gap: 8px; }
 }
+
+/* Single-screen activities: reserve navigation space rather than covering content. */
+.qaf-activity-shell { height: 100dvh; min-height: 0; overflow: hidden; }
+.qaf-activity-shell .qaf-header { position: static; flex-shrink: 0; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: 8px; gap: 8px; }
+.qaf-activity-shell .qaf-header h1 { font-size: 14px; line-height: 1.5; }
+.qaf-activity-shell .qaf-main { display: flex; flex-direction: column; min-height: 0; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
+.qaf-activity-shell .qaf-nav { position: relative; left: auto; bottom: auto; translate: none; transform: none; flex-shrink: 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+.activity-meta, .activity-actions, .lesson-completion { flex-shrink: 0; }
+.activity-command { height: 48px; }
+.lesson-content { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 6px; padding: 12px; }
+.lesson-art { flex: 0 1 144px; min-height: 56px; max-height: 144px; height: auto; aspect-ratio: 1; max-width: 144px; width: auto; }
+.lesson-art img { height: 100%; width: auto; max-width: 100%; }
+.lesson-word { flex-shrink: 0; }
+.lesson-word > .font-arabic { font-size: 44px; line-height: 1.5; }
+.lesson-sounds { flex-shrink: 0; }
+.qaf-activity-shell .sound-button, .qaf-activity-shell .word-slot { height: 64px; width: 64px; font-size: 32px; border-radius: 16px; }
+.quiz-question { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+.quiz-prompt { display: flex; flex: 1; min-height: 0; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+.quiz-art { min-height: 48px; height: min(144px, 18dvh); width: auto; max-height: 100%; flex-shrink: 1; }
+.quiz-listen { height: 80px; width: 80px; flex-shrink: 0; }
+.quiz-answers, .quiz-slots, .quiz-sounds { flex-shrink: 0; }
+.qaf-activity-shell .answer-button { height: 60px; font-size: 32px; padding-top: 0; padding-bottom: 0; }
+.quiz-feedback { height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+.quiz-feedback button { height: 32px; padding-top: 0; padding-bottom: 0; }
+.qaf-activity-shell .quiz-sounds .sound-button, .qaf-activity-shell .quiz-slots .word-slot { width: 100%; min-width: 0; }
+@media (max-height: 720px) {
+  .qaf-activity-shell .qaf-main { gap: 8px; padding-top: 8px; padding-bottom: 8px; }
+  .lesson-content { padding: 10px; gap: 4px; }
+  .lesson-art { flex-basis: 112px; max-height: 112px; max-width: 112px; }
+  .lesson-word > .font-arabic { font-size: 40px; line-height: 1.45; }
+  .qaf-activity-shell .sound-button, .qaf-activity-shell .word-slot { height: 56px; width: 56px; font-size: 30px; }
+  .qaf-activity-shell .answer-button { height: 48px; font-size: 30px; }
+  .quiz-art { height: 100px; }
+  .quiz-question { gap: 8px; }
+}
+@media (max-height: 580px) {
+  .qaf-activity-shell .qaf-header { padding-top: max(4px, env(safe-area-inset-top)); padding-bottom: 4px; }
+  .qaf-activity-shell .qaf-main { gap: 6px; }
+  .lesson-art { flex-basis: 72px; max-height: 72px; max-width: 72px; min-height: 40px; }
+  .lesson-word > .font-arabic { font-size: 36px; line-height: 1.4; }
+  .qaf-activity-shell .sound-button, .qaf-activity-shell .word-slot { height: 48px; width: 48px; font-size: 28px; }
+  .quiz-art { height: 64px; }
+  .quiz-listen { height: 56px; width: 56px; }
+  .quiz-prompt { gap: 2px; }
+  .quiz-question { gap: 6px; }
+  .quiz-feedback { height: 28px; }
+  .activity-command { height: 44px; }
+}

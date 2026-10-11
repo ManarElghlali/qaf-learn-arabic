@@ -45,39 +45,40 @@ function Learn() {
     setI((x) => Math.min(WORDS.length - 1, Math.max(0, x + d)));
   };
   return (
-    <AppShell title={`${L.en} · ${L.ar}`}>
-      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground">
+    <AppShell title={`${L.en} · ${L.ar}`} singleScreen>
+      <div className="activity-meta grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground">
         <span>Word {i + 1} of {WORDS.length}</span>
         <label className="flex items-center gap-2">Transliteration
           <input type="checkbox" checked={p.translit} onChange={(e) => update((s) => ({ ...s, translit: e.target.checked }))} className="accent-primary" />
         </label>
       </div>
-      <progress aria-label="Lesson progress" className="qaf-progress mb-4 h-1.5 w-full" value={i + 1} max={WORDS.length} />
-      <div className="learning-surface p-5 text-center">
-        <Button variant="ghost" aria-label="Play word" onClick={() => { setSelectedSound(null); playWord(w.ar); }} className="mx-auto mb-2 block h-auto w-44 max-w-full rounded-2xl p-0"><WordIllustration word={w} className="w-44" /></Button>
-        <Ar className="block text-6xl font-semibold leading-relaxed">{w.ar}</Ar>
-        {p.translit && <p className="mt-1 text-muted-foreground">{w.tr}</p>}
-        <p className="mt-1 font-medium">{w.en}</p>
-        <div dir="rtl" className="mt-5 flex justify-center gap-3">
+      <progress aria-label="Lesson progress" className="qaf-progress h-1.5 w-full shrink-0" value={i + 1} max={WORDS.length} />
+      <div className="learning-surface lesson-content text-center">
+        <Button variant="ghost" aria-label="Play word" onClick={() => { setSelectedSound(null); playWord(w.ar); }} className="lesson-art mx-auto rounded-2xl p-0"><WordIllustration word={w} /></Button>
+        <div className="lesson-word">
+          <Ar className="block font-semibold">{w.ar}</Ar>
+          {p.translit && <p className="text-sm text-muted-foreground">{w.tr}</p>}
+          <p className="text-sm font-medium">{w.en}</p>
+        </div>
+        <div dir="rtl" className="lesson-sounds flex justify-center gap-3">
           {w.units.map((u, k) => (
             <Button key={k} variant="outline" aria-label={`Play sound ${u}`} aria-pressed={selectedSound === k} onClick={() => { setSelectedSound(k); playUnit(u); }} className={`sound-button ${selectedSound === k ? "border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : "border-primary/20 bg-accent text-primary"}`}>
               <Ar>{u}</Ar>
             </Button>
           ))}
         </div>
-        <Button onClick={() => { setSelectedSound(null); playWord(w.ar); }} className="mt-5 w-full">
+        <Button onClick={() => { setSelectedSound(null); playWord(w.ar); }} className="activity-command w-full shrink-0">
           <Volume2 className="h-5 w-5" /> Listen to the word
         </Button>
       </div>
-      <div className="mt-5 flex gap-3">
-        <Button variant="outline" disabled={i === 0} onClick={() => go(-1)} className="h-14 flex-1"><ChevronLeft className="h-4 w-4" />Previous</Button>
-        <Button onClick={() => go(1)} className="h-14 flex-1">{i === WORDS.length - 1 ? "Finish lesson" : "Next"}<ChevronRight className="h-4 w-4" /></Button>
+      <div className="activity-actions flex gap-3">
+        <Button variant="outline" disabled={i === 0} onClick={() => go(-1)} className="activity-command min-w-0 flex-1"><ChevronLeft className="h-4 w-4" />Previous</Button>
+        <Button onClick={() => go(1)} className="activity-command min-w-0 flex-1">{i === WORDS.length - 1 ? "Finish lesson" : "Next"}<ChevronRight className="h-4 w-4" /></Button>
       </div>
       {unit?.lessonsDone && (
-        <div className="mt-4 rounded-2xl bg-accent p-4 text-center">
-          <p className="text-sm font-semibold text-primary">{unit.complete ? `${L.en} unit complete` : `All ${unit.total} words learned`}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{unit.step === "quiz" ? "Next: the unit quiz" : unit.step === "test" ? "Next: the final reading test" : "You can review the words or retake the quiz and test."}</p>
-          <Button asChild className="mt-3 w-full"><Link to={unit.step === "test" ? "/test" : "/quiz"} search={{ lesson }}>{unit.step === "test" ? "Take the reading test" : unit.step === "quiz" ? "Take the quiz" : "Practise with the quiz"}</Link></Button>
+        <div className="lesson-completion grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+          <p className="text-xs font-semibold text-primary">{unit.complete ? "Unit complete" : `All ${unit.total} words learned`}</p>
+          <Button asChild variant="outline" size="sm"><Link to={unit.step === "test" ? "/test" : "/quiz"} search={{ lesson }}>{unit.step === "test" ? "Take the test" : "Take the quiz"}<ChevronRight /></Link></Button>
         </div>
       )}
     </AppShell>

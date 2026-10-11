@@ -27,10 +27,10 @@ function useCurrentUnit(): LessonId {
   return unit;
 }
 
-export function AppShell({ title, children }: { title: string; children: ReactNode }) {
+export function AppShell({ title, children, singleScreen = false }: { title: string; children: ReactNode; singleScreen?: boolean }) {
   const unit = useCurrentUnit();
   return (
-    <div className="qaf-shell mx-auto flex w-full max-w-lg flex-col bg-background">
+    <div className={`qaf-shell mx-auto flex w-full max-w-lg flex-col bg-background ${singleScreen ? "qaf-activity-shell" : ""}`}>
       {title === "Qaf" ? <header className="qaf-header grid grid-cols-[44px_minmax(0,1fr)_44px] items-start gap-3 px-5 pb-4 sm:px-7">
         <Button asChild variant="ghost" size="icon"><Link to="/profile" aria-label="Settings" title="Settings"><Settings /></Link></Button>
         <div className="text-center"><Ar className="qaf-brand-symbol block font-bold text-primary">ق</Ar><h1 className="text-lg font-bold text-primary">Qaf<span className="text-gold">.</span></h1><p className="text-[11px] font-semibold text-primary">Arabic Reading</p></div>
@@ -39,7 +39,7 @@ export function AppShell({ title, children }: { title: string; children: ReactNo
         <h1 className="min-w-0 text-lg font-bold">{title}</h1><Ar className="text-3xl font-bold text-primary">ق</Ar>
       </header>}
       <main className="qaf-main min-w-0 flex-1 px-5 pt-5 sm:px-7">{children}</main>
-      <nav aria-label="Main navigation" className="qaf-nav fixed bottom-0 left-1/2 z-20 grid w-full max-w-lg -translate-x-1/2 grid-cols-5 border-t border-border bg-background/95 px-2 pt-2 backdrop-blur">
+      <nav aria-label="Main navigation" className={`qaf-nav z-20 grid w-full max-w-lg grid-cols-5 border-t border-border bg-background/95 px-2 pt-2 backdrop-blur ${singleScreen ? "relative shrink-0" : "fixed bottom-0 left-1/2 -translate-x-1/2"}`}>
         {tabs.map(({ to, label, Icon }) => (
           <Link key={to} to={to} search={(to === "/learn" || to === "/quiz" || to === "/test" ? { lesson: unit } : {}) as never} activeOptions={{ exact: to === "/" }}
             className="flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-medium text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"

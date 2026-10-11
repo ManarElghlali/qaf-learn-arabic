@@ -16,3 +16,8 @@
 - [x] Refine lesson tiles, illustration size and Previous/Next controls.
 - [x] Add highlighted quiz tiles, stacked answers, progress and answer-gated Continue.
 - [x] Verify interactions, unit isolation and small-screen layouts.
+
+# Single-screen learning activities
+- [x] Fit Learn content, audio and Previous/Next into the available screen height.
+- [x] Fit every quiz mode, feedback and Continue without scrolling.
+- [x] Verify all units on short and tall screens, including completed lessons.
