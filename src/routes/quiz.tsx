@@ -36,7 +36,7 @@ function QuizRoute() {
   if (!p) return <AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>;
   const s = unitState(p, lesson);
   const switcher = <LessonSwitch to="/quiz" current={lesson} progress={p} />;
-  if (!s.unlocked || !s.lessonsDone) return <AppShell title="Quiz">{switcher}<UnitLocked id={lesson} progress={p} need={s.unlocked ? "quiz" : "unit"} /></AppShell>;
+  if (!s.unlocked) return <AppShell title="Quiz">{switcher}<UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
   return <Quiz key={lesson} lesson={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} switcher={switcher} />;
 }
 

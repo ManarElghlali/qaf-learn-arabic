@@ -25,9 +25,12 @@ export const Route = createFileRoute("/test")({
   component: TestRoute,
 });
 
-type State = "idle" | "recording" | "analyzing" | "correct" | "wrong" | "denied" | "unsupported";
+type State = "idle" | "recording" | "analyzing" | "correct" | "wrong" | "denied" | "unsupported" | "error";
 
-// Levenshtein similarity on unvowelled letters (recognisers drop harakat).
+// Recognisers drop harakat and often add ال / a final ة to single words; compare the core letters.
+const normalizeHeard = (s: string) => stripTashkeel(s).replace(/[.,،؟!?]/g, "").replace(/^ال/, "").replace(/ة$/, "");
+
+// Levenshtein similarity on unvowelled letters.
 function similar(a: string, b: string) {
   const m = a.length, n = b.length;
   const d: number[][] = Array.from({ length: m + 1 }, (_, i) => [i, ...Array<number>(n).fill(0)]);
@@ -42,7 +45,7 @@ function TestRoute() {
   const p = useLoadedProgress();
   if (!p) return <AppShell title="Reading test"><div className="h-96" aria-busy="true" /></AppShell>;
   const s = unitState(p, lesson);
-  if (!s.unlocked || !s.lessonsDone || !s.quizPassed) return <AppShell title="Reading test"><LessonSwitch to="/test" current={lesson} progress={p} /><UnitLocked id={lesson} progress={p} need={!s.unlocked ? "unit" : !s.lessonsDone ? "quiz" : "test"} /></AppShell>;
+  if (!s.unlocked) return <AppShell title="Reading test"><LessonSwitch to="/test" current={lesson} progress={p} /><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
   return <Test key={lesson} lesson={lesson} progress={p} />;
 }
 
@@ -53,10 +56,12 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   const [st, setSt] = useState<State>("idle");
   const [heard, setHeard] = useState("");
   const [correct, setCorrect] = useState(0);
-  const rec = useRef<any>(null);
   const media = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
-  const alts = useRef<string[]>([]);
+  const chunks = useRef<Blob[]>([]);
+  const startedAt = useRef(0);
+  const releaseEarly = useRef(false);
+  const [errMsg, setErrMsg] = useState("");
   const w = (words[i] ?? WORDS[0])!;
   const finished = i >= words.length;
   useEffect(() => {
@@ -65,50 +70,55 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
     update((p) => recordUnitResult({ ...p, scores: [...p.scores, pct] }, lesson, "test", pct)); touchStreak();
   }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => { setWords(shuffle(WORDS).slice(0, 10)); return () => { stopAudio(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { setWords(shuffle(WORDS).slice(0, 10)); return () => { stopAudio(); media.current?.state === "recording" && media.current.stop(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const analyze = () => {
+  const judge = (text: string) => {
+    setHeard(text);
+    if (similar(normalizeHeard(text), normalizeHeard(w.ar)) >= 0.67) {
+      setSt("correct"); setCorrect((c) => c + 1);
+      setTimeout(() => { setI((x) => x + 1); setSt("idle"); setHeard(""); }, 1200);
+    } else setSt("wrong");
+  };
+
+  const analyze = async (blob: Blob) => {
     setSt("analyzing");
-    setTimeout(() => {
-      const target = stripTashkeel(w.ar);
-      const best = Math.max(0, ...alts.current.map((t) => similar(stripTashkeel(t), target)));
-      setHeard(alts.current[0] ?? "");
-      if (best >= 0.67) {
-        setSt("correct"); setCorrect((c) => c + 1);
-        setTimeout(() => { setI((x) => x + 1); setSt("idle"); setHeard(""); }, 1200);
-      } else setSt("wrong");
-    }, 600);
+    try {
+      const fd = new FormData();
+      fd.append("file", new File([blob], "reading.webm", { type: blob.type.split(";")[0] || "audio/webm" }));
+      const res = await fetch("/api/public/transcribe", { method: "POST", body: fd });
+      const data = (await res.json()) as { text?: string; error?: string };
+      if (!res.ok) { setErrMsg(data.error ?? "Speech checking failed. Please try again."); setSt("error"); return; }
+      judge(data.text ?? "");
+    } catch { setErrMsg("Couldn't reach speech checking. Check your connection and try again."); setSt("error"); }
   };
 
   const start = async () => {
     if (st === "recording" || st === "analyzing" || st === "correct") return;
     stopAudio();
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!navigator.mediaDevices?.getUserMedia && !SR) return setSt("unsupported");
+    releaseEarly.current = false;
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") return setSt("unsupported");
     try {
-      if (!stream.current) stream.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!stream.current) stream.current = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
     } catch { return setSt("denied"); }
-    alts.current = [];
-    try { media.current = new MediaRecorder(stream.current); media.current.start(); } catch { /* capture optional */ }
-    if (SR) {
-      const r = new SR();
-      r.lang = "ar-SA"; r.interimResults = true; r.maxAlternatives = 5; r.continuous = true;
-      r.onresult = (e: any) => {
-        for (let k = 0; k < e.results.length; k++) for (let a = 0; a < e.results[k].length; a++) alts.current.push(e.results[k][a].transcript);
-      };
-      r.onerror = (e: any) => { if (e.error === "not-allowed") setSt("denied"); };
-      r.onend = () => { if (rec.current === r) { rec.current = null; analyze(); } };
-      rec.current = r;
-      try { r.start(); } catch { /* already started */ }
-    }
+    // Released while the permission prompt was open: don't start a stuck recording.
+    if (releaseEarly.current) { setSt("idle"); return; }
+    chunks.current = [];
+    const mr = new MediaRecorder(stream.current);
+    mr.ondataavailable = (e) => { if (e.data.size) chunks.current.push(e.data); };
+    mr.onstop = () => {
+      const blob = new Blob(chunks.current, { type: mr.mimeType || "audio/webm" });
+      if (Date.now() - startedAt.current < 400 || blob.size < 1000) { setErrMsg("That was too short. Hold the mic, read the word, then release."); setSt("error"); return; }
+      void analyze(blob);
+    };
+    media.current = mr;
+    startedAt.current = Date.now();
+    mr.start();
     setSt("recording");
   };
 
   const stop = () => {
-    if (st !== "recording") return;
-    try { media.current?.state === "recording" && media.current.stop(); } catch { /* noop */ }
-    if (rec.current) { setSt("analyzing"); rec.current.stop(); }
-    else setSt("unsupported");
+    releaseEarly.current = true;
+    if (media.current?.state === "recording") media.current.stop();
   };
 
   if (finished) {
@@ -140,7 +150,8 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
     correct: "Correct! ✓",
     wrong: "Try again",
     denied: "Microphone access was blocked. Allow it in your browser settings, then tap the mic again.",
-    unsupported: "Pronunciation checking isn't supported in this browser. Try Chrome or Safari.",
+    unsupported: "Recording isn't supported in this browser. Try an up-to-date Chrome or Safari.",
+    error: errMsg,
   };
 
   return (
@@ -151,7 +162,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
       <div className="learning-surface p-6 text-center">
         <p className="mb-2 text-sm text-muted-foreground">Read this word aloud</p>
         <Ar className="block text-7xl font-semibold leading-relaxed">{w.ar}</Ar>
-        <p role="status" aria-live="polite" className={`mt-4 flex min-h-16 items-center justify-center gap-2 rounded-2xl p-3 text-sm font-medium ${st === "correct" ? "bg-success-soft text-success" : st === "wrong" || st === "denied" ? "bg-error-soft text-destructive" : "bg-accent text-muted-foreground"}`}>{st === "correct" && <Check className="h-4 w-4 shrink-0" />}{(st === "wrong" || st === "denied" || st === "unsupported") && <CircleAlert className="h-4 w-4 shrink-0" />}{st === "analyzing" && <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" />}{msg[st]}</p>
+        <p role="status" aria-live="polite" className={`mt-4 flex min-h-16 items-center justify-center gap-2 rounded-2xl p-3 text-sm font-medium ${st === "correct" ? "bg-success-soft text-success" : st === "wrong" || st === "denied" || st === "error" ? "bg-error-soft text-destructive" : "bg-accent text-muted-foreground"}`}>{st === "correct" && <Check className="h-4 w-4 shrink-0" />}{(st === "wrong" || st === "denied" || st === "unsupported" || st === "error") && <CircleAlert className="h-4 w-4 shrink-0" />}{st === "analyzing" && <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" />}{msg[st]}</p>
         {st === "wrong" && heard && <p className="text-xs text-muted-foreground">We heard: <Ar>{heard}</Ar></p>}
       </div>
       <div className="mt-8 flex flex-col items-center gap-4">
@@ -161,7 +172,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
           className={`mic-button touch-none select-none ${st === "recording" ? "recording-state bg-destructive" : "bg-primary"}`}>
           {st === "analyzing" ? <LoaderCircle className="animate-spin" /> : st === "correct" ? <Check /> : <Mic />}
         </Button>
-        {(st === "wrong" || st === "idle" || st === "denied") && (
+        {(st === "wrong" || st === "idle" || st === "denied" || st === "error") && (
           <Button variant="outline" onClick={() => playWord(w.ar)}>
             <Volume2 className="h-4 w-4" /> Hear the word
           </Button>
