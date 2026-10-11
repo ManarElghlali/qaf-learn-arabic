@@ -1,3 +1,33 @@
+import three1 from "@/assets/three/three-01.jpg";
+import three2 from "@/assets/three/three-02.jpg";
+import three3 from "@/assets/three/three-03.jpg";
+import three4 from "@/assets/three/three-04.jpg";
+import three5 from "@/assets/three/three-05.jpg";
+import three6 from "@/assets/three/three-06.jpg";
+import three7 from "@/assets/three/three-07.jpg";
+import three8 from "@/assets/three/three-08.jpg";
+import three9 from "@/assets/three/three-09.jpg";
+import three10 from "@/assets/three/three-10.jpg";
+import three11 from "@/assets/three/three-11.jpg";
+import three12 from "@/assets/three/three-12.jpg";
+import three13 from "@/assets/three/three-13.jpg";
+import three14 from "@/assets/three/three-14.jpg";
+import three15 from "@/assets/three/three-15.jpg";
+import three16 from "@/assets/three/three-16.jpg";
+import three17 from "@/assets/three/three-17.jpg";
+import three18 from "@/assets/three/three-18.jpg";
+import three19 from "@/assets/three/three-19.jpg";
+import three20 from "@/assets/three/three-20.jpg";
+import three21 from "@/assets/three/three-21.jpg";
+import three22 from "@/assets/three/three-22.jpg";
+import three23 from "@/assets/three/three-23.jpg";
+import three24 from "@/assets/three/three-24.jpg";
+import three25 from "@/assets/three/three-25.jpg";
+import three26 from "@/assets/three/three-26.jpg";
+import three27 from "@/assets/three/three-27.jpg";
+import three28 from "@/assets/three/three-28.jpg";
+import three29 from "@/assets/three/three-29.jpg";
+import three30 from "@/assets/three/three-30.jpg";
 import kasra1 from "@/assets/kasra/kasra-01.jpg";
 import kasra2 from "@/assets/kasra/kasra-02.jpg";
 import kasra3 from "@/assets/kasra/kasra-03.jpg";
@@ -112,4 +142,34 @@ export const WORD_ILLUSTRATIONS: Record<number, string> = {
   112: kasra12,
   113: kasra13,
   114: kasra14,
+  201: three1,
+  202: three2,
+  203: three3,
+  204: three4,
+  205: three5,
+  206: three6,
+  207: three7,
+  208: three8,
+  209: three9,
+  210: three10,
+  211: three11,
+  212: three12,
+  213: three13,
+  214: three14,
+  215: three15,
+  216: three16,
+  217: three17,
+  218: three18,
+  219: three19,
+  220: three20,
+  221: three21,
+  222: three22,
+  223: three23,
+  224: three24,
+  225: three25,
+  226: three26,
+  227: three27,
+  228: three28,
+  229: three29,
+  230: three30,
 };
