@@ -1,11 +1,10 @@
-import type React from "react";
 import { ClientOnly, createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { Check, RotateCcw, Volume2, X } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { shuffle, type Word } from "@/lib/words";
 import { LESSONS, parseLesson, unitState, recordUnitResult, QUIZ_LENGTH, PASS_PCT, type LessonId } from "@/lib/lessons";
-import { LessonSwitch, UnitLocked } from "@/components/LessonSwitch";
+import { UnitLocked } from "@/components/LessonSwitch";
 import { update, useLoadedProgress } from "@/lib/progress";
 import { Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
@@ -35,12 +34,11 @@ function QuizRoute() {
   const p = useLoadedProgress();
   if (!p) return <AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>;
   const s = unitState(p, lesson);
-  const switcher = <LessonSwitch to="/quiz" current={lesson} progress={p} />;
-  if (!s.unlocked) return <AppShell title="Quiz">{switcher}<UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
-  return <Quiz key={lesson} lesson={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} switcher={switcher} />;
+  if (!s.unlocked) return <AppShell title="Quiz"><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
+  return <Quiz key={lesson} lesson={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} />;
 }
 
-function Quiz({ lesson, words: WORDS, label, switcher }: { lesson: LessonId; words: Word[]; label: string; switcher: React.ReactNode }) {
+function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]; label: string }) {
   const [n, setN] = useState(0);
   const [score, setScore] = useState(0);
   const [misses, setMisses] = useState<number[]>([]);
@@ -66,7 +64,6 @@ function Quiz({ lesson, words: WORDS, label, switcher }: { lesson: LessonId; wor
     const passed = pct >= PASS_PCT;
     return (
       <AppShell title="Quiz">
-        {switcher}
         <div className="learning-surface p-7 text-center">
           <Trophy className={`mx-auto h-12 w-12 ${passed ? "text-gold" : "text-muted-foreground"}`} />
           <h2 className="mt-3 text-2xl font-bold">{passed ? "Quiz passed" : "Keep practising"}</h2>
@@ -80,7 +77,6 @@ function Quiz({ lesson, words: WORDS, label, switcher }: { lesson: LessonId; wor
   }
   return (
     <AppShell title="Quiz">
-      {switcher}
       <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{label} · Question {n + 1} of {total}</span><span className="flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
       {q.mode === "build" && <Build key={`${round}-${n}`} w={q.w} words={WORDS} onDone={done} />}
       {q.mode !== "build" && <Pick key={`${round}-${n}`} w={q.w} opts={q.opts} mode={q.mode} onDone={done} />}

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { AppShell, Ar } from "@/components/AppShell";
 import { shuffle, stripTashkeel } from "@/lib/words";
 import { LESSONS, parseLesson, unitState, recordUnitResult, PASS_PCT, UNIT_ORDER } from "@/lib/lessons";
-import { LessonSwitch, UnitLocked } from "@/components/LessonSwitch";
+import { UnitLocked } from "@/components/LessonSwitch";
 import { Link } from "@tanstack/react-router";
 import { playWord, stopAudio } from "@/lib/audio";
 import { touchStreak, update, useLoadedProgress, type Progress } from "@/lib/progress";
@@ -46,7 +46,7 @@ function TestRoute() {
   const p = useLoadedProgress();
   if (!p) return <AppShell title="Reading test"><div className="h-96" aria-busy="true" /></AppShell>;
   const s = unitState(p, lesson);
-  if (!s.unlocked) return <AppShell title="Reading test"><LessonSwitch to="/test" current={lesson} progress={p} /><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
+  if (!s.unlocked) return <AppShell title="Reading test"><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
   return <Test key={lesson} lesson={lesson} progress={p} />;
 }
 
@@ -128,7 +128,6 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
     const next = UNIT_ORDER[UNIT_ORDER.indexOf(lesson) + 1];
     return (
       <AppShell title="Reading test">
-        <LessonSwitch to="/test" current={lesson} progress={progress} />
         <div className="learning-surface p-7 text-center">
           <Trophy className="mx-auto h-12 w-12 text-gold" />
           <h2 className="mt-3 text-2xl font-bold">{passed ? `${LESSONS[lesson].en} unit complete` : "Test complete"}</h2>
@@ -157,7 +156,6 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
 
   return (
     <AppShell title="Reading test">
-      <LessonSwitch to="/test" current={lesson} progress={progress} />
       <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{LESSONS[lesson].en} · Word {i + 1} of {words.length}</span><span>{correct} correct</span></div>
       <div className="mb-4 flex gap-1">{words.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? "bg-primary" : "bg-muted"}`} />)}</div>
       <div className="learning-surface p-6 text-center">
