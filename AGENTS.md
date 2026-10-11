@@ -15,3 +15,4 @@
 - Render Home curriculum destinations through a shared disclosure component; only implemented lessons link to Learn, keeping progression discoverable without exposing unfinished content as actions.
 - Define each Short Sounds lesson (word bank, saved-progress key) in the shared lessons registry and select it via the ?lesson search param on Learn and Quiz, so new lessons reuse the same screens with independent progress.
 - Gate each Short Sounds unit through unitState in the lessons registry (all words learned → quiz pass → reading-test pass → next unit unlocks), storing quiz/test results per unit in progress.units, so units stay independent and sequential.
+- Judge reading-test answers syllable by syllable (consonant + exact short vowel) in the server route /api/public/check-reading with an audio-capable model, so harakat errors are caught rather than only the word's letters.
