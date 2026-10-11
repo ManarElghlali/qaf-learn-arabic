@@ -27,10 +27,10 @@ function useCurrentUnit(): LessonId {
   return unit;
 }
 
-export function AppShell({ title, children }: { title: string; children: ReactNode }) {
+export function AppShell({ title, children, singleScreen = false }: { title: string; children: ReactNode; singleScreen?: boolean }) {
   const unit = useCurrentUnit();
   return (
-    <div className="qaf-shell mx-auto flex w-full max-w-lg flex-col bg-background">
+    <div className={`qaf-shell mx-auto flex w-full max-w-lg flex-col bg-background ${singleScreen ? "qaf-activity-shell" : ""}`}>
       {title === "Qaf" ? <header className="qaf-header grid grid-cols-[44px_minmax(0,1fr)_44px] items-start gap-3 px-5 pb-4 sm:px-7">
         <Button asChild variant="ghost" size="icon"><Link to="/profile" aria-label="Settings" title="Settings"><Settings /></Link></Button>
         <div className="text-center"><Ar className="qaf-brand-symbol block font-bold text-primary">ق</Ar><h1 className="text-lg font-bold text-primary">Qaf<span className="text-gold">.</span></h1><p className="text-[11px] font-semibold text-primary">Arabic Reading</p></div>

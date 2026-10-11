@@ -66,7 +66,7 @@ function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]
     const pct = Math.round(score / total * 100);
     const passed = pct >= PASS_PCT;
     return (
-      <AppShell title="Quiz">
+      <AppShell title="Quiz" singleScreen>
         <div className="learning-surface p-7 text-center">
           <Trophy className={`mx-auto h-12 w-12 ${passed ? "text-gold" : "text-muted-foreground"}`} />
           <h2 className="mt-3 text-2xl font-bold">{passed ? "Quiz passed" : "Keep practising"}</h2>
@@ -80,13 +80,13 @@ function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]
   }
   if (!q) return null;
   return (
-    <AppShell title="Quiz">
-      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{label} · Question {n + 1} of {total}</span><span className="flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
-      <progress aria-label="Quiz progress" className="qaf-progress mb-5 h-1.5 w-full" value={n} max={total} />
+    <AppShell title="Quiz" singleScreen>
+      <div className="activity-meta grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span className="min-w-0">{label} · {n + 1}/{total}</span><span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-2 py-1 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
+      <progress aria-label="Quiz progress" className="qaf-progress h-1.5 w-full shrink-0" value={n} max={total} />
       {q.mode === "build" && <BuildQuestion key={`${round}-${n}`} w={q.w} words={WORDS} onDone={done} />}
       {q.mode !== "build" && <PickQuestion key={`${round}-${n}`} w={q.w} opts={q.opts} mode={q.mode} onDone={done} />}
-      <div className="sticky bottom-[calc(76px+env(safe-area-inset-bottom))] mt-5 bg-background py-2">
-        <Button disabled={!answered} className="h-14 w-full" onClick={() => { stopAudio(); setAnswered(false); setN((x) => x + 1); window.scrollTo({ top: 0, behavior: "instant" }); }}>Continue<ChevronRight className="size-4" /></Button>
+      <div className="activity-actions">
+        <Button disabled={!answered} className="activity-command w-full" onClick={() => { stopAudio(); setAnswered(false); setN((x) => x + 1); }}>Continue<ChevronRight className="size-4" /></Button>
       </div>
     </AppShell>
   );
