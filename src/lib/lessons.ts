@@ -33,3 +33,37 @@ export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; 
 
 export const lessonLearned = (p: Progress, id: LessonId) => p[LESSONS[id].key];
 export const parseLesson = (v: unknown): LessonId => (v === "kasra" ? "kasra" : "fatha");
+
+// ---- Unit flow: Learn all words → pass quiz → pass reading test → next unit opens.
+export const UNIT_ORDER: LessonId[] = ["fatha", "kasra"];
+export const PASS_PCT = 70;
+export const QUIZ_LENGTH = 10;
+
+export type UnitStep = "learn" | "quiz" | "test" | "done";
+export type UnitState = {
+  id: LessonId; learned: number; total: number; lessonsDone: boolean; quizPassed: boolean; testPassed: boolean;
+  complete: boolean; unlocked: boolean; prev: LessonId | null; step: UnitStep; quizBest: number | undefined; testBest: number | undefined;
+};
+export function unitState(p: Progress, id: LessonId): UnitState {
+  const words = LESSONS[id].words;
+  const learned = words.filter((w) => p[LESSONS[id].key].includes(w.id)).length;
+  const rec = p.units?.[id] ?? {};
+  const lessonsDone = learned === words.length;
+  const quizPassed = !!rec.quizPassed;
+  const testPassed = !!rec.testPassed;
+  const complete = lessonsDone && quizPassed && testPassed;
+  const idx = UNIT_ORDER.indexOf(id);
+  const prev = idx > 0 ? UNIT_ORDER[idx - 1]! : null;
+  const unlocked: boolean = !prev || unitState(p, prev).complete;
+  const step: UnitStep = !lessonsDone ? "learn" : !quizPassed ? "quiz" : !testPassed ? "test" : "done";
+  return { id, learned, total: words.length, lessonsDone, quizPassed, testPassed, complete, unlocked, prev, step, quizBest: rec.quizBest, testBest: rec.testBest };
+}
+
+/** Saves a unit's quiz or test result; passing stays passed and the best score is kept. */
+export function recordUnitResult(p: Progress, id: LessonId, kind: "quiz" | "test", pct: number): Progress {
+  const rec = p.units?.[id] ?? {};
+  const best = Math.max(pct, (kind === "quiz" ? rec.quizBest : rec.testBest) ?? 0);
+  const passed = pct >= PASS_PCT || !!(kind === "quiz" ? rec.quizPassed : rec.testPassed);
+  const patch = kind === "quiz" ? { quizBest: best, quizPassed: passed } : { testBest: best, testPassed: passed };
+  return { ...p, units: { ...p.units, [id]: { ...rec, ...patch } } };
+}
