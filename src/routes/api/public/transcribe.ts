@@ -16,7 +16,7 @@ export const Route = createFileRoute("/api/public/transcribe")({
           file = v instanceof File ? v : null;
         } catch { /* invalid body */ }
         if (!file || !file.size || file.size > MAX_BYTES) return Response.json({ error: "No usable recording." }, { status: 400 });
-        const apiKey = process.env.LOVABLE_API_KEY;
+        const apiKey = process.env["LOVABLE_API_KEY"];
         if (!apiKey) return Response.json({ error: "Speech checking is not configured." }, { status: 500 });
 
         const form = new FormData();
