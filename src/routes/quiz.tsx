@@ -65,7 +65,6 @@ function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]
     const passed = pct >= PASS_PCT;
     return (
       <AppShell title="Quiz">
-        {switcher}
         <div className="learning-surface p-7 text-center">
           <Trophy className={`mx-auto h-12 w-12 ${passed ? "text-gold" : "text-muted-foreground"}`} />
           <h2 className="mt-3 text-2xl font-bold">{passed ? "Quiz passed" : "Keep practising"}</h2>
@@ -79,7 +78,6 @@ function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]
   }
   return (
     <AppShell title="Quiz">
-      {switcher}
       <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{label} · Question {n + 1} of {total}</span><span className="flex items-center gap-1.5 rounded-lg bg-accent px-2.5 py-1.5 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
       {q.mode === "build" && <Build key={`${round}-${n}`} w={q.w} words={WORDS} onDone={done} />}
       {q.mode !== "build" && <Pick key={`${round}-${n}`} w={q.w} opts={q.opts} mode={q.mode} onDone={done} />}
