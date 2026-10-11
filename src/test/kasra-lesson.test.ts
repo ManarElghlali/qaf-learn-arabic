@@ -29,11 +29,11 @@ describe("Fatha & Kasra lesson", () => {
 });
 
 import { unitState, recordUnitResult } from "@/lib/lessons";
-import { readProgress } from "@/lib/progress";
+import { readProgress, type Progress } from "@/lib/progress";
 describe("Unit flow", () => {
-  const base = () => ({ ...readProgress(), learned: [], learnedKasra: [], units: {} });
+  const base = (): Progress => ({ ...readProgress(), learned: [], learnedKasra: [], units: {} });
   it("locks Fatha & Kasra until Fatha lessons, quiz and test are all passed", () => {
-    let p = { ...base(), learned: WORDS.map(w => w.id) };
+    let p: Progress = { ...base(), learned: WORDS.map(w => w.id) };
     expect(unitState(p, "fatha").step).toBe("quiz");
     expect(unitState(p, "kasra").unlocked).toBe(false);
     p = recordUnitResult(p, "fatha", "quiz", 60);
