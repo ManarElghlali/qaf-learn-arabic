@@ -220,7 +220,7 @@ body { letter-spacing: 0; }
 .qaf-activity-shell .qaf-header { position: static; flex-shrink: 0; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: 8px; gap: 8px; }
 .qaf-activity-shell .qaf-header h1 { font-size: 14px; line-height: 1.5; }
 .qaf-activity-shell .qaf-main { display: flex; flex-direction: column; min-height: 0; gap: 10px; padding-top: 12px; padding-bottom: 12px; }
-.qaf-activity-shell .qaf-nav { position: relative; left: auto; bottom: auto; transform: none; flex-shrink: 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+.qaf-activity-shell .qaf-nav { position: relative; left: auto; bottom: auto; translate: none; transform: none; flex-shrink: 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
 .activity-meta, .activity-actions, .lesson-completion { flex-shrink: 0; }
 .activity-command { height: 48px; }
 .lesson-content { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 6px; padding: 12px; }
