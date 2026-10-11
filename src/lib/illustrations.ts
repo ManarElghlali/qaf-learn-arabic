@@ -1,3 +1,23 @@
+import sukoon1 from "@/assets/sukoon/sukoon-01.jpg";
+import sukoon2 from "@/assets/sukoon/sukoon-02.jpg";
+import sukoon3 from "@/assets/sukoon/sukoon-03.jpg";
+import sukoon4 from "@/assets/sukoon/sukoon-04.jpg";
+import sukoon5 from "@/assets/sukoon/sukoon-05.jpg";
+import sukoon6 from "@/assets/sukoon/sukoon-06.jpg";
+import sukoon7 from "@/assets/sukoon/sukoon-07.jpg";
+import sukoon8 from "@/assets/sukoon/sukoon-08.jpg";
+import sukoon9 from "@/assets/sukoon/sukoon-09.jpg";
+import sukoon10 from "@/assets/sukoon/sukoon-10.jpg";
+import sukoon11 from "@/assets/sukoon/sukoon-11.jpg";
+import sukoon12 from "@/assets/sukoon/sukoon-12.jpg";
+import sukoon13 from "@/assets/sukoon/sukoon-13.jpg";
+import sukoon14 from "@/assets/sukoon/sukoon-14.jpg";
+import sukoon15 from "@/assets/sukoon/sukoon-15.jpg";
+import sukoon16 from "@/assets/sukoon/sukoon-16.jpg";
+import sukoon17 from "@/assets/sukoon/sukoon-17.jpg";
+import sukoon18 from "@/assets/sukoon/sukoon-18.jpg";
+import sukoon19 from "@/assets/sukoon/sukoon-19.jpg";
+import sukoon20 from "@/assets/sukoon/sukoon-20.jpg";
 import three1 from "@/assets/three/three-01.jpg";
 import three2 from "@/assets/three/three-02.jpg";
 import three3 from "@/assets/three/three-03.jpg";
@@ -172,4 +192,24 @@ export const WORD_ILLUSTRATIONS: Record<number, string> = {
   228: three28,
   229: three29,
   230: three30,
+  301: sukoon1,
+  302: sukoon2,
+  303: sukoon3,
+  304: sukoon4,
+  305: sukoon5,
+  306: sukoon6,
+  307: sukoon7,
+  308: sukoon8,
+  309: sukoon9,
+  310: sukoon10,
+  311: sukoon11,
+  312: sukoon12,
+  313: sukoon13,
+  314: sukoon14,
+  315: sukoon15,
+  316: sukoon16,
+  317: sukoon17,
+  318: sukoon18,
+  319: sukoon19,
+  320: sukoon20,
 };

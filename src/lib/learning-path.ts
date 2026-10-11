@@ -4,7 +4,7 @@ export const SHORT_LESSONS = [
   { ar: "الفتحة", en: "Fatha", available: true, lesson: "fatha" as const },
   { ar: "الفتحة والكسرة", en: "Fatha & Kasra", available: true, lesson: "kasra" as const },
   { ar: "الفتحة والضمة والكسرة", en: "Fatha, Damma & Kasra", available: true, lesson: "three" as const },
-  { ar: "السكون", en: "Sukun", available: false, lesson: null },
+  { ar: "السكون", en: "Sukoon", available: true, lesson: "sukoon" as const },
 ];
 export const MADD_LESSONS = [
   { ar: "مد الألف", en: "Madd Alif" },

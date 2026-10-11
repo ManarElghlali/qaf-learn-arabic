@@ -1,7 +1,7 @@
 import { WORDS, type Word } from "@/lib/words";
 import type { Progress } from "@/lib/progress";
 
-export type LessonId = "fatha" | "kasra" | "three";
+export type LessonId = "fatha" | "kasra" | "three" | "sukoon";
 
 // Fatha + Kasra bank (pattern Fatha → Kasra → Fatha). IDs start at 101 so they
 // never collide with the 42 Fatha IDs used by saved progress and artwork.
@@ -40,17 +40,28 @@ const threeRaw: [string, string, string][] = [
 const splitUnits = (w: string) => w.match(/[^\u064E\u064F\u0650]+[\u064E\u064F\u0650]/g) ?? [w];
 export const THREE_WORDS: Word[] = threeRaw.map(([ar, tr, en], i) => ({ id: 201 + i, ar, units: splitUnits(ar), tr, en }));
 
-export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" }> = {
+// The Sukoon bank, exactly as supplied (IDs 301+). Units: vowel | sukoon consonant | final vowel.
+const sukoonRaw: [string, string, string][] = [
+  ["نَمْلُ", "namlu", "Ant / ants"], ["قَلْبُ", "qalbu", "Heart"], ["كَلْبُ", "kalbu", "Dog"], ["شَمْسُ", "shamsu", "Sun"],
+  ["بَدْرُ", "badru", "Full moon"], ["نَجْمُ", "najmu", "Star"], ["بَحْرُ", "bahru", "Sea"], ["نَهْرُ", "nahru", "River"],
+  ["أَرْضُ", "ardu", "Earth / land"], ["وَرْدُ", "wardu", "Roses"], ["زَهْرُ", "zahru", "Blossoms / flowers"], ["فَهْدُ", "fahdu", "Leopard"],
+  ["صَقْرُ", "saqru", "Falcon / hawk"], ["نَسْرُ", "nasru", "Eagle / vulture"], ["ثَوْرُ", "thawru", "Bull"], ["قِرْدُ", "qirdu", "Monkey"],
+  ["طِفْلُ", "tiflu", "Child"], ["جِذْعُ", "jidh'u", "Tree trunk"], ["خُبْزُ", "khubzu", "Bread"], ["غُصْنُ", "ghusnu", "Branch"],
+];
+export const SUKOON_WORDS: Word[] = sukoonRaw.map(([ar, tr, en], i) => ({ id: 301 + i, ar, units: ar.match(/[^\u064B-\u0652][\u064B-\u0652]/g) ?? [ar], tr, en }));
+
+export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" }> = {
   fatha: { ar: "الفتحة", en: "Fatha", words: WORDS, key: "learned" },
   kasra: { ar: "الفتحة والكسرة", en: "Fatha & Kasra", words: KASRA_WORDS, key: "learnedKasra" },
   three: { ar: "الفتحة والضمة والكسرة", en: "Three Short Sounds", words: THREE_WORDS, key: "learnedThree" },
+  sukoon: { ar: "السكون", en: "Sukoon", words: SUKOON_WORDS, key: "learnedSukoon" },
 };
 
 export const lessonLearned = (p: Progress, id: LessonId) => p[LESSONS[id].key];
-export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" ? v : "fatha");
+export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" ? v : "fatha");
 
 // ---- Unit flow: Learn all words → pass quiz → pass reading test → next unit opens.
-export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three"];
+export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon"];
 export const PASS_PCT = 70;
 export const QUIZ_LENGTH = 10;
 
