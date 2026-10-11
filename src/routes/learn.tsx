@@ -35,8 +35,8 @@ function Learn() {
   const [selectedSound, setSelectedSound] = useState<number | null>(null);
   const w = WORDS[i];
   useEffect(() => { setI(learningSummary(lessonLearned(readProgress(), lesson), WORDS).resumeIndex); return () => stopAudio(); }, [lesson]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!w) return null;
   useEffect(() => { setSelectedSound(null); stopAudio(); }, [i, lesson]);
+  if (!w) return null;
   if (lp && !unitState(lp, lesson).unlocked) return <AppShell title={`${L.en} · ${L.ar}`}><UnitLocked id={lesson} progress={lp} need="unit" /></AppShell>;
   const unit = lp ? unitState(lp, lesson) : null;
   const go = (d: number) => {
