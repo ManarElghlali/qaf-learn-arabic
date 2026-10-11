@@ -50,3 +50,13 @@ describe("Unit flow", () => {
     expect(p.units["fatha"]).toBeUndefined();
   });
 });
+
+import { hasRecording } from "@/lib/audio";
+describe("Teacher recordings", () => {
+  it("exist for every word and every sound unit in both units", () => {
+    for (const w of [...WORDS, ...KASRA_WORDS]) {
+      expect(hasRecording("w", w.ar), w.ar).toBe(true);
+      for (const u of w.units) expect(hasRecording("u", u), u).toBe(true);
+    }
+  });
+});
