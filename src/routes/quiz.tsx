@@ -44,6 +44,7 @@ function Quiz({ lesson, words: WORDS, label, switcher }: { lesson: LessonId; wor
   const [n, setN] = useState(0);
   const [score, setScore] = useState(0);
   const [misses, setMisses] = useState<number[]>([]);
+  const [round, setRound] = useState(0);
   // adaptive: half the time re-ask a missed word
   const q = useMemo(() => {
     const pool: typeof WORDS = misses.length && Math.random() < 0.5 ? WORDS.filter((w) => misses.includes(w.id)) : WORDS;
@@ -57,7 +58,6 @@ function Quiz({ lesson, words: WORDS, label, switcher }: { lesson: LessonId; wor
     else setMisses((m) => [...new Set([...m, q.w.id])]);
     setTimeout(() => setN((x) => x + 1), 900);
   };
-  const [round, setRound] = useState(0);
   const total = Math.min(QUIZ_LENGTH, WORDS.length);
   const finished = n >= total;
   useEffect(() => { if (finished) update((p) => recordUnitResult(p, lesson, "quiz", Math.round(score / total * 100))); }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
