@@ -14,7 +14,7 @@ import { Route as LearnRouteImport } from './routes/learn'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as TestRouteImport } from './routes/test'
-import { Route as ApiPublicTranscribeRouteImport } from './routes/api/public/transcribe'
+import { Route as ApiPublicCheckReadingRouteImport } from './routes/api/public/check-reading'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -41,9 +41,9 @@ const TestRoute = TestRouteImport.update({
   path: '/test',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicTranscribeRoute = ApiPublicTranscribeRouteImport.update({
-  id: '/api/public/transcribe',
-  path: '/api/public/transcribe',
+const ApiPublicCheckReadingRoute = ApiPublicCheckReadingRouteImport.update({
+  id: '/api/public/check-reading',
+  path: '/api/public/check-reading',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -53,7 +53,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/test': typeof TestRoute
-  '/api/public/transcribe': typeof ApiPublicTranscribeRoute
+  '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -61,7 +61,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/test': typeof TestRoute
-  '/api/public/transcribe': typeof ApiPublicTranscribeRoute
+  '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -70,14 +70,25 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/test': typeof TestRoute
-  '/api/public/transcribe': typeof ApiPublicTranscribeRoute
+  '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/learn' | '/profile' | '/quiz' | '/test' | '/api/public/transcribe'
+    | '/'
+    | '/learn'
+    | '/profile'
+    | '/quiz'
+    | '/test'
+    | '/api/public/check-reading'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/learn' | '/profile' | '/quiz' | '/test' | '/api/public/transcribe'
+  to:
+    | '/'
+    | '/learn'
+    | '/profile'
+    | '/quiz'
+    | '/test'
+    | '/api/public/check-reading'
   id:
     | '__root__'
     | '/'
@@ -85,7 +96,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/test'
-    | '/api/public/transcribe'
+    | '/api/public/check-reading'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,7 +105,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   QuizRoute: typeof QuizRoute
   TestRoute: typeof TestRoute
-  ApiPublicTranscribeRoute: typeof ApiPublicTranscribeRoute
+  ApiPublicCheckReadingRoute: typeof ApiPublicCheckReadingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -134,11 +145,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/transcribe': {
-      id: '/api/public/transcribe'
-      path: '/api/public/transcribe'
-      fullPath: '/api/public/transcribe'
-      preLoaderRoute: typeof ApiPublicTranscribeRouteImport
+    '/api/public/check-reading': {
+      id: '/api/public/check-reading'
+      path: '/api/public/check-reading'
+      fullPath: '/api/public/check-reading'
+      preLoaderRoute: typeof ApiPublicCheckReadingRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -150,7 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   QuizRoute: QuizRoute,
   TestRoute: TestRoute,
-  ApiPublicTranscribeRoute: ApiPublicTranscribeRoute,
+  ApiPublicCheckReadingRoute: ApiPublicCheckReadingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

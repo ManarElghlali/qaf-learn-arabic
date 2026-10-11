@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, LoaderCircle, Mic, Trophy, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AppShell, Ar } from "@/components/AppShell";
-import { shuffle, stripTashkeel } from "@/lib/words";
+import { shuffle } from "@/lib/words";
 import { LESSONS, parseLesson, unitState, recordUnitResult, PASS_PCT, UNIT_ORDER } from "@/lib/lessons";
 import { UnitLocked } from "@/components/LessonSwitch";
 import { Link } from "@tanstack/react-router";
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/test")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "Reading test — Qaf" },
-      { name: "description", content: "Read 10 Fatha or Fatha & Kasra words aloud and get instant pronunciation feedback." },
+      { name: "description", content: "Read 10 words from your unit aloud and get feedback on every short vowel." },
       { property: "og:title", content: "Reading test — Qaf" },
       { property: "og:description", content: "A 10-word Arabic reading assessment using your microphone." },
     ],
@@ -27,19 +27,7 @@ export const Route = createFileRoute("/test")({
 
 type State = "idle" | "recording" | "analyzing" | "correct" | "wrong" | "denied" | "unsupported" | "error";
 
-// Recognisers drop harakat and often add ال / a final ة to single words; compare the core letters.
-// They may also spell a word letter by letter ("ق، ر، أ"), so keep Arabic letters only.
-export const normalizeHeard = (s: string) => stripTashkeel(s).replace(/[^\u0621-\u064A]/g, "").replace(/^ال/, "").replace(/ة$/, "");
-
-// Levenshtein similarity on unvowelled letters.
-function similar(a: string, b: string) {
-  const m = a.length, n = b.length;
-  const d: number[][] = Array.from({ length: m + 1 }, (_, i) => [i, ...Array<number>(n).fill(0)]);
-  for (let j = 1; j <= n; j++) d[0]![j] = j;
-  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
-    d[i]![j] = Math.min(d[i - 1]![j]! + 1, d[i]![j - 1]! + 1, d[i - 1]![j - 1]! + (a[i - 1] === b[j - 1] ? 0 : 1));
-  return 1 - d[m]![n]! / Math.max(m, n, 1);
-}
+type Syllable = { target: string; heard: string; correct: boolean };
 
 function TestRoute() {
   const { lesson } = Route.useSearch();
@@ -56,6 +44,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   const [i, setI] = useState(0);
   const [st, setSt] = useState<State>("idle");
   const [heard, setHeard] = useState("");
+  const [syl, setSyl] = useState<Syllable[]>([]);
   const [correct, setCorrect] = useState(0);
   const media = useRef<MediaRecorder | null>(null);
   const stream = useRef<MediaStream | null>(null);
@@ -73,25 +62,26 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
 
   useEffect(() => { setWords(shuffle(WORDS).slice(0, 10)); return () => { stopAudio(); media.current?.state === "recording" && media.current.stop(); stream.current?.getTracks().forEach((t) => t.stop()); }; }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const judge = (text: string) => {
-    setHeard(text);
-    if (similar(normalizeHeard(text), normalizeHeard(w.ar)) >= 0.67) {
+  const judge = (r: { correct: boolean; heard: string; syllables: Syllable[] }) => {
+    setHeard(r.heard); setSyl(r.syllables);
+    if (r.correct) {
       setSt("correct"); setCorrect((c) => c + 1);
-      setTimeout(() => { setI((x) => x + 1); setSt("idle"); setHeard(""); }, 1200);
+      setTimeout(() => { setI((x) => x + 1); setSt("idle"); setHeard(""); setSyl([]); }, 1200);
     } else setSt("wrong");
   };
 
   const analyze = async (blob: Blob) => {
     setSt("analyzing");
     try {
+      const type = blob.type.split(";")[0] || "audio/webm";
       const fd = new FormData();
       fd.append("expected", w.ar);
-      fd.append("file", new File([blob], "reading.webm", { type: blob.type.split(";")[0] || "audio/webm" }));
-      const res = await fetch("/api/public/transcribe", { method: "POST", body: fd });
-      const data = (await res.json()) as { text?: string; error?: string };
-      if (!res.ok) { setErrMsg(data.error ?? "Speech checking failed. Please try again."); setSt("error"); return; }
-      judge(data.text ?? "");
-    } catch { setErrMsg("Couldn't reach speech checking. Check your connection and try again."); setSt("error"); }
+      fd.append("file", new File([blob], type.includes("mp4") ? "reading.m4a" : "reading.webm", { type }));
+      const res = await fetch("/api/public/check-reading", { method: "POST", body: fd });
+      const data = (await res.json()) as { correct?: boolean; heard?: string; syllables?: Syllable[]; error?: string };
+      if (!res.ok || !data.syllables) { setErrMsg(data.error ?? "Reading check failed. Please try again."); setSt("error"); return; }
+      judge({ correct: !!data.correct, heard: data.heard ?? "", syllables: data.syllables });
+    } catch { setErrMsg("Couldn't reach the reading checker. Check your connection and try again."); setSt("error"); }
   };
 
   const start = async () => {
@@ -164,7 +154,10 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
         <p className="mb-2 text-sm text-muted-foreground">Read this word aloud</p>
         <Ar className="block text-7xl font-semibold leading-relaxed">{w.ar}</Ar>
         <p role="status" aria-live="polite" className={`mt-4 flex min-h-16 items-center justify-center gap-2 rounded-2xl p-3 text-sm font-medium ${st === "correct" ? "bg-success-soft text-success" : st === "wrong" || st === "denied" || st === "error" ? "bg-error-soft text-destructive" : "bg-accent text-muted-foreground"}`}>{st === "correct" && <Check className="h-4 w-4 shrink-0" />}{(st === "wrong" || st === "denied" || st === "unsupported" || st === "error") && <CircleAlert className="h-4 w-4 shrink-0" />}{st === "analyzing" && <LoaderCircle className="h-4 w-4 shrink-0 animate-spin" />}{msg[st]}</p>
-        {st === "wrong" && heard && <p className="text-xs text-muted-foreground">We heard: <Ar>{heard}</Ar></p>}
+        {st === "wrong" && syl.length > 0 && <div className="mt-3" aria-label="Sound by sound">
+          <div dir="rtl" className="flex flex-wrap justify-center gap-2">{syl.map((s, k) => <span key={k} className={`rounded-xl px-3 py-1.5 font-arabic text-2xl ${s.correct ? "bg-success-soft text-success" : "bg-error-soft text-destructive"}`} lang="ar">{s.target}</span>)}</div>
+          <p className="mt-2 text-xs text-muted-foreground">Red sounds were not read exactly.{heard && <> We heard: <Ar className="text-base">{heard}</Ar></>}</p>
+        </div>}
       </div>
       <div className="mt-8 flex flex-col items-center gap-4">
         <Button disabled={st === "analyzing" || st === "correct"} aria-label="Press and hold to record" aria-pressed={st === "recording"}
@@ -178,7 +171,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
             <Volume2 className="h-4 w-4" /> Hear the word
           </Button>
         )}
-        {st === "wrong" && <Button variant="ghost" className="text-muted-foreground" onClick={() => { setI((x) => x + 1); setSt("idle"); }}>Skip</Button>}
+        {st === "wrong" && <Button variant="ghost" className="text-muted-foreground" onClick={() => { setI((x) => x + 1); setSt("idle"); setSyl([]); }}>Skip</Button>}
       </div>
     </AppShell>
   );
