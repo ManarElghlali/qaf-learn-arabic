@@ -28,7 +28,8 @@ export const Route = createFileRoute("/test")({
 type State = "idle" | "recording" | "analyzing" | "correct" | "wrong" | "denied" | "unsupported" | "error";
 
 // Recognisers drop harakat and often add ال / a final ة to single words; compare the core letters.
-const normalizeHeard = (s: string) => stripTashkeel(s).replace(/[.,،؟!?]/g, "").replace(/^ال/, "").replace(/ة$/, "");
+// They may also spell a word letter by letter ("ق، ر، أ"), so keep Arabic letters only.
+export const normalizeHeard = (s: string) => stripTashkeel(s).replace(/[^\u0621-\u064A]/g, "").replace(/^ال/, "").replace(/ة$/, "");
 
 // Levenshtein similarity on unvowelled letters.
 function similar(a: string, b: string) {
