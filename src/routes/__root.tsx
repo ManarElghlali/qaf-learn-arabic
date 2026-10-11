@@ -116,6 +116,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  // A stale page after an update can fail to load a screen ("Importing a module script failed"); reload once to fetch the fresh version.
+  useEffect(() => {
+    const KEY = "qaf-chunk-reload";
+    const recover = (e: Event | PromiseRejectionEvent) => {
+      const msg = String((e as PromiseRejectionEvent).reason?.message ?? (e as ErrorEvent).message ?? "");
+      if (e.type !== "vite:preloadError" && !/module script|dynamically imported module|Failed to fetch/i.test(msg)) return;
+      if (sessionStorage.getItem(KEY)) return;
+      sessionStorage.setItem(KEY, "1");
+      e.preventDefault?.();
+      window.location.reload();
+    };
+    const t = setTimeout(() => sessionStorage.removeItem(KEY), 10000);
+    window.addEventListener("vite:preloadError", recover);
+    window.addEventListener("unhandledrejection", recover);
+    return () => { clearTimeout(t); window.removeEventListener("vite:preloadError", recover); window.removeEventListener("unhandledrejection", recover); };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
