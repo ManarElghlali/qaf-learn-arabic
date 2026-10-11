@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { THREE_WORDS, unitState, recordUnitResult, LESSONS } from "@/lib/lessons";
+import { THREE_WORDS, unitState, recordUnitResult, LESSONS, UNIT_LOCKING } from "@/lib/lessons";
 import { WORD_ILLUSTRATIONS } from "@/lib/illustrations";
 import { hasRecording } from "@/lib/audio";
 import { readProgress, type Progress } from "@/lib/progress";
@@ -19,7 +19,7 @@ describe("Three Short Sounds unit", () => {
   });
   it("locks until Fatha & Kasra is complete and keeps its own results", () => {
     const base: Progress = { ...readProgress(), learned: [], learnedKasra: [], learnedThree: [], units: {} };
-    expect(unitState(base, "three").unlocked).toBe(false);
+    expect(unitState(base, "three").unlocked).toBe(!UNIT_LOCKING);
     let p: Progress = { ...base, learned: WORDS.map(w => w.id), learnedKasra: LESSONS.kasra.words.map(w => w.id) };
     for (const id of ["fatha", "kasra"] as const) { p = recordUnitResult(p, id, "quiz", 80); p = recordUnitResult(p, id, "test", 80); }
     expect(unitState(p, "three")).toMatchObject({ unlocked: true, total: 30, learned: 0 });

@@ -59,6 +59,9 @@ export type UnitState = {
   id: LessonId; learned: number; total: number; lessonsDone: boolean; quizPassed: boolean; testPassed: boolean;
   complete: boolean; unlocked: boolean; prev: LessonId | null; step: UnitStep; quizBest: number | undefined; testBest: number | undefined;
 };
+/** Set to true before release to lock each unit until the previous one is complete. */
+export const UNIT_LOCKING = false;
+
 export function unitState(p: Progress, id: LessonId): UnitState {
   const words = LESSONS[id].words;
   const learned = words.filter((w) => p[LESSONS[id].key].includes(w.id)).length;
@@ -69,7 +72,10 @@ export function unitState(p: Progress, id: LessonId): UnitState {
   const complete = lessonsDone && quizPassed && testPassed;
   const idx = UNIT_ORDER.indexOf(id);
   const prev = idx > 0 ? UNIT_ORDER[idx - 1]! : null;
-  const unlocked: boolean = !prev || unitState(p, prev).complete;
+  // DEV: unit locking is disabled while the app is being built so every unit
+  // can be tested freely. Set UNIT_LOCKING to true to restore "finish a unit
+  // to open the next one" before release.
+  const unlocked: boolean = UNIT_LOCKING ? !prev || unitState(p, prev).complete : true;
   const step: UnitStep = !lessonsDone ? "learn" : !quizPassed ? "quiz" : !testPassed ? "test" : "done";
   return { id, learned, total: words.length, lessonsDone, quizPassed, testPassed, complete, unlocked, prev, step, quizBest: rec.quizBest, testBest: rec.testBest };
 }
