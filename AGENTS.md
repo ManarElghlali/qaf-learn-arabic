@@ -14,3 +14,4 @@
 - Apply learning surfaces, sound-control sizes, navigation safe areas and color roles through shared styles and the existing Button component, so the five screens remain visually coherent without altering their engines.
 - Render Home curriculum destinations through a shared disclosure component; only implemented lessons link to Learn, keeping progression discoverable without exposing unfinished content as actions.
 - Define each Short Sounds lesson (word bank, saved-progress key) in the shared lessons registry and select it via the ?lesson search param on Learn and Quiz, so new lessons reuse the same screens with independent progress.
+- Gate each Short Sounds unit through unitState in the lessons registry (all words learned → quiz pass → reading-test pass → next unit unlocks), storing quiz/test results per unit in progress.units, so units stay independent and sequential.

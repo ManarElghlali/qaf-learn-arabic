@@ -47,9 +47,9 @@ function Home() {
     <AppShell title="Qaf">
       <section aria-label="Your learning progress" className="home-progress mb-4 grid grid-cols-[minmax(0,1fr)_48px] items-center gap-4 rounded-3xl bg-primary p-4 text-primary-foreground">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-sm font-semibold">Fatha progress</h2>{p.streak > 0 && <span className="flex items-center gap-1 text-[11px]"><Flame className="h-3.5 w-3.5 text-gold" />{p.streak} day streak</span>}</div>
-          <p className="mb-2 mt-1 text-xs opacity-80">{summary.completed}/{WORDS.length} words learned</p>
-          <progress aria-label="Fatha progress" value={summary.completed} max={WORDS.length} className="qaf-progress h-1.5 w-full" />
+          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-sm font-semibold">{L.en} progress</h2>{p.streak > 0 && <span className="flex items-center gap-1 text-[11px]"><Flame className="h-3.5 w-3.5 text-gold" />{p.streak} day streak</span>}</div>
+          <p className="mb-2 mt-1 text-xs opacity-80">{cur.learned}/{cur.total} words learned</p>
+          <progress aria-label={`${L.en} progress`} value={cur.learned} max={cur.total} className="qaf-progress h-1.5 w-full" />
         </div>
         <Ar className="text-center text-5xl text-gold">ق</Ar>
       </section>
