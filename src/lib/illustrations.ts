@@ -1,3 +1,27 @@
+import shaddah1 from "@/assets/shaddah/shaddah-01.jpg";
+import shaddah2 from "@/assets/shaddah/shaddah-02.jpg";
+import shaddah3 from "@/assets/shaddah/shaddah-03.jpg";
+import shaddah4 from "@/assets/shaddah/shaddah-04.jpg";
+import shaddah5 from "@/assets/shaddah/shaddah-05.jpg";
+import shaddah6 from "@/assets/shaddah/shaddah-06.jpg";
+import shaddah7 from "@/assets/shaddah/shaddah-07.jpg";
+import shaddah8 from "@/assets/shaddah/shaddah-08.jpg";
+import shaddah9 from "@/assets/shaddah/shaddah-09.jpg";
+import shaddah10 from "@/assets/shaddah/shaddah-10.jpg";
+import shaddah11 from "@/assets/shaddah/shaddah-11.jpg";
+import shaddah12 from "@/assets/shaddah/shaddah-12.jpg";
+import shaddah13 from "@/assets/shaddah/shaddah-13.jpg";
+import shaddah14 from "@/assets/shaddah/shaddah-14.jpg";
+import shaddah15 from "@/assets/shaddah/shaddah-15.jpg";
+import shaddah16 from "@/assets/shaddah/shaddah-16.jpg";
+import shaddah17 from "@/assets/shaddah/shaddah-17.jpg";
+import shaddah18 from "@/assets/shaddah/shaddah-18.jpg";
+import shaddah19 from "@/assets/shaddah/shaddah-19.jpg";
+import shaddah20 from "@/assets/shaddah/shaddah-20.jpg";
+import shaddah21 from "@/assets/shaddah/shaddah-21.jpg";
+import shaddah22 from "@/assets/shaddah/shaddah-22.jpg";
+import shaddah23 from "@/assets/shaddah/shaddah-23.jpg";
+import shaddah24 from "@/assets/shaddah/shaddah-24.jpg";
 import waw1 from "@/assets/waw/waw-01.jpg";
 import waw2 from "@/assets/waw/waw-02.jpg";
 import waw3 from "@/assets/waw/waw-03.jpg";
@@ -254,6 +278,39 @@ import tanweenKasr19 from "@/assets/tanween-kasr/tanween-kasr-19.jpg";
 import tanweenKasr20 from "@/assets/tanween-kasr/tanween-kasr-20.jpg";
 
 export const WORD_ILLUSTRATIONS: Record<number, string> = {
+  1001: shaddah1,
+  1002: shaddah2,
+  1003: shaddah3,
+  1004: shaddah4,
+  1005: shaddah5,
+  1006: shaddah6,
+  1007: shaddah7,
+  1008: shaddah8,
+  1009: shaddah9,
+  1010: shaddah10,
+  1011: shaddah11,
+  1101: shaddah12,
+  1102: shaddah3,
+  1103: shaddah13,
+  1104: shaddah14,
+  1105: shaddah15,
+  1106: shaddah16,
+  1201: shaddah3,
+  1202: shaddah17,
+  1203: shaddah12,
+  1204: shaddah13,
+  1205: shaddah18,
+  1206: shaddah19,
+  1207: shaddah20,
+  1208: shaddah21,
+  1301: shaddah12,
+  1302: shaddah13,
+  1303: shaddah3,
+  1304: shaddah1,
+  1305: shaddah22,
+  1306: shaddah23,
+  1307: shaddah24,
+
   901: tanweenKasr1, 902: tanweenKasr2, 903: tanweenKasr3, 904: tanweenKasr4,
   905: tanweenKasr5, 906: tanweenKasr6, 907: tanweenKasr7, 908: tanweenKasr8,
   909: tanweenKasr9, 910: tanweenKasr10, 911: tanweenKasr11, 912: tanweenKasr12,

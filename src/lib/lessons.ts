@@ -10,8 +10,10 @@ import { TANWEEN_DAMM_WORDS } from "@/lib/tanween-damm-words";
 export { TANWEEN_DAMM_WORDS } from "@/lib/tanween-damm-words";
 import { TANWEEN_KASR_WORDS } from "@/lib/tanween-kasr-words";
 export { TANWEEN_KASR_WORDS } from "@/lib/tanween-kasr-words";
+import { SHADDAH_WORDS, SHADDAH_FATH_WORDS, SHADDAH_DAMM_WORDS, SHADDAH_KASR_WORDS } from "@/lib/shaddah-words";
+export { SHADDAH_WORDS, SHADDAH_FATH_WORDS, SHADDAH_DAMM_WORDS, SHADDAH_KASR_WORDS } from "@/lib/shaddah-words";
 
-export type LessonId = "fatha" | "kasra" | "three" | "sukoon" | "alif" | "waw" | "yaa" | "tanween-fath" | "tanween-damm" | "tanween-kasr";
+export type LessonId = "fatha" | "kasra" | "three" | "sukoon" | "alif" | "waw" | "yaa" | "tanween-fath" | "tanween-damm" | "tanween-kasr" | "shaddah" | "shaddah-fath" | "shaddah-damm" | "shaddah-kasr";
 
 // Fatha + Kasra bank (pattern Fatha → Kasra → Fatha). IDs start at 101 so they
 // never collide with the 42 Fatha IDs used by saved progress and artwork.
@@ -74,7 +76,7 @@ const alifRaw: [string, string, string, string][] = [
 ];
 export const ALIF_WORDS: Word[] = alifRaw.map(([ar, u, tr, en], i) => ({ id: 401 + i, ar, units: u.split(" "), tr, en }));
 
-export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" | "learnedAlif" | "learnedWaw" | "learnedYaa" | "learnedTanweenFath" | "learnedTanweenDamm" | "learnedTanweenKasr" }> = {
+export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" | "learnedAlif" | "learnedWaw" | "learnedYaa" | "learnedTanweenFath" | "learnedTanweenDamm" | "learnedTanweenKasr" | "learnedShaddah" | "learnedShaddahFath" | "learnedShaddahDamm" | "learnedShaddahKasr" }> = {
   fatha: { ar: "الفتحة", en: "Fatha", words: WORDS, key: "learned" },
   kasra: { ar: "الفتحة والكسرة", en: "Fatha & Kasra", words: KASRA_WORDS, key: "learnedKasra" },
   three: { ar: "الفتحة والضمة والكسرة", en: "Three Short Sounds", words: THREE_WORDS, key: "learnedThree" },
@@ -85,13 +87,17 @@ export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; 
   "tanween-fath": { ar: "تنوين الفتح", en: "Tanween Fath", words: TANWEEN_FATH_WORDS, key: "learnedTanweenFath" },
   "tanween-damm": { ar: "تنوين الضم", en: "Tanween Damm", words: TANWEEN_DAMM_WORDS, key: "learnedTanweenDamm" },
   "tanween-kasr": { ar: "تنوين الكسر", en: "Tanween Kasr", words: TANWEEN_KASR_WORDS, key: "learnedTanweenKasr" },
+  shaddah: { ar: "الشدة", en: "Shaddah", words: SHADDAH_WORDS, key: "learnedShaddah" },
+  "shaddah-fath": { ar: "الشدة وتنوين الفتح", en: "Shaddah + Tanween Fath", words: SHADDAH_FATH_WORDS, key: "learnedShaddahFath" },
+  "shaddah-damm": { ar: "الشدة وتنوين الضم", en: "Shaddah + Tanween Damm", words: SHADDAH_DAMM_WORDS, key: "learnedShaddahDamm" },
+  "shaddah-kasr": { ar: "الشدة وتنوين الكسر", en: "Shaddah + Tanween Kasr", words: SHADDAH_KASR_WORDS, key: "learnedShaddahKasr" },
 };
 
 export const lessonLearned = (p: Progress, id: LessonId) => p[LESSONS[id].key];
-export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" || v === "alif" || v === "waw" || v === "yaa" || v === "tanween-fath" || v === "tanween-damm" || v === "tanween-kasr" ? v : "fatha");
+export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" || v === "alif" || v === "waw" || v === "yaa" || v === "tanween-fath" || v === "tanween-damm" || v === "tanween-kasr" || v === "shaddah" || v === "shaddah-fath" || v === "shaddah-damm" || v === "shaddah-kasr" ? v : "fatha");
 
 // ---- Unit flow: Learn all words → pass quiz → pass reading test → next unit opens.
-export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon", "alif", "waw", "yaa", "tanween-fath", "tanween-damm", "tanween-kasr"];
+export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon", "alif", "waw", "yaa", "tanween-fath", "tanween-damm", "tanween-kasr", "shaddah", "shaddah-fath", "shaddah-damm", "shaddah-kasr"];
 export const PASS_PCT = 70;
 export const QUIZ_LENGTH = 10;
 

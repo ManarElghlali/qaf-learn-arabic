@@ -4,10 +4,11 @@ export type UnitRecord = { quizBest?: number; quizPassed?: boolean; testBest?: n
 export type Progress = {
   learned: number[]; learnedKasra: number[]; learnedThree: number[]; learnedSukoon: number[]; learnedAlif: number[]; learnedWaw: number[]; learnedYaa: number[]; learnedTanweenFath: number[]; learnedTanweenDamm: number[]; learnedTanweenKasr: number[]; streak: number; lastDay: string; scores: number[];
   reminders: boolean; premium: boolean; translit: boolean;
+  learnedShaddah: number[]; learnedShaddahFath: number[]; learnedShaddahDamm: number[]; learnedShaddahKasr: number[];
   units: Record<string, UnitRecord>;
 };
 const KEY = "qaf-progress-v1";
-const def: Progress = { learned: [], learnedKasra: [], learnedThree: [], learnedSukoon: [], learnedAlif: [], learnedWaw: [], learnedYaa: [], learnedTanweenFath: [], learnedTanweenDamm: [], learnedTanweenKasr: [], streak: 0, lastDay: "", scores: [], reminders: false, premium: false, translit: true, units: {} };
+const def: Progress = { learned: [], learnedKasra: [], learnedThree: [], learnedSukoon: [], learnedAlif: [], learnedWaw: [], learnedYaa: [], learnedTanweenFath: [], learnedTanweenDamm: [], learnedTanweenKasr: [], learnedShaddah: [], learnedShaddahFath: [], learnedShaddahDamm: [], learnedShaddahKasr: [], streak: 0, lastDay: "", scores: [], reminders: false, premium: false, translit: true, units: {} };
 
 export function readProgress(): Progress {
   try { return { ...def, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return def; }

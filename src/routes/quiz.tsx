@@ -19,7 +19,7 @@ export const Route = createFileRoute("/quiz")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "Unit quiz — Qaf" },
-      { name: "description", content: "Build words, listen and pick, and match pictures in your selected Short Sounds, Madd or Tanween unit." },
+      { name: "description", content: "Build words, listen and pick, and match pictures in your selected Short Sounds, Madd, Tanween or Shaddah unit." },
       { property: "og:title", content: "Unit quiz — Qaf" },
       { property: "og:description", content: "Three quiz modes to practise reading Arabic." },
     ],

@@ -16,6 +16,12 @@ export const TANWEEN_LESSONS = [
   { ar: "تنوين الضم", en: "Tanween Damm", available: true, lesson: "tanween-damm" as const },
   { ar: "تنوين الكسر", en: "Tanween Kasr", available: true, lesson: "tanween-kasr" as const },
 ];
+export const SHADDAH_LESSONS = [
+  { ar: "الشدة", en: "Shaddah", available: true, lesson: "shaddah" as const },
+  { ar: "الشدة وتنوين الفتح", en: "Shaddah + Tanween Fath", available: true, lesson: "shaddah-fath" as const },
+  { ar: "الشدة وتنوين الضم", en: "Shaddah + Tanween Damm", available: true, lesson: "shaddah-damm" as const },
+  { ar: "الشدة وتنوين الكسر", en: "Shaddah + Tanween Kasr", available: true, lesson: "shaddah-kasr" as const },
+];
 
 // Existing saved completion IDs determine the next word; no new progress schema.
 export function learningSummary(learned: number[], words: Word[] = WORDS) {

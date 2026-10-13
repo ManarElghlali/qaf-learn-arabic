@@ -35,7 +35,7 @@ describe("Tanween Kasr", () => {
     expect(recordUnitResult(completed, "tanween-kasr", "quiz", 40).units["tanween-kasr"]).toMatchObject({ quizBest: 70, quizPassed: true, testPassed: true });
     expect(LESSONS["tanween-kasr"].key).toBe("learnedTanweenKasr");
     expect(parseLesson("tanween-kasr")).toBe("tanween-kasr");
-    expect(UNIT_ORDER.at(-1)).toBe("tanween-kasr");
+    expect(UNIT_ORDER[UNIT_ORDER.indexOf("tanween-kasr") + 1]).toBe("shaddah");
     expect(PASS_PCT).toBe(70);
     expect(TANWEEN_LESSONS[2]).toMatchObject({ available: true, lesson: "tanween-kasr" });
   });
