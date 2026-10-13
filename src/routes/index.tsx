@@ -59,7 +59,7 @@ function Home() {
       <section aria-label="Continue your lesson" className="continue-lesson mb-6 rounded-3xl border border-border bg-stage-sage p-4">
         <h2 className="mb-3 text-sm font-bold">{completed ? "Review your lesson" : started ? "Continue Learning" : "Start Learning"}</h2>
         <div className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-4">
-          <img src={cur.id === "alif" ? lighthouse : castle} alt={cur.id === "alif" ? "Long Sounds lighthouse" : "Short Sounds castle"} width={80} height={80} className="aspect-square w-20 rounded-2xl object-cover" />
+          <img src={cur.id === "alif" || cur.id === "waw" ? lighthouse : castle} alt={cur.id === "alif" || cur.id === "waw" ? "Long Sounds lighthouse" : "Short Sounds castle"} width={80} height={80} className="aspect-square w-20 rounded-2xl object-cover" />
           <div className="min-w-0"><div className="flex items-start justify-between gap-2"><div><Ar className="block text-xl font-bold text-primary">{L.ar}</Ar><p className="text-[11px] text-muted-foreground">{L.en}</p></div><span className="pt-2 text-[10px] text-muted-foreground">{cur.learned}/{cur.total}</span></div>
             <Button asChild className="mt-2 h-11 w-full justify-between rounded-full px-4 text-xs"><Link to={stepRoute} search={{ lesson: cur.id }}><span>{actionLabel}</span><ArrowRight /></Link></Button>
           </div>

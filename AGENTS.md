@@ -13,7 +13,8 @@
 - Derive Home progress and Learn continuation through the shared learning-summary module using existing saved completion IDs, so both screens agree without changing the progress schema.
 - Apply learning surfaces, sound-control sizes, navigation safe areas and color roles through shared styles and the existing Button component, so the five screens remain visually coherent without altering their engines.
 - Render Home curriculum destinations through a shared disclosure component; only implemented lessons link to Learn, keeping progression discoverable without exposing unfinished content as actions.
-- Define each Short Sounds lesson (word bank, saved-progress key) in the shared lessons registry and select it via the ?lesson search param on Learn and Quiz, so new lessons reuse the same screens with independent progress.
+- Define every lesson with a stable word bank and saved-progress key in the shared lessons registry, selecting it through the lesson search parameter, so Short and Long Sounds reuse isolated activities.
+- Use the shared reading-sounds parser to keep written long vowels and approved diphthongs together in assessment targets, so feedback matches the curriculum sound tiles.
 - Gate each Short Sounds unit through unitState in the lessons registry (all words learned → quiz pass → reading-test pass → next unit unlocks), storing quiz/test results per unit in progress.units, so units stay independent and sequential.
 - Judge reading-test answers syllable by syllable (consonant + exact short vowel) in the server route /api/public/check-reading with an audio-capable model, so harakat errors are caught rather than only the word's letters.
 - Keep unit selection on Home and completion-gated next-unit actions; in-unit Learn/Quiz/Test navigation preserves the selected lesson so activities never switch word banks.
