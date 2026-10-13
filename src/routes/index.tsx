@@ -3,7 +3,7 @@ import { AppShell, Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useProgress } from "@/lib/progress";
 import { WORDS } from "@/lib/words";
-import { learningSummary, SHORT_LESSONS, MADD_LESSONS, TANWEEN_LESSONS } from "@/lib/learning-path";
+import { learningSummary, SHORT_LESSONS, MADD_LESSONS, TANWEEN_LESSONS, SHADDAH_LESSONS } from "@/lib/learning-path";
 import { ArrowRight, Flame } from "lucide-react";
 import { LESSONS, UNIT_ORDER, unitState } from "@/lib/lessons";
 import { CurriculumDestination } from "@/components/CurriculumDestination";
@@ -15,7 +15,7 @@ import observatory from "@/assets/stages/observatory.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
     { title: "Qaf ق — Learn to read Arabic step by step" },
-    { name: "description", content: "Learn Arabic with illustrated Short Sounds, Madd and Tanween lessons, unit quizzes and reading tests." },
+    { name: "description", content: "Learn Arabic with illustrated Short Sounds, Madd, Tanween and Shaddah lessons, unit quizzes and reading tests." },
     { property: "og:title", content: "Qaf ق — Your Arabic reading journey" },
     { property: "og:description", content: "Learn to read Arabic, one sound and one word at a time." },
     { property: "og:type", content: "website" },
@@ -28,7 +28,7 @@ const stages = [
   { ar: "الأصوات القصيرة", en: "Short Sounds", image: castle, landmark: "Castle", accent: "bg-stage-sage", live: true, lessons: SHORT_LESSONS },
   { ar: "الأصوات الطويلة", en: "Long Sounds", image: lighthouse, landmark: "Lighthouse", accent: "bg-stage-sky", live: true, lessons: MADD_LESSONS },
   { ar: "التنوين", en: "Tanween", image: garden, landmark: "Garden", accent: "bg-stage-lavender", live: true, lessons: TANWEEN_LESSONS },
-  { ar: "الشدة", en: "Shadda", image: observatory, landmark: "Observatory", accent: "bg-stage-gold", live: false, lessons: [] as { ar: string; en: string; lesson?: null }[] },
+  { ar: "الشدة", en: "Shaddah", image: observatory, landmark: "Observatory", accent: "bg-stage-gold", live: true, lessons: SHADDAH_LESSONS },
 ];
 
 function Home() {
