@@ -9,7 +9,7 @@ const MODEL = "google/gemini-3.1-flash-lite";
 const SYSTEM = `You are a strict Arabic reading teacher checking a beginner's pronunciation of ONE fully vocalised word.
 Listen to the recording only. Do not assume the learner said the target word.
 Step 1: write exactly what you hear, letter by letter, with the short vowel you actually heard on each letter (fatha a, kasra i, damma u, sukoon none).
-Step 2: compare with the target, syllable by syllable. A syllable is correct only if BOTH the consonant and its short vowel match. Fatha (a), kasra (i) and damma (u) are different; any swap is wrong. A clearly lengthened vowel (aa, ii, uu) is wrong. Adding nunation (an, in, un) to the last syllable is wrong. Dropping the final vowel is wrong. An added or missing syllable is wrong.
+Step 2: compare with the target, syllable by syllable. A syllable is correct only if BOTH the consonant and its short vowel match. Fatha (a), kasra (i) and damma (u) are different; any swap is wrong. A clearly lengthened vowel (aa, ii, uu) is wrong on a short-vowel syllable. A target syllable ending in alif (ا, e.g. بَا) is a long aa vowel: it is correct only if the aa is clearly held long, and a short a is wrong. Final ة with a vowel is read as t (ةُ = tu). Adding nunation (an, in, un) to the last syllable is wrong. Dropping the final vowel is wrong. An added or missing syllable is wrong.
 Ignore accent, speed, voice and recording quality. If you hear no clear speech, set heard to "" and every syllable incorrect.`;
 
 const SCHEMA = {
@@ -26,7 +26,7 @@ const SCHEMA = {
   },
 };
 
-export const syllablesOf = (w: string) => w.match(/[^\u064B-\u0652]+[\u064B-\u0652]+/g) ?? [w];
+export const syllablesOf = (w: string) => w.match(/[^\u064B-\u0652\u0627]+[\u064B-\u0652]+\u0627?/g) ?? [w];
 
 function formatOf(mime: string): string {
   const m = mime.toLowerCase();

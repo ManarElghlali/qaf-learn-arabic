@@ -1,14 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import { Check, ChevronRight, LockKeyhole } from "lucide-react";
 import { Ar } from "@/components/AppShell";
-import { SHORT_LESSONS } from "@/lib/learning-path";
-import { LESSONS, unitState } from "@/lib/lessons";
+import { LESSONS, unitState, type LessonId } from "@/lib/lessons";
 import type { Progress } from "@/lib/progress";
 
 type DestinationProps = {
   ar: string; en: string; image: string; landmark: string; accent: string;
   live: boolean; status: string; progress: Progress;
-  lessons: { ar: string; en: string }[];
+  lessons: { ar: string; en: string; available?: boolean; lesson?: LessonId | null }[];
 };
 
 export function CurriculumDestination({ ar, en, image, landmark, accent, live, status, progress, lessons }: DestinationProps) {
@@ -25,9 +24,9 @@ export function CurriculumDestination({ ar, en, image, landmark, accent, live, s
   </>;
   return live ? (
     <details className={`destination ${accent}`}>
-      <summary className="destination-heading cursor-pointer list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Short Sounds lessons">{heading}</summary>
+      <summary className="destination-heading cursor-pointer list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${en} lessons`}>{heading}</summary>
       <div className="mx-4 mb-3 border-t border-border">
-        {SHORT_LESSONS.map(l => l.available && l.lesson ? (
+        {lessons.map(l => l.available && l.lesson ? (
           <UnitRow key={l.en} ar={l.ar} en={l.en} state={unitState(progress, l.lesson)} />
         ) : (
           <div key={l.en} aria-disabled="true" className="flex min-h-16 items-center justify-between gap-3 border-b border-border/60 py-3 text-muted-foreground last:border-0">

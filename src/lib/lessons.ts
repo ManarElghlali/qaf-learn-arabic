@@ -1,7 +1,7 @@
 import { WORDS, type Word } from "@/lib/words";
 import type { Progress } from "@/lib/progress";
 
-export type LessonId = "fatha" | "kasra" | "three" | "sukoon";
+export type LessonId = "fatha" | "kasra" | "three" | "sukoon" | "alif";
 
 // Fatha + Kasra bank (pattern Fatha → Kasra → Fatha). IDs start at 101 so they
 // never collide with the 42 Fatha IDs used by saved progress and artwork.
@@ -50,18 +50,33 @@ const sukoonRaw: [string, string, string][] = [
 ];
 export const SUKOON_WORDS: Word[] = sukoonRaw.map(([ar, tr, en], i) => ({ id: 301 + i, ar, units: ar.match(/[^\u064B-\u0652][\u064B-\u0652]/g) ?? [ar], tr, en }));
 
-export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" }> = {
+// Madd Alif bank, exactly as supplied (IDs 401+). Every long-alif syllable (بَا، تَا…) is ONE unit.
+const alifRaw: [string, string, string, string][] = [
+  ["بَابُ", "بَا بُ", "baabu", "Door"], ["كِتَابُ", "كِ تَا بُ", "kitaabu", "Book"], ["طَعَامُ", "طَ عَا مُ", "ta'aamu", "Food"],
+  ["دَارُ", "دَا رُ", "daaru", "House / home"], ["نَارُ", "نَا رُ", "naaru", "Fire"], ["قِطَارُ", "قِ طَا رُ", "qitaaru", "Train"],
+  ["حِمَارُ", "حِ مَا رُ", "himaaru", "Donkey"], ["غَزَالُ", "غَ زَا لُ", "ghazaalu", "Gazelle"], ["صَانِعُ", "صَا نِ عُ", "saani'u", "Maker / craftsman"],
+  ["خَالُ", "خَا لُ", "khaalu", "Maternal uncle"], ["سِوَارُ", "سِ وَا رُ", "siwaaru", "Bracelet"], ["جِدَارُ", "جِ دَا رُ", "jidaaru", "Wall"],
+  ["سَحَابُ", "سَ حَا بُ", "sahaabu", "Clouds"], ["ذُبَابُ", "ذُ بَا بُ", "dhubaabu", "Fly (insect)"], ["لَاعِبُ", "لَا عِ بُ", "laa'ibu", "Player"],
+  ["كَاتِبُ", "كَا تِ بُ", "kaatibu", "Writer"], ["تَاجِرُ", "تَا جِ رُ", "taajiru", "Merchant"], ["عَالِمُ", "عَا لِ مُ", "'aalimu", "Scholar / scientist"],
+  ["حَاكِمُ", "حَا كِ مُ", "haakimu", "Ruler / judge"], ["فَرَاشَةُ", "فَ رَا شَ ةُ", "faraashatu", "Butterfly"], ["دَجَاجَةُ", "دَ جَا جَ ةُ", "dajaajatu", "Chicken / hen"],
+  ["زَرَافَةُ", "زَ رَا فَ ةُ", "zaraafatu", "Giraffe"], ["حَمَامَةُ", "حَ مَا مَ ةُ", "hamaamatu", "Pigeon / dove"], ["سَاعَةُ", "سَا عَ ةُ", "saa'atu", "Clock / watch"],
+  ["غَابَةُ", "غَا بَ ةُ", "ghaabatu", "Forest"],
+];
+export const ALIF_WORDS: Word[] = alifRaw.map(([ar, u, tr, en], i) => ({ id: 401 + i, ar, units: u.split(" "), tr, en }));
+
+export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" | "learnedAlif" }> = {
   fatha: { ar: "الفتحة", en: "Fatha", words: WORDS, key: "learned" },
   kasra: { ar: "الفتحة والكسرة", en: "Fatha & Kasra", words: KASRA_WORDS, key: "learnedKasra" },
   three: { ar: "الفتحة والضمة والكسرة", en: "Three Short Sounds", words: THREE_WORDS, key: "learnedThree" },
   sukoon: { ar: "السكون", en: "Sukoon", words: SUKOON_WORDS, key: "learnedSukoon" },
+  alif: { ar: "مد الألف", en: "Madd Alif", words: ALIF_WORDS, key: "learnedAlif" },
 };
 
 export const lessonLearned = (p: Progress, id: LessonId) => p[LESSONS[id].key];
-export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" ? v : "fatha");
+export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" || v === "alif" ? v : "fatha");
 
 // ---- Unit flow: Learn all words → pass quiz → pass reading test → next unit opens.
-export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon"];
+export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon", "alif"];
 export const PASS_PCT = 70;
 export const QUIZ_LENGTH = 10;
 
