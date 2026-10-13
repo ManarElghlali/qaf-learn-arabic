@@ -1,3 +1,8 @@
+# Tanween Kasr
+- [ ] Add exact 20-word bank and isolated lessons, quiz and reading test.
+- [ ] Create elegant line-art illustrations and teacher recordings with audible in endings.
+- [ ] Verify word preservation, progress isolation, recordings, reading feedback and one-screen activities.
+
 # Tanween Damm
 - [x] Add exact 18-word bank and isolated lessons, quiz and reading test.
 - [x] Create storybook illustrations and teacher recordings with audible un endings.
