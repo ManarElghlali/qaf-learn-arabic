@@ -1,3 +1,29 @@
+import waw1 from "@/assets/waw/waw-01.jpg";
+import waw2 from "@/assets/waw/waw-02.jpg";
+import waw3 from "@/assets/waw/waw-03.jpg";
+import waw4 from "@/assets/waw/waw-04.jpg";
+import waw5 from "@/assets/waw/waw-05.jpg";
+import waw6 from "@/assets/waw/waw-06.jpg";
+import waw7 from "@/assets/waw/waw-07.jpg";
+import waw8 from "@/assets/waw/waw-08.jpg";
+import waw9 from "@/assets/waw/waw-09.jpg";
+import waw10 from "@/assets/waw/waw-10.jpg";
+import waw11 from "@/assets/waw/waw-11.jpg";
+import waw12 from "@/assets/waw/waw-12.jpg";
+import waw13 from "@/assets/waw/waw-13.jpg";
+import waw14 from "@/assets/waw/waw-14.jpg";
+import waw15 from "@/assets/waw/waw-15.jpg";
+import waw16 from "@/assets/waw/waw-16.jpg";
+import waw17 from "@/assets/waw/waw-17.jpg";
+import waw18 from "@/assets/waw/waw-18.jpg";
+import waw19 from "@/assets/waw/waw-19.jpg";
+import waw20 from "@/assets/waw/waw-20.jpg";
+import waw21 from "@/assets/waw/waw-21.jpg";
+import waw22 from "@/assets/waw/waw-22.jpg";
+import waw23 from "@/assets/waw/waw-23.jpg";
+import waw24 from "@/assets/waw/waw-24.jpg";
+import waw25 from "@/assets/waw/waw-25.jpg";
+import waw26 from "@/assets/waw/waw-26.jpg";
 import alif1 from "@/assets/alif/alif-01.jpg";
 import alif2 from "@/assets/alif/alif-02.jpg";
 import alif3 from "@/assets/alif/alif-03.jpg";
@@ -131,6 +157,33 @@ import word41 from "@/assets/words/word-41.jpg";
 import word42 from "@/assets/words/word-42.jpg";
 
 export const WORD_ILLUSTRATIONS: Record<number, string> = {
+  501: waw1,
+  502: waw2,
+  503: waw3,
+  504: waw4,
+  505: waw5,
+  506: waw6,
+  507: waw7,
+  508: waw8,
+  509: waw9,
+  510: waw10,
+  511: waw11,
+  512: waw12,
+  513: waw13,
+  514: waw14,
+  515: waw15,
+  516: waw16,
+  517: waw17,
+  518: waw18,
+  519: waw19,
+  520: waw20,
+  521: waw21,
+  522: waw22,
+  523: waw23,
+  524: waw24,
+  525: waw25,
+  526: waw26,
+
   1: word1,
   2: word2,
   3: word3,
