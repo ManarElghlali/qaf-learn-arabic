@@ -30,7 +30,7 @@ describe("Madd Waw", () => {
     expect(passed.learnedAlif).toEqual([401]);
     expect(LESSONS.waw.key).toBe("learnedWaw");
     expect(parseLesson("waw")).toBe("waw");
-    expect(UNIT_ORDER.at(-1)).toBe("waw");
+    expect(UNIT_ORDER[UNIT_ORDER.indexOf("waw") + 1]).toBe("yaa");
     expect(PASS_PCT).toBe(70);
   });
   it("has teacher recordings for every word and grouped sound", () => {

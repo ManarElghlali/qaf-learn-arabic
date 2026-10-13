@@ -9,7 +9,7 @@ export const SHORT_LESSONS = [
 export const MADD_LESSONS = [
   { ar: "مد الألف", en: "Madd Alif", available: true, lesson: "alif" as const },
   { ar: "مد الواو", en: "Madd Waw", available: true, lesson: "waw" as const },
-  { ar: "مد الياء", en: "Madd Yaa", available: false, lesson: null },
+  { ar: "مد الياء", en: "Madd Yā", available: true, lesson: "yaa" as const },
 ];
 export const TANWEEN_LESSONS = [
   { ar: "تنوين الفتح", en: "Tanween Fath" },

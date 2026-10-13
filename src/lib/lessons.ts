@@ -2,8 +2,10 @@ import { WORDS, type Word } from "@/lib/words";
 import type { Progress } from "@/lib/progress";
 import { WAW_WORDS } from "@/lib/waw-words";
 export { WAW_WORDS } from "@/lib/waw-words";
+import { YAA_WORDS } from "@/lib/yaa-words";
+export { YAA_WORDS } from "@/lib/yaa-words";
 
-export type LessonId = "fatha" | "kasra" | "three" | "sukoon" | "alif" | "waw";
+export type LessonId = "fatha" | "kasra" | "three" | "sukoon" | "alif" | "waw" | "yaa";
 
 // Fatha + Kasra bank (pattern Fatha → Kasra → Fatha). IDs start at 101 so they
 // never collide with the 42 Fatha IDs used by saved progress and artwork.
@@ -66,20 +68,21 @@ const alifRaw: [string, string, string, string][] = [
 ];
 export const ALIF_WORDS: Word[] = alifRaw.map(([ar, u, tr, en], i) => ({ id: 401 + i, ar, units: u.split(" "), tr, en }));
 
-export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" | "learnedAlif" | "learnedWaw" }> = {
+export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" | "learnedAlif" | "learnedWaw" | "learnedYaa" }> = {
   fatha: { ar: "الفتحة", en: "Fatha", words: WORDS, key: "learned" },
   kasra: { ar: "الفتحة والكسرة", en: "Fatha & Kasra", words: KASRA_WORDS, key: "learnedKasra" },
   three: { ar: "الفتحة والضمة والكسرة", en: "Three Short Sounds", words: THREE_WORDS, key: "learnedThree" },
   sukoon: { ar: "السكون", en: "Sukoon", words: SUKOON_WORDS, key: "learnedSukoon" },
   alif: { ar: "مد الألف", en: "Madd Alif", words: ALIF_WORDS, key: "learnedAlif" },
   waw: { ar: "مد الواو", en: "Madd Waw", words: WAW_WORDS, key: "learnedWaw" },
+  yaa: { ar: "مد الياء", en: "Madd Yā", words: YAA_WORDS, key: "learnedYaa" },
 };
 
 export const lessonLearned = (p: Progress, id: LessonId) => p[LESSONS[id].key];
-export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" || v === "alif" || v === "waw" ? v : "fatha");
+export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" || v === "alif" || v === "waw" || v === "yaa" ? v : "fatha");
 
 // ---- Unit flow: Learn all words → pass quiz → pass reading test → next unit opens.
-export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon", "alif", "waw"];
+export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon", "alif", "waw", "yaa"];
 export const PASS_PCT = 70;
 export const QUIZ_LENGTH = 10;
 
@@ -100,7 +103,7 @@ export function unitState(p: Progress, id: LessonId): UnitState {
   const testPassed = !!rec.testPassed;
   const complete = lessonsDone && quizPassed && testPassed;
   const idx = UNIT_ORDER.indexOf(id);
-  const prev = idx > 0 ? UNIT_ORDER[idx - 1]! : null;
+  const prev = idx > 0 ? UNIT_ORDER[idx - 1] ?? null : null;
   // DEV: unit locking is disabled while the app is being built so every unit
   // can be tested freely. Set UNIT_LOCKING to true to restore "finish a unit
   // to open the next one" before release.
