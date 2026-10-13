@@ -1,7 +1,7 @@
 // First-run state lives in its own key so it can never touch learning progress.
 const KEY = "qaf-onboarding-v1";
 export const ONBOARDING_STEPS = 3;
-export type Onboarding = { completed: boolean; step: number; completedAt?: string };
+export type Onboarding = { completed: boolean; step: number; completedAt?: string | undefined };
 
 function hasExistingLearning() {
   try {
