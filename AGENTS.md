@@ -14,8 +14,8 @@
 - Apply learning surfaces, sound-control sizes, navigation safe areas and color roles through shared styles and the existing Button component, so the five screens remain visually coherent without altering their engines.
 - Render Home curriculum destinations through a shared disclosure component; only implemented lessons link to Learn, keeping progression discoverable without exposing unfinished content as actions.
 - Define every lesson with a stable word bank and saved-progress key in the shared lessons registry, selecting it through the lesson search parameter, so Short and Long Sounds reuse isolated activities.
-- Keep new Madd word banks in dedicated browser-safe modules with non-overlapping stable IDs, so additions cannot rewrite earlier curriculum or saved progress.
-- Use the shared reading-sounds parser to keep written long vowels and approved diphthongs together in assessment targets, so feedback matches the curriculum sound tiles.
+- Keep new Madd and Tanween word banks in dedicated browser-safe modules with non-overlapping stable IDs, so additions cannot rewrite earlier curriculum or saved progress.
+- Use the shared reading-sounds parser with literal Tanween curriculum boundaries and grouped Madd/diphthongs, so assessment feedback matches approved tiles even for exceptional hamza spellings.
 - Gate each Short Sounds unit through unitState in the lessons registry (all words learned → quiz pass → reading-test pass → next unit unlocks), storing quiz/test results per unit in progress.units, so units stay independent and sequential.
 - Judge reading-test answers syllable by syllable (consonant + exact short vowel) in the server route /api/public/check-reading with an audio-capable model, so harakat errors are caught rather than only the word's letters.
 - Keep unit selection on Home and completion-gated next-unit actions; in-unit Learn/Quiz/Test navigation preserves the selected lesson so activities never switch word banks.

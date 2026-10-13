@@ -36,7 +36,7 @@ describe("Madd Yā", () => {
     expect(unitState(complete, "yaa").complete).toBe(true);
     expect(LESSONS.yaa.key).toBe("learnedYaa");
     expect(parseLesson("yaa")).toBe("yaa");
-    expect(UNIT_ORDER.at(-1)).toBe("yaa");
+    expect(UNIT_ORDER[UNIT_ORDER.indexOf("yaa") + 1]).toBe("tanween-fath");
     expect(MADD_LESSONS.at(-1)).toMatchObject({ available: true, lesson: "yaa" });
   });
 

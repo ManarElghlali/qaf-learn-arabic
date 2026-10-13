@@ -182,7 +182,68 @@ import yaa23 from "@/assets/yaa/yaa-23.jpg";
 import yaa24 from "@/assets/yaa/yaa-24.jpg";
 import yaa25 from "@/assets/yaa/yaa-25.jpg";
 
+import tanweenFath1 from "@/assets/tanween-fath/tanween-fath-01.jpg";
+import tanweenFath2 from "@/assets/tanween-fath/tanween-fath-02.jpg";
+import tanweenFath3 from "@/assets/tanween-fath/tanween-fath-03.jpg";
+import tanweenFath4 from "@/assets/tanween-fath/tanween-fath-04.jpg";
+import tanweenFath5 from "@/assets/tanween-fath/tanween-fath-05.jpg";
+import tanweenFath6 from "@/assets/tanween-fath/tanween-fath-06.jpg";
+import tanweenFath7 from "@/assets/tanween-fath/tanween-fath-07.jpg";
+import tanweenFath8 from "@/assets/tanween-fath/tanween-fath-08.jpg";
+import tanweenFath9 from "@/assets/tanween-fath/tanween-fath-09.jpg";
+import tanweenFath10 from "@/assets/tanween-fath/tanween-fath-10.jpg";
+import tanweenFath11 from "@/assets/tanween-fath/tanween-fath-11.jpg";
+import tanweenFath12 from "@/assets/tanween-fath/tanween-fath-12.jpg";
+import tanweenFath13 from "@/assets/tanween-fath/tanween-fath-13.jpg";
+import tanweenFath14 from "@/assets/tanween-fath/tanween-fath-14.jpg";
+import tanweenFath15 from "@/assets/tanween-fath/tanween-fath-15.jpg";
+import tanweenFath16 from "@/assets/tanween-fath/tanween-fath-16.jpg";
+import tanweenFath17 from "@/assets/tanween-fath/tanween-fath-17.jpg";
+import tanweenFath18 from "@/assets/tanween-fath/tanween-fath-18.jpg";
+import tanweenFath19 from "@/assets/tanween-fath/tanween-fath-19.jpg";
+import tanweenFath20 from "@/assets/tanween-fath/tanween-fath-20.jpg";
+import tanweenFath21 from "@/assets/tanween-fath/tanween-fath-21.jpg";
+import tanweenFath22 from "@/assets/tanween-fath/tanween-fath-22.jpg";
+import tanweenFath23 from "@/assets/tanween-fath/tanween-fath-23.jpg";
+import tanweenFath24 from "@/assets/tanween-fath/tanween-fath-24.jpg";
+import tanweenFath25 from "@/assets/tanween-fath/tanween-fath-25.jpg";
+import tanweenFath26 from "@/assets/tanween-fath/tanween-fath-26.jpg";
+import tanweenFath27 from "@/assets/tanween-fath/tanween-fath-27.jpg";
+import tanweenFath28 from "@/assets/tanween-fath/tanween-fath-28.jpg";
+import tanweenFath29 from "@/assets/tanween-fath/tanween-fath-29.jpg";
+import tanweenFath30 from "@/assets/tanween-fath/tanween-fath-30.jpg";
+
 export const WORD_ILLUSTRATIONS: Record<number, string> = {
+  701: tanweenFath1,
+  702: tanweenFath2,
+  703: tanweenFath3,
+  704: tanweenFath4,
+  705: tanweenFath5,
+  706: tanweenFath6,
+  707: tanweenFath7,
+  708: tanweenFath8,
+  709: tanweenFath9,
+  710: tanweenFath10,
+  711: tanweenFath11,
+  712: tanweenFath12,
+  713: tanweenFath13,
+  714: tanweenFath14,
+  715: tanweenFath15,
+  716: tanweenFath16,
+  717: tanweenFath17,
+  718: tanweenFath18,
+  719: tanweenFath19,
+  720: tanweenFath20,
+  721: tanweenFath21,
+  722: tanweenFath22,
+  723: tanweenFath23,
+  724: tanweenFath24,
+  725: tanweenFath25,
+  726: tanweenFath26,
+  727: tanweenFath27,
+  728: tanweenFath28,
+  729: tanweenFath29,
+  730: tanweenFath30,
   601: yaa1,
   602: yaa2,
   603: yaa3,
