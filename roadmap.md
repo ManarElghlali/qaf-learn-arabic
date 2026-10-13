@@ -1,3 +1,8 @@
+# Shaddah
+- [ ] Add all four exact word banks with independent lessons, quizzes and reading tests.
+- [ ] Create storybook illustrations and teacher recordings for words and grouped Shaddah tiles.
+- [ ] Verify gemination, nunation, saved progress and one-screen activities.
+
 # Tanween Kasr
 - [x] Add exact 20-word bank and isolated lessons, quiz and reading test.
 - [x] Create 20 elegant line-art illustrations and teacher recordings for every word and sound tile.
