@@ -1,3 +1,8 @@
+# Madd Yā
+- [x] Add exact 25-word bank and isolated Learn, Quiz and Test integration.
+- [x] Create modern storybook artwork and teacher recordings for every word and grouped sound.
+- [x] Verify word bank, saved progress, audio, reading assessment and one-screen layouts; captured sample advances the test.
+
 # Madd Waw
 - [x] Add exact 26-word bank and isolated lesson, quiz and test integration.
 - [x] Create premium flat artwork and teacher recordings for words and grouped sounds.

@@ -20,7 +20,7 @@ describe("Existing curriculum and saved continuation", () => {
     expect(SHORT_LESSONS.filter(l => l.available).map(l => l.en)).toEqual(["Fatha", "Fatha & Kasra", "Fatha, Damma & Kasra", "Sukoon"]);
   });
   it("limits Long Sounds to the three madd lessons", () => {
-    expect(MADD_LESSONS.map(l => l.en)).toEqual(["Madd Alif", "Madd Waw", "Madd Yaa"]);
+    expect(MADD_LESSONS.map(l => l.en)).toEqual(["Madd Alif", "Madd Waw", "Madd Yā"]);
   });
   it("limits Tanween to the three requested lessons", () => {
     expect(TANWEEN_LESSONS.map(l => l.en)).toEqual(["Tanween Fath", "Tanween Damm", "Tanween Kasr"]);

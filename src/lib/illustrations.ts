@@ -156,7 +156,59 @@ import word40 from "@/assets/words/word-40.jpg";
 import word41 from "@/assets/words/word-41.jpg";
 import word42 from "@/assets/words/word-42.jpg";
 
+import yaa1 from "@/assets/yaa/yaa-01.jpg";
+import yaa2 from "@/assets/yaa/yaa-02.jpg";
+import yaa3 from "@/assets/yaa/yaa-03.jpg";
+import yaa4 from "@/assets/yaa/yaa-04.jpg";
+import yaa5 from "@/assets/yaa/yaa-05.jpg";
+import yaa6 from "@/assets/yaa/yaa-06.jpg";
+import yaa7 from "@/assets/yaa/yaa-07.jpg";
+import yaa8 from "@/assets/yaa/yaa-08.jpg";
+import yaa9 from "@/assets/yaa/yaa-09.jpg";
+import yaa10 from "@/assets/yaa/yaa-10.jpg";
+import yaa11 from "@/assets/yaa/yaa-11.jpg";
+import yaa12 from "@/assets/yaa/yaa-12.jpg";
+import yaa13 from "@/assets/yaa/yaa-13.jpg";
+import yaa14 from "@/assets/yaa/yaa-14.jpg";
+import yaa15 from "@/assets/yaa/yaa-15.jpg";
+import yaa16 from "@/assets/yaa/yaa-16.jpg";
+import yaa17 from "@/assets/yaa/yaa-17.jpg";
+import yaa18 from "@/assets/yaa/yaa-18.jpg";
+import yaa19 from "@/assets/yaa/yaa-19.jpg";
+import yaa20 from "@/assets/yaa/yaa-20.jpg";
+import yaa21 from "@/assets/yaa/yaa-21.jpg";
+import yaa22 from "@/assets/yaa/yaa-22.jpg";
+import yaa23 from "@/assets/yaa/yaa-23.jpg";
+import yaa24 from "@/assets/yaa/yaa-24.jpg";
+import yaa25 from "@/assets/yaa/yaa-25.jpg";
+
 export const WORD_ILLUSTRATIONS: Record<number, string> = {
+  601: yaa1,
+  602: yaa2,
+  603: yaa3,
+  604: yaa4,
+  605: yaa5,
+  606: yaa6,
+  607: yaa7,
+  608: yaa8,
+  609: yaa9,
+  610: yaa10,
+  611: yaa11,
+  612: yaa12,
+  613: yaa13,
+  614: yaa14,
+  615: yaa15,
+  616: yaa16,
+  617: yaa17,
+  618: yaa18,
+  619: yaa19,
+  620: yaa20,
+  621: yaa21,
+  622: yaa22,
+  623: yaa23,
+  624: yaa24,
+  625: yaa25,
+
   501: waw1,
   502: waw2,
   503: waw3,
