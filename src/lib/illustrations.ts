@@ -213,7 +213,44 @@ import tanweenFath28 from "@/assets/tanween-fath/tanween-fath-28.jpg";
 import tanweenFath29 from "@/assets/tanween-fath/tanween-fath-29.jpg";
 import tanweenFath30 from "@/assets/tanween-fath/tanween-fath-30.jpg";
 
+import tanweenDamm1 from "@/assets/tanween-damm/tanween-damm-01.jpg";
+import tanweenDamm2 from "@/assets/tanween-damm/tanween-damm-02.jpg";
+import tanweenDamm3 from "@/assets/tanween-damm/tanween-damm-03.jpg";
+import tanweenDamm4 from "@/assets/tanween-damm/tanween-damm-04.jpg";
+import tanweenDamm5 from "@/assets/tanween-damm/tanween-damm-05.jpg";
+import tanweenDamm6 from "@/assets/tanween-damm/tanween-damm-06.jpg";
+import tanweenDamm7 from "@/assets/tanween-damm/tanween-damm-07.jpg";
+import tanweenDamm8 from "@/assets/tanween-damm/tanween-damm-08.jpg";
+import tanweenDamm9 from "@/assets/tanween-damm/tanween-damm-09.jpg";
+import tanweenDamm10 from "@/assets/tanween-damm/tanween-damm-10.jpg";
+import tanweenDamm11 from "@/assets/tanween-damm/tanween-damm-11.jpg";
+import tanweenDamm12 from "@/assets/tanween-damm/tanween-damm-12.jpg";
+import tanweenDamm13 from "@/assets/tanween-damm/tanween-damm-13.jpg";
+import tanweenDamm14 from "@/assets/tanween-damm/tanween-damm-14.jpg";
+import tanweenDamm15 from "@/assets/tanween-damm/tanween-damm-15.jpg";
+import tanweenDamm16 from "@/assets/tanween-damm/tanween-damm-16.jpg";
+import tanweenDamm17 from "@/assets/tanween-damm/tanween-damm-17.jpg";
+import tanweenDamm18 from "@/assets/tanween-damm/tanween-damm-18.jpg";
+
 export const WORD_ILLUSTRATIONS: Record<number, string> = {
+  801: tanweenDamm1,
+  802: tanweenDamm2,
+  803: tanweenDamm3,
+  804: tanweenDamm4,
+  805: tanweenDamm5,
+  806: tanweenDamm6,
+  807: tanweenDamm7,
+  808: tanweenDamm8,
+  809: tanweenDamm9,
+  810: tanweenDamm10,
+  811: tanweenDamm11,
+  812: tanweenDamm12,
+  813: tanweenDamm13,
+  814: tanweenDamm14,
+  815: tanweenDamm15,
+  816: tanweenDamm16,
+  817: tanweenDamm17,
+  818: tanweenDamm18,
   701: tanweenFath1,
   702: tanweenFath2,
   703: tanweenFath3,
