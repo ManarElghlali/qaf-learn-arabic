@@ -63,7 +63,7 @@ export function BuildQuestion({ w, words, onDone }: { w: Word; words: Word[]; on
         <div className="flex items-center justify-center gap-3"><p className="text-sm font-medium">{w.en}</p>
         <Button variant="ghost" aria-label="Hear the word" onClick={() => playWord(w.ar)} size="icon" className="text-primary"><Volume2 className="size-4" /></Button></div>
       </div>
-      <div dir="rtl" aria-label="Your word" className="quiz-slots grid grid-cols-3 gap-2">
+      <div dir="rtl" aria-label="Your word" className="quiz-slots grid gap-2" style={{ gridTemplateColumns: `repeat(${w.units.length}, minmax(0, 1fr))` }}>
         {w.units.map((_, k) => <div key={k} className={`word-slot ${picked[k] ? res === false ? "border-destructive bg-error-soft text-destructive" : "border-primary/20 bg-accent text-primary" : "border-dashed border-border bg-card"}`}><Ar>{picked[k]?.u ?? ""}</Ar></div>)}
       </div>
       <div dir="rtl" className="quiz-sounds grid grid-flow-col auto-cols-fr gap-2" aria-label="Sound choices">
