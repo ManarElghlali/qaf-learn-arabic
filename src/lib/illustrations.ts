@@ -1,3 +1,28 @@
+import alif1 from "@/assets/alif/alif-01.jpg";
+import alif2 from "@/assets/alif/alif-02.jpg";
+import alif3 from "@/assets/alif/alif-03.jpg";
+import alif4 from "@/assets/alif/alif-04.jpg";
+import alif5 from "@/assets/alif/alif-05.jpg";
+import alif6 from "@/assets/alif/alif-06.jpg";
+import alif7 from "@/assets/alif/alif-07.jpg";
+import alif8 from "@/assets/alif/alif-08.jpg";
+import alif9 from "@/assets/alif/alif-09.jpg";
+import alif10 from "@/assets/alif/alif-10.jpg";
+import alif11 from "@/assets/alif/alif-11.jpg";
+import alif12 from "@/assets/alif/alif-12.jpg";
+import alif13 from "@/assets/alif/alif-13.jpg";
+import alif14 from "@/assets/alif/alif-14.jpg";
+import alif15 from "@/assets/alif/alif-15.jpg";
+import alif16 from "@/assets/alif/alif-16.jpg";
+import alif17 from "@/assets/alif/alif-17.jpg";
+import alif18 from "@/assets/alif/alif-18.jpg";
+import alif19 from "@/assets/alif/alif-19.jpg";
+import alif20 from "@/assets/alif/alif-20.jpg";
+import alif21 from "@/assets/alif/alif-21.jpg";
+import alif22 from "@/assets/alif/alif-22.jpg";
+import alif23 from "@/assets/alif/alif-23.jpg";
+import alif24 from "@/assets/alif/alif-24.jpg";
+import alif25 from "@/assets/alif/alif-25.jpg";
 import sukoon1 from "@/assets/sukoon/sukoon-01.jpg";
 import sukoon2 from "@/assets/sukoon/sukoon-02.jpg";
 import sukoon3 from "@/assets/sukoon/sukoon-03.jpg";
@@ -212,4 +237,29 @@ export const WORD_ILLUSTRATIONS: Record<number, string> = {
   318: sukoon18,
   319: sukoon19,
   320: sukoon20,
+  401: alif1,
+  402: alif2,
+  403: alif3,
+  404: alif4,
+  405: alif5,
+  406: alif6,
+  407: alif7,
+  408: alif8,
+  409: alif9,
+  410: alif10,
+  411: alif11,
+  412: alif12,
+  413: alif13,
+  414: alif14,
+  415: alif15,
+  416: alif16,
+  417: alif17,
+  418: alif18,
+  419: alif19,
+  420: alif20,
+  421: alif21,
+  422: alif22,
+  423: alif23,
+  424: alif24,
+  425: alif25,
 };
