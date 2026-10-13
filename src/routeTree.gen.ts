@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as QuizRouteImport } from './routes/quiz'
+import { Route as ReadingRouteImport } from './routes/reading'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as ApiPublicCheckReadingRouteImport } from './routes/api/public/check-reading'
 
@@ -36,6 +37,11 @@ const QuizRoute = QuizRouteImport.update({
   path: '/quiz',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReadingRoute = ReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/learn': typeof LearnRoute
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
+  '/reading': typeof ReadingRoute
   '/test': typeof TestRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/learn': typeof LearnRoute
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
+  '/reading': typeof ReadingRoute
   '/test': typeof TestRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/learn': typeof LearnRoute
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
+  '/reading': typeof ReadingRoute
   '/test': typeof TestRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/learn'
     | '/profile'
     | '/quiz'
+    | '/reading'
     | '/test'
     | '/api/public/check-reading'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/learn'
     | '/profile'
     | '/quiz'
+    | '/reading'
     | '/test'
     | '/api/public/check-reading'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/learn'
     | '/profile'
     | '/quiz'
+    | '/reading'
     | '/test'
     | '/api/public/check-reading'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   LearnRoute: typeof LearnRoute
   ProfileRoute: typeof ProfileRoute
   QuizRoute: typeof QuizRoute
+  ReadingRoute: typeof ReadingRoute
   TestRoute: typeof TestRoute
   ApiPublicCheckReadingRoute: typeof ApiPublicCheckReadingRoute
 }
@@ -138,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof QuizRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reading': {
+      id: '/reading'
+      path: '/reading'
+      fullPath: '/reading'
+      preLoaderRoute: typeof ReadingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/test': {
       id: '/test'
       path: '/test'
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   LearnRoute: LearnRoute,
   ProfileRoute: ProfileRoute,
   QuizRoute: QuizRoute,
+  ReadingRoute: ReadingRoute,
   TestRoute: TestRoute,
   ApiPublicCheckReadingRoute: ApiPublicCheckReadingRoute,
 }
