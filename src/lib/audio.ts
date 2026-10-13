@@ -63,3 +63,6 @@ export function playUnits(units: string[]) {
   };
   next();
 }
+
+/** Every teacher recording URL, used to store them for offline use. */
+export const allRecordingUrls = () => [...new Set([...Object.values(stored).map((s) => s.url), ...Object.values(files)])];

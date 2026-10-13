@@ -13,6 +13,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { setupOffline } from "../lib/offline";
+import { toast } from "sonner";
 
 function NotFoundComponent() {
   return (
@@ -122,12 +124,15 @@ function RootComponent() {
     const recover = (e: Event | PromiseRejectionEvent) => {
       const msg = String((e as PromiseRejectionEvent).reason?.message ?? (e as ErrorEvent).message ?? "");
       if (e.type !== "vite:preloadError" && !/module script|dynamically imported module|Failed to fetch/i.test(msg)) return;
+      // Offline: reloading would only show the browser's offline page, so stay put and explain.
+      if (!navigator.onLine) { e.preventDefault?.(); toast("You're offline", { description: "This screen isn't saved yet. Reconnect once to store all lessons." }); return; }
       if (sessionStorage.getItem(KEY)) return;
       sessionStorage.setItem(KEY, "1");
       e.preventDefault?.();
       window.location.reload();
     };
     const t = setTimeout(() => sessionStorage.removeItem(KEY), 10000);
+    void setupOffline();
     window.addEventListener("vite:preloadError", recover);
     window.addEventListener("unhandledrejection", recover);
     return () => { clearTimeout(t); window.removeEventListener("vite:preloadError", recover); window.removeEventListener("unhandledrejection", recover); };
