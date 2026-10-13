@@ -28,8 +28,8 @@ describe("Madd Yā", () => {
     const failed = recordUnitResult(p, "yaa", "quiz", 60);
     expect(unitState(failed, "yaa")).toMatchObject({ learned: 1, total: 25, quizPassed: false });
     const passed = recordUnitResult(failed, "yaa", "quiz", 70);
-    expect(passed.units.yaa?.quizPassed).toBe(true);
-    expect(passed.units.waw).toBeUndefined();
+    expect(passed.units["yaa"]?.quizPassed).toBe(true);
+    expect(passed.units["waw"]).toBeUndefined();
     expect(passed.learnedWaw).toEqual([501]);
     expect(learningSummary(passed.learnedYaa, YAA_WORDS).resumeIndex).toBe(1);
     const complete = recordUnitResult({ ...passed, learnedYaa: YAA_WORDS.map(w => w.id) }, "yaa", "test", 70);
