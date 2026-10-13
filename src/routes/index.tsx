@@ -28,7 +28,7 @@ const stages = [
   { ar: "الأصوات القصيرة", en: "Short Sounds", image: castle, landmark: "Castle", accent: "bg-stage-sage", live: true, lessons: SHORT_LESSONS },
   { ar: "الأصوات الطويلة", en: "Long Sounds", image: lighthouse, landmark: "Lighthouse", accent: "bg-stage-sky", live: true, lessons: MADD_LESSONS },
   { ar: "التنوين", en: "Tanween", image: garden, landmark: "Garden", accent: "bg-stage-lavender", live: false, lessons: TANWEEN_LESSONS },
-  { ar: "الشدة", en: "Shadda", image: observatory, landmark: "Observatory", accent: "bg-stage-gold", live: false, lessons: [] },
+  { ar: "الشدة", en: "Shadda", image: observatory, landmark: "Observatory", accent: "bg-stage-gold", live: false, lessons: [] as { ar: string; en: string; lesson?: null }[] },
 ];
 
 function Home() {
