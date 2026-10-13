@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { WordIllustration } from "@/components/WordIllustration";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { WORDS } from "@/lib/words";
-import { patchOnboarding, readOnboarding, recordFirstCorrect, type Level } from "@/lib/onboarding";
+import { patchOnboarding, recordFirstCorrect, type Level } from "@/lib/onboarding";
 
 type Q = { kind: "sound" | "word"; answer: string; choices: string[] };
 const word = (ar: string) => WORDS.find((w) => w.ar === ar)!;
@@ -89,4 +89,3 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
   );
 }
 
-export const savedRating = () => readOnboarding().rating;

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { patchOnboarding, readOnboarding, type Goal, type Level } from "@/lib/onboarding";
 import { toast } from "sonner";
 import { Bell, ChevronRight, Crown, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,9 @@ export const Route = createFileRoute("/profile")({
 function Profile() {
   const p = useProgress();
   const [pay, setPay] = useState(false);
+  const [goal, setGoal] = useState<Goal | undefined>();
+  const [level, setLevel] = useState<Level | undefined>();
+  useEffect(() => { const o = readOnboarding(); setGoal(o.goal); setLevel(o.level); }, []);
   const best = p.scores.length ? Math.max(...p.scores) : 0;
   const toggleRem = async () => {
     if (!p.reminders && "Notification" in window) {
@@ -46,6 +50,15 @@ function Profile() {
         ))}
       </div>
       {p.scores.length > 0 && <p className="mt-3 text-sm text-muted-foreground">Recent tests: {p.scores.slice(-5).join("%, ")}%</p>}
+      <h2 className="mb-2 mt-7 text-base font-semibold">Your learning preferences</h2>
+      <label className="mb-3 block text-sm font-medium">Goal
+        <select value={goal ?? ""} onChange={(e) => { const v = (e.target.value || undefined) as Goal | undefined; setGoal(v); patchOnboarding({ goal: v }); }} className="mt-1 h-12 w-full rounded-xl border border-border bg-card px-3 text-sm">
+          <option value="">Not set</option><option value="read">Learn to read Arabic</option><option value="sounds">Improve Arabic letter sounds</option><option value="both">Practise both</option>
+        </select></label>
+      <label className="block text-sm font-medium">Experience
+        <select value={level ?? ""} onChange={(e) => { const v = (e.target.value || undefined) as Level | undefined; setLevel(v); patchOnboarding({ level: v }); }} className="mt-1 h-12 w-full rounded-xl border border-border bg-card px-3 text-sm">
+          <option value="">Not set</option><option value="beginner">I’m a complete beginner</option><option value="letters">I know the letters but need practice</option><option value="some">I can read a little and want to improve</option>
+        </select></label>
       <h2 className="mb-2 mt-7 text-base font-semibold">Settings</h2>
       <div className="divide-y divide-border">
         <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
