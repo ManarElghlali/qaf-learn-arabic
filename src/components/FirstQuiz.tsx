@@ -75,7 +75,7 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
         const isRight = solved && c === q.answer, isWrong = wrong.includes(c);
         return (
           <Button key={c} variant="outline" aria-pressed={isRight || isWrong} disabled={solved || isWrong} onClick={() => choose(c)}
-            className={`answer-button relative h-16 w-full border text-3xl disabled:opacity-100 ${isRight ? "border-primary bg-primary text-primary-foreground" : isWrong ? "border-destructive bg-error-soft text-destructive" : "border-border bg-card text-primary"}`}>
+            className={`answer-button relative h-16 w-full border text-3xl disabled:opacity-100 ${isRight ? "border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : isWrong ? "border-destructive bg-error-soft text-destructive" : "border-border bg-card text-primary"}`}>
             <Ar>{c}</Ar>{isRight && <Check className="absolute right-5 size-5" />}{isWrong && <X className="absolute right-5 size-5" />}
           </Button>
         );
