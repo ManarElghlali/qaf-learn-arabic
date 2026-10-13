@@ -1,7 +1,7 @@
 # Shaddah
-- [ ] Add all four exact word banks with independent lessons, quizzes and reading tests.
-- [ ] Create storybook illustrations and teacher recordings for words and grouped Shaddah tiles.
-- [ ] Verify gemination, nunation, saved progress and one-screen activities.
+- [x] Add all four exact word banks (32 words) with independent lessons, quizzes and reading tests.
+- [x] Create 24 storybook subjects mapped to all 32 words and recordings for all 32 words and 46 distinct tiles; refine flagged word clips.
+- [x] Verify exact curriculum, saved progress and every lesson/quiz on three phone sizes; recorded microphone samples advance in all four tests and wrong Tanween/gemination examples are rejected. AI listening remains variable and occasionally disagrees on generated samples; real-device pronunciation and listening verification remains necessary.
 
 # Tanween Kasr
 - [x] Add exact 20-word bank and isolated lessons, quiz and reading test.
