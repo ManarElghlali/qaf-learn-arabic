@@ -34,10 +34,10 @@ describe("Tanween Damm", () => {
     expect(unitState(complete, "tanween-damm").complete).toBe(true);
     expect(LESSONS["tanween-damm"].key).toBe("learnedTanweenDamm");
     expect(parseLesson("tanween-damm")).toBe("tanween-damm");
-    expect(UNIT_ORDER.at(-1)).toBe("tanween-damm");
+    expect(UNIT_ORDER[UNIT_ORDER.indexOf("tanween-damm") + 1]).toBe("tanween-kasr");
     expect(PASS_PCT).toBe(70);
     expect(TANWEEN_LESSONS[1]).toMatchObject({ available: true, lesson: "tanween-damm" });
-    expect(TANWEEN_LESSONS[2]).not.toHaveProperty("lesson");
+    expect(TANWEEN_LESSONS[2]).toMatchObject({ available: true, lesson: "tanween-kasr" });
   });
 
   it("loads older progress without resetting any previous words", () => {
