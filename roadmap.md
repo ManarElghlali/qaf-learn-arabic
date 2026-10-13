@@ -1,8 +1,8 @@
 # Madd Waw
-- [ ] Add exact 26-word bank and isolated lesson, quiz and test integration.
-- [ ] Create premium flat artwork and teacher recordings for words and grouped sounds.
-- [ ] Support long uu and diphthongs in reading checks.
-- [ ] Verify unit isolation, audio and one-screen phone layouts.
+- [x] Add exact 26-word bank and isolated lesson, quiz and test integration.
+- [x] Create premium flat artwork and teacher recordings for words and grouped sounds.
+- [x] Support long uu and diphthongs in reading checks.
+- [x] Verify unit isolation, audio and one-screen phone layouts; recorded sample passes through microphone capture and advances.
 
 # Qaf premium refinement
 - [x] Audit existing screens, functionality and assets.

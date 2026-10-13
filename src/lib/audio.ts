@@ -2,8 +2,9 @@
 // Words and sound units play pre-recorded teacher audio (keyed by the exact vocalised text);
 // the device voice is only a fallback for text without a recording.
 const files = import.meta.glob("../assets/audio/*.mp3", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
-const key = (s: string) => Array.from(s).map((c) => c.codePointAt(0)!.toString(16).padStart(4, "0")).join("-");
-const url = (kind: "w" | "u", text: string) => files[`../assets/audio/${kind}-${key(text)}.mp3`];
+const stored = import.meta.glob("../assets/audio/*.mp3.asset.json", { eager: true, import: "default" }) as Record<string, { url: string }>;
+const key = (s: string) => Array.from(s).map((c) => (c.codePointAt(0) ?? 0).toString(16).padStart(4, "0")).join("-");
+const url = (kind: "w" | "u", text: string) => stored[`../assets/audio/${kind}-${key(text)}.mp3.asset.json`]?.url ?? files[`../assets/audio/${kind}-${key(text)}.mp3`];
 export const hasRecording = (kind: "w" | "u", text: string) => !!url(kind, text);
 
 let current: HTMLAudioElement | null = null;
