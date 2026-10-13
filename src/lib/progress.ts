@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 
 export type UnitRecord = { quizBest?: number; quizPassed?: boolean; testBest?: number; testPassed?: boolean };
 export type Progress = {
-  learned: number[]; learnedKasra: number[]; learnedThree: number[]; learnedSukoon: number[]; learnedAlif: number[]; learnedWaw: number[]; learnedYaa: number[]; learnedTanweenFath: number[]; streak: number; lastDay: string; scores: number[];
+  learned: number[]; learnedKasra: number[]; learnedThree: number[]; learnedSukoon: number[]; learnedAlif: number[]; learnedWaw: number[]; learnedYaa: number[]; learnedTanweenFath: number[]; learnedTanweenDamm: number[]; streak: number; lastDay: string; scores: number[];
   reminders: boolean; premium: boolean; translit: boolean;
   units: Record<string, UnitRecord>;
 };
 const KEY = "qaf-progress-v1";
-const def: Progress = { learned: [], learnedKasra: [], learnedThree: [], learnedSukoon: [], learnedAlif: [], learnedWaw: [], learnedYaa: [], learnedTanweenFath: [], streak: 0, lastDay: "", scores: [], reminders: false, premium: false, translit: true, units: {} };
+const def: Progress = { learned: [], learnedKasra: [], learnedThree: [], learnedSukoon: [], learnedAlif: [], learnedWaw: [], learnedYaa: [], learnedTanweenFath: [], learnedTanweenDamm: [], streak: 0, lastDay: "", scores: [], reminders: false, premium: false, translit: true, units: {} };
 
 export function readProgress(): Progress {
   try { return { ...def, ...JSON.parse(localStorage.getItem(KEY) || "{}") }; } catch { return def; }

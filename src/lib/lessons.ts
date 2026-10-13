@@ -6,8 +6,10 @@ import { YAA_WORDS } from "@/lib/yaa-words";
 export { YAA_WORDS } from "@/lib/yaa-words";
 import { TANWEEN_FATH_WORDS } from "@/lib/tanween-fath-words";
 export { TANWEEN_FATH_WORDS } from "@/lib/tanween-fath-words";
+import { TANWEEN_DAMM_WORDS } from "@/lib/tanween-damm-words";
+export { TANWEEN_DAMM_WORDS } from "@/lib/tanween-damm-words";
 
-export type LessonId = "fatha" | "kasra" | "three" | "sukoon" | "alif" | "waw" | "yaa" | "tanween-fath";
+export type LessonId = "fatha" | "kasra" | "three" | "sukoon" | "alif" | "waw" | "yaa" | "tanween-fath" | "tanween-damm";
 
 // Fatha + Kasra bank (pattern Fatha → Kasra → Fatha). IDs start at 101 so they
 // never collide with the 42 Fatha IDs used by saved progress and artwork.
@@ -70,7 +72,7 @@ const alifRaw: [string, string, string, string][] = [
 ];
 export const ALIF_WORDS: Word[] = alifRaw.map(([ar, u, tr, en], i) => ({ id: 401 + i, ar, units: u.split(" "), tr, en }));
 
-export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" | "learnedAlif" | "learnedWaw" | "learnedYaa" | "learnedTanweenFath" }> = {
+export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; key: "learned" | "learnedKasra" | "learnedThree" | "learnedSukoon" | "learnedAlif" | "learnedWaw" | "learnedYaa" | "learnedTanweenFath" | "learnedTanweenDamm" }> = {
   fatha: { ar: "الفتحة", en: "Fatha", words: WORDS, key: "learned" },
   kasra: { ar: "الفتحة والكسرة", en: "Fatha & Kasra", words: KASRA_WORDS, key: "learnedKasra" },
   three: { ar: "الفتحة والضمة والكسرة", en: "Three Short Sounds", words: THREE_WORDS, key: "learnedThree" },
@@ -79,13 +81,14 @@ export const LESSONS: Record<LessonId, { ar: string; en: string; words: Word[]; 
   waw: { ar: "مد الواو", en: "Madd Waw", words: WAW_WORDS, key: "learnedWaw" },
   yaa: { ar: "مد الياء", en: "Madd Yā", words: YAA_WORDS, key: "learnedYaa" },
   "tanween-fath": { ar: "تنوين الفتح", en: "Tanween Fath", words: TANWEEN_FATH_WORDS, key: "learnedTanweenFath" },
+  "tanween-damm": { ar: "تنوين الضم", en: "Tanween Damm", words: TANWEEN_DAMM_WORDS, key: "learnedTanweenDamm" },
 };
 
 export const lessonLearned = (p: Progress, id: LessonId) => p[LESSONS[id].key];
-export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" || v === "alif" || v === "waw" || v === "yaa" || v === "tanween-fath" ? v : "fatha");
+export const parseLesson = (v: unknown): LessonId => (v === "kasra" || v === "three" || v === "sukoon" || v === "alif" || v === "waw" || v === "yaa" || v === "tanween-fath" || v === "tanween-damm" ? v : "fatha");
 
 // ---- Unit flow: Learn all words → pass quiz → pass reading test → next unit opens.
-export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon", "alif", "waw", "yaa", "tanween-fath"];
+export const UNIT_ORDER: LessonId[] = ["fatha", "kasra", "three", "sukoon", "alif", "waw", "yaa", "tanween-fath", "tanween-damm"];
 export const PASS_PCT = 70;
 export const QUIZ_LENGTH = 10;
 

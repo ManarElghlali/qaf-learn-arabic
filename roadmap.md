@@ -1,3 +1,8 @@
+# Tanween Damm
+- [x] Add exact 18-word bank and isolated lessons, quiz and reading test.
+- [x] Create storybook illustrations and teacher recordings with audible un endings.
+- [x] Verify literal sounds, progress isolation, all 18 lessons and 10 quiz questions on three phone sizes; a recorded microphone sample advances and wrong-word audio fails. Real-device listening remains user verification.
+
 # Tanween Fath
 - [x] Add exact 30-word bank and isolated Tanween lessons, quiz and reading test.
 - [x] Create editorial illustrations and teacher recordings with audible fathatan endings.
