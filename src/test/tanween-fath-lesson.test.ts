@@ -40,7 +40,7 @@ describe("Tanween Fath", () => {
     expect(PASS_PCT).toBe(70);
     expect(TANWEEN_LESSONS[0]).toMatchObject({ available: true, lesson: "tanween-fath" });
     expect(TANWEEN_LESSONS[1]).toMatchObject({ available: true, lesson: "tanween-damm" });
-    expect(TANWEEN_LESSONS[2]).not.toHaveProperty("lesson");
+    expect(TANWEEN_LESSONS[2]).toMatchObject({ available: true, lesson: "tanween-kasr" });
   });
 
   it("migrates earlier saved progress without resetting completed words", () => {

@@ -1,7 +1,8 @@
 import { TANWEEN_FATH_WORDS } from "@/lib/tanween-fath-words";
 import { TANWEEN_DAMM_WORDS } from "@/lib/tanween-damm-words";
+import { TANWEEN_KASR_WORDS } from "@/lib/tanween-kasr-words";
 
-const TANWEEN_WORDS = [...TANWEEN_FATH_WORDS, ...TANWEEN_DAMM_WORDS];
+const TANWEEN_WORDS = [...TANWEEN_FATH_WORDS, ...TANWEEN_DAMM_WORDS, ...TANWEEN_KASR_WORDS];
 
 /** Preserve approved Tanween boundaries, including the exceptional اءً and آ tiles. */
 export const syllablesOf = (word: string): string[] =>

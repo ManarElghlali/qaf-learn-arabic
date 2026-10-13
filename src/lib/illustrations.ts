@@ -232,7 +232,33 @@ import tanweenDamm16 from "@/assets/tanween-damm/tanween-damm-16.jpg";
 import tanweenDamm17 from "@/assets/tanween-damm/tanween-damm-17.jpg";
 import tanweenDamm18 from "@/assets/tanween-damm/tanween-damm-18.jpg";
 
+import tanweenKasr1 from "@/assets/tanween-kasr/tanween-kasr-01.jpg";
+import tanweenKasr2 from "@/assets/tanween-kasr/tanween-kasr-02.jpg";
+import tanweenKasr3 from "@/assets/tanween-kasr/tanween-kasr-03.jpg";
+import tanweenKasr4 from "@/assets/tanween-kasr/tanween-kasr-04.jpg";
+import tanweenKasr5 from "@/assets/tanween-kasr/tanween-kasr-05.jpg";
+import tanweenKasr6 from "@/assets/tanween-kasr/tanween-kasr-06.jpg";
+import tanweenKasr7 from "@/assets/tanween-kasr/tanween-kasr-07.jpg";
+import tanweenKasr8 from "@/assets/tanween-kasr/tanween-kasr-08.jpg";
+import tanweenKasr9 from "@/assets/tanween-kasr/tanween-kasr-09.jpg";
+import tanweenKasr10 from "@/assets/tanween-kasr/tanween-kasr-10.jpg";
+import tanweenKasr11 from "@/assets/tanween-kasr/tanween-kasr-11.jpg";
+import tanweenKasr12 from "@/assets/tanween-kasr/tanween-kasr-12.jpg";
+import tanweenKasr13 from "@/assets/tanween-kasr/tanween-kasr-13.jpg";
+import tanweenKasr14 from "@/assets/tanween-kasr/tanween-kasr-14.jpg";
+import tanweenKasr15 from "@/assets/tanween-kasr/tanween-kasr-15.jpg";
+import tanweenKasr16 from "@/assets/tanween-kasr/tanween-kasr-16.jpg";
+import tanweenKasr17 from "@/assets/tanween-kasr/tanween-kasr-17.jpg";
+import tanweenKasr18 from "@/assets/tanween-kasr/tanween-kasr-18.jpg";
+import tanweenKasr19 from "@/assets/tanween-kasr/tanween-kasr-19.jpg";
+import tanweenKasr20 from "@/assets/tanween-kasr/tanween-kasr-20.jpg";
+
 export const WORD_ILLUSTRATIONS: Record<number, string> = {
+  901: tanweenKasr1, 902: tanweenKasr2, 903: tanweenKasr3, 904: tanweenKasr4,
+  905: tanweenKasr5, 906: tanweenKasr6, 907: tanweenKasr7, 908: tanweenKasr8,
+  909: tanweenKasr9, 910: tanweenKasr10, 911: tanweenKasr11, 912: tanweenKasr12,
+  913: tanweenKasr13, 914: tanweenKasr14, 915: tanweenKasr15, 916: tanweenKasr16,
+  917: tanweenKasr17, 918: tanweenKasr18, 919: tanweenKasr19, 920: tanweenKasr20,
   801: tanweenDamm1,
   802: tanweenDamm2,
   803: tanweenDamm3,

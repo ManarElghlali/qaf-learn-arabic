@@ -1,3 +1,8 @@
+# Tanween Kasr
+- [x] Add exact 20-word bank and isolated lessons, quiz and reading test.
+- [x] Create 20 elegant line-art illustrations and teacher recordings for every word and sound tile.
+- [x] Verify exact words, progress isolation and all recordings; all 20 lessons and 10 quiz questions fit three phone sizes. A recorded microphone sample advances, and the same audio fails a wrong final vowel. Real-device listening remains user verification.
+
 # Tanween Damm
 - [x] Add exact 18-word bank and isolated lessons, quiz and reading test.
 - [x] Create storybook illustrations and teacher recordings with audible un endings.
