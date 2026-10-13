@@ -30,7 +30,7 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
   const [rating, setRating] = useState<number | undefined>(undefined);
   const q = qs[n];
   const hear = () => { if (!q) return; if (q.kind === "sound") playUnit(q.answer); else playWord(q.answer); };
-  useEffect(() => { if (q) { const t = setTimeout(hear, 300); return () => clearTimeout(t); } }, [n]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!q) return undefined; const t = setTimeout(hear, 300); return () => clearTimeout(t); }, [n]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => stopAudio(), []);
 
   if (!q) {
