@@ -40,8 +40,8 @@ function Home() {
   const L = LESSONS[cur.id];
   const started = cur.learned > 0;
   const completed = cur.complete;
-  const stageStatus = (ls: { lesson?: string | null }[]) => {
-    const us = units.filter((u) => ls.some((l) => l.lesson === u.id));
+  const stageStatus = (ls: readonly object[]) => {
+    const us = units.filter((u) => ls.some((l) => (l as { lesson?: string }).lesson === u.id));
     return us.length && us.every((u) => u.complete) ? "Completed" : us.some((u) => u.learned > 0) ? "In progress" : "Available";
   };
   const stepRoute = cur.step === "quiz" ? "/quiz" : cur.step === "test" ? "/test" : "/learn";
