@@ -17,7 +17,7 @@ export const Route = createFileRoute("/test")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "Reading test — Qaf" },
-      { name: "description", content: "Read 10 words from your unit aloud and get feedback on Arabic consonants, short vowels and long Madd sounds." },
+      { name: "description", content: "Read 10 words from your unit aloud and get feedback on Arabic consonants, short vowels, Madd and Tanween endings." },
       { property: "og:title", content: "Reading test — Qaf" },
       { property: "og:description", content: "A 10-word Arabic reading assessment using your microphone." },
     ],

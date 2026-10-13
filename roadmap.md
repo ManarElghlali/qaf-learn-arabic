@@ -1,3 +1,8 @@
+# Tanween Fath
+- [ ] Add exact 30-word bank and isolated Tanween lessons, quiz and reading test.
+- [ ] Create editorial illustrations and teacher recordings with audible fathatan endings.
+- [ ] Verify progress isolation, assessment sounds, audio and one-screen layouts.
+
 # Madd Yā
 - [x] Add exact 25-word bank and isolated Learn, Quiz and Test integration.
 - [x] Create modern storybook artwork and teacher recordings for every word and grouped sound.

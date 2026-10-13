@@ -12,7 +12,7 @@ export const MADD_LESSONS = [
   { ar: "مد الياء", en: "Madd Yā", available: true, lesson: "yaa" as const },
 ];
 export const TANWEEN_LESSONS = [
-  { ar: "تنوين الفتح", en: "Tanween Fath" },
+  { ar: "تنوين الفتح", en: "Tanween Fath", available: true, lesson: "tanween-fath" as const },
   { ar: "تنوين الضم", en: "Tanween Damm" },
   { ar: "تنوين الكسر", en: "Tanween Kasr" },
 ];
