@@ -66,7 +66,7 @@ export function BuildQuestion({ w, words, onDone }: { w: Word; words: Word[]; on
       <div dir="rtl" aria-label="Your word" className="quiz-slots grid gap-2" style={{ gridTemplateColumns: `repeat(${w.units.length}, minmax(0, 1fr))` }}>
         {w.units.map((_, k) => <div key={k} className={`word-slot ${picked[k] ? res === false ? "border-destructive bg-error-soft text-destructive" : "border-primary/20 bg-accent text-primary" : "border-dashed border-border bg-card"}`}><Ar>{picked[k]?.u ?? ""}</Ar></div>)}
       </div>
-      <div dir="rtl" className="quiz-sounds grid grid-flow-col auto-cols-fr gap-2" aria-label="Sound choices">
+      <div dir="rtl" className={`quiz-sounds grid gap-2 ${blocks.length > 4 && w.units.some((u) => u.length > 2) ? "grid-cols-3" : "grid-flow-col auto-cols-fr"}`} aria-label="Sound choices">
         {blocks.map((b) => {
           const selected = picked.some((p) => p.k === b.k);
           return <Button variant="outline" key={b.k} aria-label={`Choose sound ${b.u}`} aria-pressed={selected}
