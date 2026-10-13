@@ -46,3 +46,20 @@ function play(kind: "w" | "u", text: string, rate: number) {
 export const playUnit = (unit: string) => play("u", unit, 0.75);
 /** Plays the whole vocalised word as one continuous word. */
 export const playWord = (word: string) => play("w", word, 0.8);
+
+/** Plays several sound units one after another (e.g. بَ then بِ) without overlap. */
+export function playUnits(units: string[]) {
+  if (typeof window === "undefined" || !units.length) return;
+  stopAudio();
+  let i = 0;
+  const next = () => {
+    if (i >= units.length) return;
+    const u = units[i++]!;
+    const src = url("u", u);
+    if (!src) { play("u", u, 0.75); pending = setTimeout(next, 900); return; }
+    const a = new Audio(src); current = a;
+    a.onended = () => { if (current === a) pending = setTimeout(next, 250); };
+    a.play().catch(() => { if (current === a) current = null; });
+  };
+  next();
+}
