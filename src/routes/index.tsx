@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
 
 const stages = [
   { ar: "الأصوات القصيرة", en: "Short Sounds", image: castle, landmark: "Castle", accent: "bg-stage-sage", live: true, lessons: SHORT_LESSONS },
-  { ar: "الأصوات الطويلة", en: "Long Sounds", image: lighthouse, landmark: "Lighthouse", accent: "bg-stage-sky", live: false, lessons: MADD_LESSONS },
+  { ar: "الأصوات الطويلة", en: "Long Sounds", image: lighthouse, landmark: "Lighthouse", accent: "bg-stage-sky", live: true, lessons: MADD_LESSONS },
   { ar: "التنوين", en: "Tanween", image: garden, landmark: "Garden", accent: "bg-stage-lavender", live: false, lessons: TANWEEN_LESSONS },
   { ar: "الشدة", en: "Shadda", image: observatory, landmark: "Observatory", accent: "bg-stage-gold", live: false, lessons: [] },
 ];
@@ -40,7 +40,10 @@ function Home() {
   const L = LESSONS[cur.id];
   const started = cur.learned > 0;
   const completed = cur.complete;
-  const stageStatus = units.every((u) => u.complete) ? "Completed" : units.some((u) => u.learned > 0) ? "In progress" : "Available";
+  const stageStatus = (ls: { lesson?: string | null }[]) => {
+    const us = units.filter((u) => ls.some((l) => l.lesson === u.id));
+    return us.length && us.every((u) => u.complete) ? "Completed" : us.some((u) => u.learned > 0) ? "In progress" : "Available";
+  };
   const stepRoute = cur.step === "quiz" ? "/quiz" : cur.step === "test" ? "/test" : "/learn";
   const actionLabel = completed ? `Review ${L.en}` : cur.step === "quiz" ? "Take the quiz" : cur.step === "test" ? "Take the reading test" : started ? "Continue" : "Start Learning";
   return (
@@ -56,7 +59,7 @@ function Home() {
       <section aria-label="Continue your lesson" className="continue-lesson mb-6 rounded-3xl border border-border bg-stage-sage p-4">
         <h2 className="mb-3 text-sm font-bold">{completed ? "Review your lesson" : started ? "Continue Learning" : "Start Learning"}</h2>
         <div className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-4">
-          <img src={castle} alt="Short Sounds castle" width={80} height={80} className="aspect-square w-20 rounded-2xl object-cover" />
+          <img src={cur.id === "alif" ? lighthouse : castle} alt={cur.id === "alif" ? "Long Sounds lighthouse" : "Short Sounds castle"} width={80} height={80} className="aspect-square w-20 rounded-2xl object-cover" />
           <div className="min-w-0"><div className="flex items-start justify-between gap-2"><div><Ar className="block text-xl font-bold text-primary">{L.ar}</Ar><p className="text-[11px] text-muted-foreground">{L.en}</p></div><span className="pt-2 text-[10px] text-muted-foreground">{cur.learned}/{cur.total}</span></div>
             <Button asChild className="mt-2 h-11 w-full justify-between rounded-full px-4 text-xs"><Link to={stepRoute} search={{ lesson: cur.id }}><span>{actionLabel}</span><ArrowRight /></Link></Button>
           </div>
@@ -64,7 +67,7 @@ function Home() {
         {cur.step === "learn" && started && <p className="mt-3 text-right text-[11px] text-muted-foreground">Word {learningSummary(p[L.key], L.words).resumeIndex + 1} of {cur.total}</p>}
       </section>
       <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-bold">Learning journey</h2><Ar className="text-base text-muted-foreground">رحلة التعلّم</Ar></div>
-      <div className="space-y-3">{stages.map(s => <CurriculumDestination key={s.en} {...s} status={stageStatus} progress={p} />)}</div>
+      <div className="space-y-3">{stages.map(s => <CurriculumDestination key={s.en} {...s} status={stageStatus(s.lessons)} progress={p} />)}</div>
     </AppShell>
   );
 }
