@@ -27,6 +27,9 @@ async function warm() {
   for (const p of pages) { if (!(await pageCache.match(p))) await pageCache.add(p).catch(() => {}); }
   const media = await caches.open("qaf-media");
   const urls = allRecordingUrls();
+  // Drop recordings no longer used (replaced audio gets a new address), so stale versions never linger.
+  const keep = new Set(urls.map((u) => new URL(u, location.origin).href));
+  for (const req of await media.keys()) if (!keep.has(req.url)) await media.delete(req);
   for (let i = 0; i < urls.length; i += 6) {
     await Promise.allSettled(urls.slice(i, i + 6).map(async (u) => { if (!(await media.match(u))) await media.add(u); }));
   }

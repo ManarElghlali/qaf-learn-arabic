@@ -26,14 +26,33 @@ export function stopAudio() {
   window.speechSynthesis?.cancel();
 }
 
+/** Individual sounds play slightly slower for clarity; complete words always play at normal speed. */
+export const UNIT_RATE = 0.9;
+export const WORD_RATE = 1;
+
+function makeAudio(src: string, kind: "w" | "u") {
+  const a = new Audio(src);
+  a.playbackRate = kind === "u" ? UNIT_RATE : WORD_RATE;
+  a.preservesPitch = true;
+  return a;
+}
+
+function failed(a: HTMLAudioElement) {
+  if (current === a) current = null;
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    void import("sonner").then(({ toast }) => toast("This sound isn't saved for offline use yet", { id: "qaf-audio-offline", description: "Connect to the internet once to hear it." }));
+  }
+}
+
 function play(kind: "w" | "u", text: string, rate: number) {
   if (typeof window === "undefined") return;
   stopAudio();
   const src = url(kind, text);
   if (src) {
-    const a = new Audio(src);
+    const a = makeAudio(src, kind);
     current = a;
-    a.play().catch(() => { if (current === a) current = null; });
+    a.onerror = () => failed(a);
+    a.play().catch(() => failed(a));
     return;
   }
   if (!window.speechSynthesis) return;
@@ -43,9 +62,9 @@ function play(kind: "w" | "u", text: string, rate: number) {
 }
 
 /** Plays only the sound unit (e.g. كَ → "ka"). */
-export const playUnit = (unit: string) => play("u", unit, 0.75);
+export const playUnit = (unit: string) => play("u", unit, UNIT_RATE);
 /** Plays the whole vocalised word as one continuous word. */
-export const playWord = (word: string) => play("w", word, 0.8);
+export const playWord = (word: string) => play("w", word, WORD_RATE);
 
 /** Plays several sound units one after another (e.g. بَ then بِ) without overlap. */
 export function playUnits(units: string[]) {
@@ -56,10 +75,11 @@ export function playUnits(units: string[]) {
     if (i >= units.length) return;
     const u = units[i++]!;
     const src = url("u", u);
-    if (!src) { play("u", u, 0.75); pending = setTimeout(next, 900); return; }
-    const a = new Audio(src); current = a;
+    if (!src) { play("u", u, UNIT_RATE); pending = setTimeout(next, 900); return; }
+    const a = makeAudio(src, "u"); current = a;
     a.onended = () => { if (current === a) pending = setTimeout(next, 250); };
-    a.play().catch(() => { if (current === a) current = null; });
+    a.onerror = () => failed(a);
+    a.play().catch(() => failed(a));
   };
   next();
 }
