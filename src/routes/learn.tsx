@@ -16,9 +16,9 @@ export const Route = createFileRoute("/learn")({
     meta: [
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { title: "Learn Short Sounds — Qaf" },
-      { name: "description", content: "Practise every word and sound in your selected Arabic Short Sounds unit." },
-      { property: "og:title", content: "Learn Short Sounds — Qaf" },
+      { title: "Learn Arabic Sounds — Qaf" },
+      { name: "description", content: "Practise illustrated words and grouped short and long Arabic sounds in your selected unit." },
+      { property: "og:title", content: "Learn Arabic Sounds — Qaf" },
       { property: "og:description", content: "Segmented sound units, audio and meanings for every word." },
     ],
   }),
