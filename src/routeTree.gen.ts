@@ -15,7 +15,10 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ReadingRouteImport } from './routes/reading'
 import { Route as TestRouteImport } from './routes/test'
+import { Route as SoundsIndexRouteImport } from './routes/sounds.index'
+import { Route as SoundsCategoryRouteImport } from './routes/sounds.$category'
 import { Route as ApiPublicCheckReadingRouteImport } from './routes/api/public/check-reading'
+import { Route as SoundsPracticeSetRouteImport } from './routes/sounds.practice.$set'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -47,9 +50,24 @@ const TestRoute = TestRouteImport.update({
   path: '/test',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SoundsIndexRoute = SoundsIndexRouteImport.update({
+  id: '/sounds/',
+  path: '/sounds/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SoundsCategoryRoute = SoundsCategoryRouteImport.update({
+  id: '/sounds/$category',
+  path: '/sounds/$category',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCheckReadingRoute = ApiPublicCheckReadingRouteImport.update({
   id: '/api/public/check-reading',
   path: '/api/public/check-reading',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SoundsPracticeSetRoute = SoundsPracticeSetRouteImport.update({
+  id: '/sounds/practice/$set',
+  path: '/sounds/practice/$set',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -60,7 +78,10 @@ export interface FileRoutesByFullPath {
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
   '/test': typeof TestRoute
+  '/sounds/$category': typeof SoundsCategoryRoute
+  '/sounds/': typeof SoundsIndexRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
+  '/sounds/practice/$set': typeof SoundsPracticeSetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -69,7 +90,10 @@ export interface FileRoutesByTo {
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
   '/test': typeof TestRoute
+  '/sounds/$category': typeof SoundsCategoryRoute
+  '/sounds': typeof SoundsIndexRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
+  '/sounds/practice/$set': typeof SoundsPracticeSetRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -79,7 +103,10 @@ export interface FileRoutesById {
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
   '/test': typeof TestRoute
+  '/sounds/$category': typeof SoundsCategoryRoute
+  '/sounds/': typeof SoundsIndexRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
+  '/sounds/practice/$set': typeof SoundsPracticeSetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -90,7 +117,10 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/reading'
     | '/test'
+    | '/sounds/$category'
+    | '/sounds/'
     | '/api/public/check-reading'
+    | '/sounds/practice/$set'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -99,7 +129,10 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/reading'
     | '/test'
+    | '/sounds/$category'
+    | '/sounds'
     | '/api/public/check-reading'
+    | '/sounds/practice/$set'
   id:
     | '__root__'
     | '/'
@@ -108,7 +141,10 @@ export interface FileRouteTypes {
     | '/quiz'
     | '/reading'
     | '/test'
+    | '/sounds/$category'
+    | '/sounds/'
     | '/api/public/check-reading'
+    | '/sounds/practice/$set'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -118,7 +154,10 @@ export interface RootRouteChildren {
   QuizRoute: typeof QuizRoute
   ReadingRoute: typeof ReadingRoute
   TestRoute: typeof TestRoute
+  SoundsCategoryRoute: typeof SoundsCategoryRoute
+  SoundsIndexRoute: typeof SoundsIndexRoute
   ApiPublicCheckReadingRoute: typeof ApiPublicCheckReadingRoute
+  SoundsPracticeSetRoute: typeof SoundsPracticeSetRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -165,11 +204,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sounds/': {
+      id: '/sounds/'
+      path: '/sounds'
+      fullPath: '/sounds/'
+      preLoaderRoute: typeof SoundsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sounds/$category': {
+      id: '/sounds/$category'
+      path: '/sounds/$category'
+      fullPath: '/sounds/$category'
+      preLoaderRoute: typeof SoundsCategoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/check-reading': {
       id: '/api/public/check-reading'
       path: '/api/public/check-reading'
       fullPath: '/api/public/check-reading'
       preLoaderRoute: typeof ApiPublicCheckReadingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sounds/practice/$set': {
+      id: '/sounds/practice/$set'
+      path: '/sounds/practice/$set'
+      fullPath: '/sounds/practice/$set'
+      preLoaderRoute: typeof SoundsPracticeSetRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -182,7 +242,10 @@ const rootRouteChildren: RootRouteChildren = {
   QuizRoute: QuizRoute,
   ReadingRoute: ReadingRoute,
   TestRoute: TestRoute,
+  SoundsCategoryRoute: SoundsCategoryRoute,
+  SoundsIndexRoute: SoundsIndexRoute,
   ApiPublicCheckReadingRoute: ApiPublicCheckReadingRoute,
+  SoundsPracticeSetRoute: SoundsPracticeSetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
