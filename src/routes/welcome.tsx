@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -54,7 +54,6 @@ function Welcome() {
       <div className="flex justify-center gap-2 py-4" aria-label={`Step ${step + 1} of ${ONBOARDING_STEPS}`}>{SCREENS.map((_, i) => <span key={i} className={`h-2 rounded-full transition-all ${i === step ? "w-6 bg-primary" : "w-2 bg-border"}`} />)}</div>
       {last ? <Button variant="ghost" className="h-12 rounded-full" onClick={() => finish("/")}>Go to Home</Button>
         : <Button className="h-14 rounded-full text-base" onClick={() => go(step + 1)}>Continue<ChevronRight /></Button>}
-      <Link to="/" className="sr-only">Home</Link>
     </main>
   );
 }

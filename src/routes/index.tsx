@@ -1,4 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { readOnboarding } from "@/lib/onboarding";
 import { AppShell, Ar } from "@/components/AppShell";
 import { useProgress } from "@/lib/progress";
 import { UNIT_ORDER, unitState } from "@/lib/lessons";
@@ -18,6 +20,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  const navigate = useNavigate();
+  // First run only: new learners see onboarding; existing learners are marked onboarded automatically.
+  useEffect(() => { if (!readOnboarding().completed) navigate({ to: "/welcome", replace: true }); }, [navigate]);
   const p = useProgress();
   const sp = useSoundProgress();
   const unitsDone = UNIT_ORDER.filter((id) => unitState(p, id).complete).length;

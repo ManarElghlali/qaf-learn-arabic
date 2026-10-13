@@ -22,3 +22,4 @@
 - Keep quiz question controls in a shared presentation module with explicit answer-gated advancement, so selection feedback stays visible without changing scoring or word selection.
 - Use the opt-in viewport-height AppShell layout for Learn and Quiz with in-flow navigation and shared height-aware activity styles, so content and answer feedback fit without scrolling or changing other screens.
 - Keep Sound Practice in its own module with its own saved-progress key and sound-keyed recordings shared with Reading, so the two paths never change each other's progress or content.
+- Keep first-run state in its own onboarding module and storage key, auto-completing it for learners with existing progress, so onboarding can never reset or loop over learning data.
