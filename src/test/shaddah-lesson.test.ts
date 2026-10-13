@@ -57,6 +57,13 @@ describe("Shaddah curriculum", () => {
     localStorage.removeItem("qaf-progress-v1");
   });
 
+  it("retains doubled sounds for alternate vowels and Unicode mark orders", () => {
+    expect(syllablesOf("كَفٌّ")).toEqual(["كَ", "فٌّ"]);
+    expect(syllablesOf("خَطُّ")).toEqual(["خَ", "طُّ"]);
+    expect(syllablesOf("خَطُّ")).toEqual(["خَ", "طُّ"]);
+    expect(syllablesOf("كَفٍّ")).toEqual(["كَ", "فٍّ"]);
+  });
+
   it("has teacher recordings for every exact word and sound tile", () => {
     for (const w of ALL_SHADDAH_WORDS) {
       expect(hasRecording("w", w.ar), w.ar).toBe(true);
