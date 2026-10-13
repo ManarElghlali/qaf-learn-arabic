@@ -38,7 +38,7 @@ export default defineConfig({
               options: { cacheName: "qaf-pages", networkTimeoutSeconds: 4, matchOptions: { ignoreSearch: true }, expiration: { maxEntries: 60 } },
             },
             {
-              urlPattern: ({ url }) => url.pathname.startsWith("/__l5e/assets-v1/"),
+              urlPattern: ({ url }) => url.pathname.startsWith("/__l5e/assets-v1/") || /^\/assets\/.+\.mp3$/.test(url.pathname),
               handler: "CacheFirst",
               options: { cacheName: "qaf-media", expiration: { maxEntries: 2000 }, cacheableResponse: { statuses: [0, 200] } },
             },
