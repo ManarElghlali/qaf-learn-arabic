@@ -14,6 +14,7 @@ Step 1: write exactly what you hear, letter by letter, with the short vowel you 
 Step 2: compare with the target, syllable by syllable. A syllable is correct only if BOTH the consonant and its short vowel match. Fatha (a), kasra (i) and damma (u) are different; any swap is wrong. A clearly lengthened vowel (aa, ii, uu) is wrong on a short-vowel syllable. A target syllable ending in alif (ا, e.g. بَا) is a long aa vowel: it is correct only if the aa is clearly held long, and a short a is wrong. Final ة with a vowel is read as t (ةُ = tu). Nunation is required ONLY when written: fathatan ً (مًا، بًا، ءً) must end in short an, NOT long aa, plain a, un or in. The supporting alif after fathatan is silent, not a separate sound. ةً is tan, not h, ta or tu. Adding nunation to a word without tanween is wrong. Dropping the final vowel or required n is wrong. An added or missing syllable is wrong.
 Long-vowel rules: a consonant with damma followed by unvocalized و (حُو، تُو، فُو) is ONE long uu sound, not consonant + u + w. It is correct only when uu is held long; short u is wrong. A consonant with kasra followed by unvocalized ي is ONE long ii sound. Written صَا and حَا are long aa even inside a Madd Waw word. زَيْ and لَيْ are ONE ay diphthong, not a long ii or aa vowel; require the y glide. Sukoon sounds صْ and نْ have no added vowel and connect smoothly to the previous sound. Keep each target sound in the supplied order.
 Tanween words retain internal Madd and sukoon. بَيْ is one ay glide. In ثَوْبًا the approved ثَ | وْ tiles connect as thaw, with no vowel after w. مَاءً and سَمَاءً end in a pronounced hamza plus an, after the long aa. دَوَاءً has the approved tiles دَ | وَ | اءً: the last tile carries the aa extension plus hamza-an (aa'an); judge it in context, never treat the initial alif as a new consonant. هَوَاءً is هَ | وَا | ءً. Return exactly one result per supplied tile in order.
+Judge sounds, not transcription spelling: a heard phonetic رَنْ has exactly the same pronunciation as target رًا (ran), so mark it correct when the recording really contains short a plus n. Likewise مَنْ = مًا, تَنْ = ةً when t-an is actually heard. A transcription difference alone is not a pronunciation error. Still reject missing n, wrong vowels, or pausal aa.
 Ignore accent, speed and voice. If recording quality prevents hearing speech clearly, set heard to "" and every syllable incorrect.`;
 
 const SCHEMA = {
@@ -88,15 +89,17 @@ export const Route = createFileRoute("/api/public/check-reading")({
           const ra = Number(res.headers.get("retry-after"));
           await sleep(Math.min(Number.isFinite(ra) && ra > 0 ? ra * 1000 : 1500, 4000));
         }
-        const text = await res!.text();
-        if (!res!.ok) {
-          const busy = res!.status === 429;
+        if (!res) return Response.json({ error: "Reading check failed. Please try again." }, { status: 502 });
+        const text = await res.text();
+        if (!res.ok) {
+          const busy = res.status === 429;
           let message = busy ? "The reading checker is busy. Wait a moment, then try again." : "Reading check failed. Please try again.";
           if (!busy) try { message = (JSON.parse(text) as { message?: string }).message ?? message; } catch { /* keep default */ }
-          return Response.json({ error: message }, { status: res!.status });
+          return Response.json({ error: message }, { status: res.status });
         }
         try {
-          const content = (JSON.parse(text) as { choices: { message: { content: string } }[] }).choices[0]!.message.content;
+          const content = (JSON.parse(text) as { choices: { message: { content: string } }[] }).choices[0]?.message.content;
+          if (!content) return Response.json({ error: "Reading check returned no feedback. Please try again." }, { status: 502 });
           const j = JSON.parse(content) as { heard: string; syllables: { heard: string; correct: boolean }[] };
           const syllables = target.map((t, i) => ({ target: t, heard: j.syllables[i]?.heard ?? "", correct: !!j.syllables[i]?.correct }));
           const correct = j.syllables.length === target.length && syllables.every((s) => s.correct);
