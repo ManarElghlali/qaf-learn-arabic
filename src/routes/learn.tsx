@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { LESSONS, parseLesson, lessonLearned, unitState } from "@/lib/lessons";
 import { UnitLocked } from "@/components/LessonSwitch";
-import { playUnit, playWord, stopAudio } from "@/lib/audio";
+import { playUnit, playWord, preloadAudio, stopAudio } from "@/lib/audio";
 import { touchStreak, update, useProgress, useLoadedProgress, readProgress } from "@/lib/progress";
 import { WordIllustration } from "@/components/WordIllustration";
 import { learningSummary } from "@/lib/learning-path";
