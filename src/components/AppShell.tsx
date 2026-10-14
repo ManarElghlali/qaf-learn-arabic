@@ -1,17 +1,28 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { BookOpen, Headphones, House, Settings, User } from "lucide-react";
+import { BookOpen, ClipboardCheck, Headphones, House, Mic, Settings, User } from "lucide-react";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 
-const tabs = [
+const mainTabs = [
   { to: "/", label: "Home", Icon: House, match: (p: string) => p === "/" },
-  { to: "/reading", label: "Reading", Icon: BookOpen, match: (p: string) => /^\/(reading|learn|quiz|test)/.test(p) },
+  { to: "/reading", label: "Reading", Icon: BookOpen, match: (p: string) => /^\/(reading|learn)/.test(p) },
   { to: "/sounds", label: "Sound Practice", Icon: Headphones, match: (p: string) => p.startsWith("/sounds") },
   { to: "/profile", label: "Profile", Icon: User, match: (p: string) => p.startsWith("/profile") },
-] as const;
+];
+// Inside a Reading unit the bar shows that unit's own activities.
+const unitTabs = [
+  { to: "/", label: "Home", Icon: House, match: (p: string) => p === "/" },
+  { to: "/learn", label: "Reading", Icon: BookOpen, match: (p: string) => p.startsWith("/learn") },
+  { to: "/quiz", label: "Quiz", Icon: ClipboardCheck, match: (p: string) => p.startsWith("/quiz") },
+  { to: "/test", label: "Test", Icon: Mic, match: (p: string) => p.startsWith("/test") },
+];
 
 export function AppShell({ title, children, singleScreen = false }: { title: string; children: ReactNode; singleScreen?: boolean }) {
-  const path = useLocation().pathname;
+  const loc = useLocation();
+  const path = loc.pathname;
+  const inUnit = /^\/(learn|quiz|test)/.test(path);
+  const lesson = (loc.search as { lesson?: string })?.lesson;
+  const tabs = inUnit ? unitTabs : mainTabs;
   return (
     <div className={`qaf-shell mx-auto flex w-full max-w-lg flex-col bg-background ${singleScreen ? "qaf-activity-shell" : ""}`}>
       {title === "Qaf" ? <header className="qaf-header grid grid-cols-[44px_minmax(0,1fr)_44px] items-start gap-3 px-5 pb-4 sm:px-7">

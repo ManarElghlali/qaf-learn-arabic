@@ -12,8 +12,6 @@ export const SOUND_CATEGORIES: SoundCategory[] = [
     { id: "fatha", ar: "فَتْحَة", en: "Fatha", sample: "بَ", make: (l) => [l + F] },
     { id: "damma", ar: "ضَمَّة", en: "Damma", sample: "بُ", make: (l) => [l + D] },
     { id: "kasra", ar: "كَسْرَة", en: "Kasra", sample: "بِ", make: (l) => [l + K] },
-    { id: "fatha-kasra", ar: "فَتْحَة + كَسْرَة", en: "Fatha + Kasra", sample: "بَ بِ", make: (l) => [l + F, l + K] },
-    { id: "three", ar: "الحَرَكَاتُ الثَّلَاث", en: "All Three Short Vowels", sample: "بَ بُ بِ", make: (l) => [l + F, l + D, l + K] },
     { id: "sukoon", ar: "سُكُون", en: "Sukoon", sample: "بْ", make: (l) => [l + S] },
   ] },
   { id: "long", ar: "المُدُودُ", en: "Long Sounds", accent: "bg-stage-sage", mark: "بَا", sets: [
