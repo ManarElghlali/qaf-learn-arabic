@@ -36,6 +36,7 @@ function Learn() {
   const w = WORDS[i];
   useEffect(() => { setI(learningSummary(lessonLearned(readProgress(), lesson), WORDS).resumeIndex); return () => stopAudio(); }, [lesson]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setSelectedSound(null); stopAudio(); }, [i, lesson]);
+  useEffect(() => { const ws = WORDS.slice(i, i + 2).filter(Boolean); preloadAudio("w", ws.map((x) => x.ar)); preloadAudio("u", ws.flatMap((x) => x.units)); }, [i, WORDS]);
   if (!w) return null;
   if (lp && !unitState(lp, lesson).unlocked) return <AppShell title={`${L.en} · ${L.ar}`}><UnitLocked id={lesson} progress={lp} need="unit" /></AppShell>;
   const unit = lp ? unitState(lp, lesson) : null;
