@@ -951,13 +951,15 @@
  "u-0632-0651-064e": {
   "text": "زَّ",
   "kind": "u",
-  "ok": false,
-  "heard": []
+  "ok": true,
+  "heard": [
+   "زَ"
+  ]
  },
  "u-0632-0651-064f": {
   "text": "زُّ",
   "kind": "u",
-  "ok": false,
+  "ok": true,
   "heard": []
  },
  "u-0634-0651-064f": {
