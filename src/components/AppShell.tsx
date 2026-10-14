@@ -37,7 +37,7 @@ export function AppShell({ title, children, singleScreen = false }: { title: str
         {tabs.map(({ to, label, Icon, match }) => {
           const on = match(path);
           return (
-            <Link key={to} to={to} aria-current={on ? "page" : undefined}
+            <Link key={to} to={to} search={(inUnit && to !== "/" && lesson ? { lesson } : undefined) as never} aria-current={on ? "page" : undefined}
               className={`flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl text-[10px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${on ? "bg-accent font-bold text-primary" : "font-medium text-muted-foreground"}`}>
               <Icon className="h-5 w-5 shrink-0" strokeWidth={1.8} />{label}
             </Link>
