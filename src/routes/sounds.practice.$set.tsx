@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { findSet, markPracticed, resetSet, setItems, useSoundProgress } from "@/lib/sound-practice";
-import { playUnits, stopAudio } from "@/lib/audio";
+import { playUnits, preloadAudio, stopAudio } from "@/lib/audio";
 import { CheckCircle2, ChevronLeft, ChevronRight, RotateCcw, Volume2 } from "lucide-react";
 
 export const Route = createFileRoute("/sounds/practice/$set")({
@@ -27,6 +27,7 @@ function Practice() {
   useEffect(() => { if (!started.current) { started.current = true; const n = (sp[id] ?? []).length; if (n > 0 && n < items.length) setI(n); } }, [sp, id, items.length]);
   useEffect(() => () => stopAudio(), []);
   const item = items[i]!;
+  useEffect(() => { preloadAudio("u", items.slice(i, i + 3).flatMap((x) => x.units)); }, [i, items]);
   const hear = () => { playUnits(item.units); markPracticed(id, i); };
   const go = (n: number) => { stopAudio(); markPracticed(id, i); if (n >= items.length) { setFinished(true); return; } setI(Math.max(0, n)); };
   const strip = items.map((_, k) => k).filter((k) => Math.abs(k - i) <= 2 || (i < 2 && k < 5) || (i > items.length - 3 && k >= items.length - 5));

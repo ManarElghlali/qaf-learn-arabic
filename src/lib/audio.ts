@@ -30,8 +30,13 @@ export function stopAudio() {
 export const UNIT_RATE = 0.9;
 export const WORD_RATE = 1;
 
+// Reuse one preloaded element per recording so repeat taps start instantly.
+const cache = new Map<string, HTMLAudioElement>();
 function makeAudio(src: string, kind: "w" | "u") {
-  const a = new Audio(src);
+  let a = cache.get(src);
+  if (!a) { a = new Audio(src); a.preload = "auto"; cache.set(src, a); }
+  a.onended = null; a.onerror = null;
+  a.currentTime = 0;
   a.playbackRate = kind === "u" ? UNIT_RATE : WORD_RATE;
   a.preservesPitch = true;
   return a;
@@ -86,3 +91,9 @@ export function playUnits(units: string[]) {
 
 /** Every teacher recording URL, used to store them for offline use. */
 export const allRecordingUrls = () => [...new Set([...Object.values(stored).map((s) => s.url), ...Object.values(files)])];
+
+/** Starts downloading recordings ahead of time so the first tap plays without delay. */
+export function preloadAudio(kind: "w" | "u", texts: string[]) {
+  if (typeof window === "undefined") return;
+  for (const t of texts) { const src = url(kind, t); if (src && !cache.has(src)) { const a = new Audio(src); a.preload = "auto"; a.load(); cache.set(src, a); } }
+}
