@@ -157,7 +157,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_status: { Args: { _device: string }; Returns: Json }
       consume_check: { Args: { _device: string; _ip: string }; Returns: Json }
+      grant_entitlement: {
+        Args: {
+          _device: string
+          _end: string
+          _original: string
+          _platform: string
+          _product: string
+          _start: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
