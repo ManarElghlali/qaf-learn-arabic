@@ -104,6 +104,54 @@ export type Database = {
         }
         Relationships: []
       }
+      check_premium_usage: {
+        Row: {
+          count: number
+          device_id: string
+          period_start: string
+        }
+        Insert: {
+          count?: number
+          device_id: string
+          period_start: string
+        }
+        Update: {
+          count?: number
+          device_id?: string
+          period_start?: string
+        }
+        Relationships: []
+      }
+      premium_entitlements: {
+        Row: {
+          device_id: string
+          original_transaction_id: string
+          period_end: string
+          period_start: string
+          platform: string
+          product_id: string
+          verified_at: string
+        }
+        Insert: {
+          device_id: string
+          original_transaction_id: string
+          period_end: string
+          period_start: string
+          platform: string
+          product_id: string
+          verified_at?: string
+        }
+        Update: {
+          device_id?: string
+          original_transaction_id?: string
+          period_end?: string
+          period_start?: string
+          platform?: string
+          product_id?: string
+          verified_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
