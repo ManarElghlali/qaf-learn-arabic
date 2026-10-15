@@ -9,6 +9,9 @@ import { touchStreak, update, useProgress, useLoadedProgress, readProgress } fro
 import { WordIllustration } from "@/components/WordIllustration";
 import { learningSummary } from "@/lib/learning-path";
 import { Button } from "@/components/ui/button";
+import { useAccess, canOpenUnit, FREE_WORDS } from "@/lib/access";
+import { PremiumLocked } from "@/components/PremiumLock";
+import { Paywall } from "@/components/Paywall";
 
 export const Route = createFileRoute("/learn")({
   validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
@@ -28,7 +31,10 @@ export const Route = createFileRoute("/learn")({
 function Learn() {
   const { lesson } = Route.useSearch();
   const L = LESSONS[lesson];
-  const WORDS = L.words;
+  const access = useAccess();
+  const free = !access.premium;
+  const WORDS = free && lesson === "fatha" ? FREE_WORDS : L.words;
+  const [pay, setPay] = useState(false);
   const p = useProgress();
   const lp = useLoadedProgress();
   const [i, setI] = useState(0);
@@ -38,13 +44,16 @@ function Learn() {
   useEffect(() => { setSelectedSound(null); stopAudio(); }, [i, lesson]);
   useEffect(() => { const ws = WORDS.slice(i, i + 2).filter(Boolean); preloadAudio("w", ws.map((x) => x.ar)); preloadAudio("u", ws.flatMap((x) => x.units)); }, [i, WORDS]);
   if (!w) return null;
+  if (access.loaded && !canOpenUnit(lesson, access.premium)) return <AppShell title={`${L.en} · ${L.ar}`}><PremiumLocked what={`The ${L.en} unit`} /></AppShell>;
   if (lp && !unitState(lp, lesson).unlocked) return <AppShell title={`${L.en} · ${L.ar}`}><UnitLocked id={lesson} progress={lp} need="unit" /></AppShell>;
   const unit = lp ? unitState(lp, lesson) : null;
   const go = (d: number) => {
     update((s) => (s[L.key].includes(w.id) ? s : { ...s, [L.key]: [...s[L.key], w.id] }));
     touchStreak();
+    if (free && d > 0 && i === WORDS.length - 1) setPay(true);
     setI((x) => Math.min(WORDS.length - 1, Math.max(0, x + d)));
   };
+  const freeDone = free && lesson === "fatha" && !!lp && FREE_WORDS.every((x) => lp.learned.includes(x.id));
   return (
     <AppShell title={`${L.en} · ${L.ar}`} singleScreen>
       <div className="activity-meta grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground">
@@ -76,7 +85,14 @@ function Learn() {
         <Button variant="outline" disabled={i === 0} onClick={() => go(-1)} className="activity-command min-w-0 flex-1"><ChevronLeft className="h-4 w-4" />Previous</Button>
         <Button onClick={() => go(1)} className="activity-command min-w-0 flex-1">{i === WORDS.length - 1 ? "Finish lesson" : "Next"}<ChevronRight className="h-4 w-4" /></Button>
       </div>
-      {unit?.lessonsDone && (
+      {freeDone && (
+        <div className="lesson-completion grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
+          <p className="text-xs font-semibold text-primary">All {FREE_WORDS.length} free words learned</p>
+          <Button asChild variant="outline" size="sm"><Link to="/quiz" search={{ lesson }}>Free quizzes<ChevronRight /></Link></Button>
+        </div>
+      )}
+      <Paywall open={pay} onClose={() => setPay(false)} reason={`You've reached the end of the ${FREE_WORDS.length} free Fatha words. The rest of Fatha and every other unit are part of Premium.`} />
+      {!free && unit?.lessonsDone && (
         <div className="lesson-completion grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
           <p className="text-xs font-semibold text-primary">{unit.complete ? "Unit complete" : `All ${unit.total} words learned`}</p>
           <Button asChild variant="outline" size="sm"><Link to={unit.step === "test" ? "/test" : "/quiz"} search={{ lesson }}>{unit.step === "test" ? "Take the test" : "Take the quiz"}<ChevronRight /></Link></Button>
