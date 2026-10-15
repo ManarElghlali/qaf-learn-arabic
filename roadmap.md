@@ -1,3 +1,8 @@
+# Onboarding and quiz adjustments
+- [ ] Add the existing matching illustration to Learn by listening and single-language path labels.
+- [ ] Use three free quiz formats; update copy and preserve meaningful existing completion.
+- [ ] Sample unique words for every quiz and 70% of each full Reading unit; verify tests and real free quiz flow.
+
 # Language and Sound Practice refinement
 - [x] Add persistent English/Arabic selection without removing existing onboarding steps.
 - [x] Centralize interface translations and RTL; add language choice in Profile. Existing English word meanings and legal documents remain explicitly English.
