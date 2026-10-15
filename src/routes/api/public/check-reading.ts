@@ -5,7 +5,30 @@ export { syllablesOf } from "@/lib/reading-sounds";
 // Checks a learner's reading of ONE fully vocalised word, syllable by syllable
 // (consonant + its exact short vowel), using an audio-capable model.
 // Public because the app has no accounts; it only accepts a short recording and a short Arabic word.
-const MAX_BYTES = 2 * 1024 * 1024;
+const MAX_BYTES = 512 * 1024;
+const MAX_MS = 6500;
+// Web app (same origin) plus the native app shells.
+const ORIGINS = new Set(["capacitor://localhost", "https://localhost", "http://localhost"]);
+function cors(request: Request): Record<string, string> {
+  const o = request.headers.get("origin") ?? "";
+  return ORIGINS.has(o) ? { "Access-Control-Allow-Origin": o, "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "content-type, x-qaf-device", Vary: "Origin" } : {};
+}
+function originAllowed(request: Request): boolean {
+  const o = request.headers.get("origin");
+  if (!o) return true; // native HTTP clients
+  if (ORIGINS.has(o)) return true;
+  try { return new URL(o).host === new URL(request.url).host; } catch { return false; }
+}
+async function sha(s: string) {
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b), (x) => x.toString(16).padStart(2, "0")).join("");
+}
+const LIMIT_MSG: Record<string, string> = {
+  quota: "You've used your free pronunciation checks. Lessons and quizzes stay open.",
+  daily: "You've reached today's pronunciation-check limit. Please try again tomorrow.",
+  global: "The reading checker is resting for today. Please try again tomorrow.",
+  paused: "The reading checker is paused. Lessons and quizzes stay open.",
+};
 const MODEL = "google/gemini-3.1-flash-lite";
 
 const SYSTEM = `You are a strict Arabic reading teacher checking a beginner's pronunciation of ONE fully vocalised word.
@@ -49,22 +72,42 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export const Route = createFileRoute("/api/public/check-reading")({
   server: {
     handlers: {
+      OPTIONS: async ({ request }) => new Response(null, { status: 204, headers: cors(request) }),
       POST: async ({ request }) => {
+        const h = cors(request);
+        const json = (b: unknown, status = 200) => Response.json(b, { status, headers: h });
+        if (!originAllowed(request)) return json({ error: "Not allowed." }, 403);
+        const device = request.headers.get("x-qaf-device") ?? "";
+        if (!/^[a-f0-9-]{16,64}$/i.test(device)) return json({ error: "Please update the app and try again." }, 400);
         const len = Number(request.headers.get("content-length") ?? 0);
-        if (len > MAX_BYTES + 64 * 1024) return Response.json({ error: "Recording is too long." }, { status: 413 });
+        if (len > MAX_BYTES + 64 * 1024) return json({ error: "Recording is too long." }, 413);
         let file: File | null = null;
         let expected = "";
         try {
           const fd = await request.formData();
           const v = fd.get("file");
           const e = fd.get("expected");
+          const ms = Number(fd.get("durationMs"));
+          if (!Number.isFinite(ms) || ms <= 0 || ms > MAX_MS) return json({ error: "Please keep each recording under 6 seconds." }, 413);
           file = v instanceof File ? v : null;
           if (typeof e === "string") expected = e.trim();
         } catch { /* invalid body */ }
-        if (!file || !file.size || file.size > MAX_BYTES) return Response.json({ error: "No usable recording." }, { status: 400 });
-        if (!/^[\u0621-\u0652]{2,20}$/.test(expected)) return Response.json({ error: "Unknown word." }, { status: 400 });
+        if (!file || !file.size || file.size > MAX_BYTES) return json({ error: "No usable recording." }, 400);
+        if (!/^[\u0621-\u0652]{2,20}$/.test(expected)) return json({ error: "Unknown word." }, 400);
         const apiKey = process.env["LOVABLE_API_KEY"];
-        if (!apiKey) return Response.json({ error: "Reading check is not configured." }, { status: 500 });
+        if (!apiKey) return json({ error: "Reading check is not configured." }, 500);
+
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+          const { data: gate, error: gErr } = await supabaseAdmin.rpc("consume_check", { _device: await sha(device), _ip: await sha(ip) });
+          if (gErr) throw gErr;
+          const g = gate as { allowed: boolean; reason?: string };
+          if (!g.allowed) return json({ error: LIMIT_MSG[g.reason ?? ""] ?? LIMIT_MSG["daily"], limit: g.reason }, 429);
+        } catch (err) {
+          console.error("check limit failed", err);
+          return json({ error: "Reading check is unavailable right now. Please try again." }, 503);
+        }
 
         const target = syllablesOf(expected);
         const data = btoa(Array.from(new Uint8Array(await file.arrayBuffer()), (b) => String.fromCharCode(b)).join(""));
@@ -93,23 +136,23 @@ export const Route = createFileRoute("/api/public/check-reading")({
           const ra = Number(res.headers.get("retry-after"));
           await sleep(Math.min(Number.isFinite(ra) && ra > 0 ? ra * 1000 : 1500, 4000));
         }
-        if (!res) return Response.json({ error: "Reading check failed. Please try again." }, { status: 502 });
+        if (!res) return json({ error: "Reading check failed. Please try again." }, 502);
         const text = await res.text();
         if (!res.ok) {
           const busy = res.status === 429;
           let message = busy ? "The reading checker is busy. Wait a moment, then try again." : "Reading check failed. Please try again.";
           if (!busy) try { message = (JSON.parse(text) as { message?: string }).message ?? message; } catch { /* keep default */ }
-          return Response.json({ error: message }, { status: res.status });
+          return json({ error: message }, res.status);
         }
         try {
           const content = (JSON.parse(text) as { choices: { message: { content: string } }[] }).choices[0]?.message.content;
-          if (!content) return Response.json({ error: "Reading check returned no feedback. Please try again." }, { status: 502 });
+          if (!content) return json({ error: "Reading check returned no feedback. Please try again." }, 502);
           const j = JSON.parse(content) as { heard: string; syllables: { heard: string; correct: boolean }[] };
           const syllables = target.map((t, i) => ({ target: t, heard: j.syllables[i]?.heard ?? "", correct: !!j.syllables[i]?.correct }));
           const correct = j.syllables.length === target.length && syllables.every((s) => s.correct);
-          return Response.json({ correct, heard: j.heard, syllables });
+          return json({ correct, heard: j.heard, syllables });
         } catch {
-          return Response.json({ error: "Reading check failed. Please try again." }, { status: 502 });
+          return json({ error: "Reading check failed. Please try again." }, 502);
         }
       },
     },

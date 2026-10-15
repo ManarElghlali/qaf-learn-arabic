@@ -26,3 +26,6 @@
 - Register the offline service worker only through the guarded offline module (never in dev or preview), with NetworkFirst pages and all built screens precached, so unvisited lessons still open offline without serving stale updates.
 - Keep public/manifest.webmanifest as the single installability manifest and reference real public icons from the root head; Vite manifest generation stays disabled to avoid duplicate metadata.
 - Re-record or audit teacher audio only through scripts/audio-audit (two independent AI listeners must accept a take; results.json records status), so corrections stay traceable and never silently replace approved Arabic text.
+- Gate /api/public/check-reading through the service-role-only consume_check database function (anonymous hashed device + IP, daily/global caps, free quota flag in check_limits), so AI cost limits are enforced server-side and adjustable without an app update.
+- Schedule daily reminders only through src/lib/reminders.ts (Capacitor LocalNotifications on native, permission asked after an in-app explanation), so no push server or recurring cost is needed.
+- Native shells (capacitor.config.ts) load dist/client and call the checker via VITE_API_BASE; the checker's CORS allow-list covers capacitor://localhost and https://localhost.

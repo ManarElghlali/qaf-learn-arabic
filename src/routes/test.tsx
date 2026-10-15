@@ -1,3 +1,4 @@
+import { API_BASE, deviceId } from "@/lib/api";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, LoaderCircle, Mic, Trophy, Volume2 } from "lucide-react";
@@ -51,6 +52,8 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   const chunks = useRef<Blob[]>([]);
   const startedAt = useRef(0);
   const releaseEarly = useRef(false);
+  const lastMs = useRef(0);
+  const autoStop = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [errMsg, setErrMsg] = useState("");
   const w = words[i] ?? WORDS[0];
   const finished = i >= words.length;
@@ -77,8 +80,9 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
       const type = blob.type.split(";")[0] || "audio/webm";
       const fd = new FormData();
       fd.append("expected", w.ar);
+      fd.append("durationMs", String(Math.max(1, Math.min(lastMs.current, 6000))));
       fd.append("file", new File([blob], type.includes("mp4") ? "reading.m4a" : "reading.webm", { type }));
-      const res = await fetch("/api/public/check-reading", { method: "POST", body: fd });
+      const res = await fetch(`${API_BASE}/api/public/check-reading`, { method: "POST", body: fd, headers: { "x-qaf-device": deviceId() } });
       const data = (await res.json()) as { correct?: boolean; heard?: string; syllables?: Syllable[]; error?: string };
       if (!res.ok || !data.syllables) { setErrMsg(data.error ?? "Reading check failed. Please try again."); setSt("error"); return; }
       judge({ correct: !!data.correct, heard: data.heard ?? "", syllables: data.syllables });
@@ -100,6 +104,8 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
     try { mr = new MediaRecorder(stream.current, { audioBitsPerSecond: 24000 }); } catch { mr = new MediaRecorder(stream.current); }
     mr.ondataavailable = (e) => { if (e.data.size) chunks.current.push(e.data); };
     mr.onstop = () => {
+      lastMs.current = Date.now() - startedAt.current;
+      if (autoStop.current) clearTimeout(autoStop.current);
       const blob = new Blob(chunks.current, { type: mr.mimeType || "audio/webm" });
       if (Date.now() - startedAt.current < 400 || blob.size < 1000) { setErrMsg("That was too short. Hold the mic, read the word, then release."); setSt("error"); return; }
       void analyze(blob);
@@ -107,6 +113,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
     media.current = mr;
     startedAt.current = Date.now();
     mr.start();
+    autoStop.current = setTimeout(() => { if (mr.state === "recording") mr.stop(); }, 6000);
     setSt("recording");
   };
 

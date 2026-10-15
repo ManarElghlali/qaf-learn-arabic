@@ -57,4 +57,9 @@
 # Single-screen learning activities
 - [x] Fit Learn content, audio and Previous/Next into the available screen height.
 - [x] Fit every quiz mode, feedback and Continue without scrolling.
-- [x] Verify all units on short and tall screens, including completed lessons.
+- [x] Verify all units on short and tall screens, including completed lessons.- [x] Server-side pronunciation check limits (Lovable Cloud)
+- [x] Daily reminder toggle restored with native local notifications
+- [x] Native wrapping prep (Capacitor config, API base, CORS)
+- [ ] Static SPA build for Capacitor + generate ios/android projects (needs Codemagic/CI)
+- [ ] Apple/Google in-app subscriptions (blocked: developer accounts + store products)
+- [ ] Turn on free 5-check quota once store billing exists

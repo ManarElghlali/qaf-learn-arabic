@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { patchOnboarding, readOnboarding, type Goal, type Level } from "@/lib/onboarding";
-import { ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
+import { Bell, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
+import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
+import { disableReminders, enableReminders, reminderTime, setReminderTime } from "@/lib/reminders";
 import { Button } from "@/components/ui/button";
 import { AppShell } from "@/components/AppShell";
 import { Paywall } from "@/components/Paywall";
@@ -28,6 +31,16 @@ function Profile() {
   const [goal, setGoal] = useState<Goal | undefined>();
   const [level, setLevel] = useState<Level | undefined>();
   useEffect(() => { const o = readOnboarding(); setGoal(o.goal); setLevel(o.level); }, []);
+  const [time, setTime] = useState("19:00");
+  const [ask, setAsk] = useState(false);
+  useEffect(() => { setTime(reminderTime()); }, []);
+  const turnOn = async () => {
+    setAsk(false);
+    const r = await enableReminders(time);
+    if (r === "denied") toast("Notifications are blocked. You can allow them in your phone's settings.");
+    else if (r === "web-limited") toast("Reminder saved. Daily notifications are sent by the Qaf phone app.");
+    else toast.success(`Daily reminder set for ${time}`);
+  };
   const best = p.scores.length ? Math.max(...p.scores) : 0;
   return (
     <AppShell title="Profile">
@@ -51,6 +64,20 @@ function Profile() {
         </select></label>
       <h2 className="mb-2 mt-7 text-base font-semibold">Settings</h2>
       <div className="divide-y divide-border">
+        <div className="flex min-h-16 items-center justify-between gap-3 py-2">
+          <label htmlFor="reminder" className="flex items-center gap-3 text-sm font-medium"><Bell className="h-5 w-5" />Daily reminder</label>
+          <Switch id="reminder" checked={p.reminders} onCheckedChange={(on) => { if (on) setAsk(true); else { void disableReminders(); toast("Daily reminder turned off"); } }} />
+        </div>
+        {ask && (
+          <div className="rounded-2xl border border-border bg-card p-4 text-sm">
+            <p className="mb-3 text-muted-foreground">Qaf will send one gentle notification a day to remind you to practise. We'll ask your phone for permission next. You can turn it off any time.</p>
+            <div className="flex gap-2"><Button onClick={() => void turnOn()} className="flex-1">Allow reminders</Button><Button variant="outline" onClick={() => setAsk(false)} className="flex-1">Not now</Button></div>
+          </div>
+        )}
+        {p.reminders && (
+          <label className="flex min-h-14 items-center justify-between text-sm font-medium">Reminder time
+            <input type="time" value={time} onChange={(e) => { setTime(e.target.value); void setReminderTime(e.target.value); }} className="h-11 rounded-xl border border-border bg-card px-3" /></label>
+        )}
         <Button variant="ghost" onClick={() => setPay(true)} className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
           <span className="flex items-center gap-3"><Crown className="h-5 w-5" />{p.premium ? "Premium active" : "Go Premium"}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Button>
