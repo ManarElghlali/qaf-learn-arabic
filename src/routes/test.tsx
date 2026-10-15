@@ -52,6 +52,8 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   const chunks = useRef<Blob[]>([]);
   const startedAt = useRef(0);
   const releaseEarly = useRef(false);
+  const lastMs = useRef(0);
+  const autoStop = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [errMsg, setErrMsg] = useState("");
   const w = words[i] ?? WORDS[0];
   const finished = i >= words.length;
