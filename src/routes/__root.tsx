@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { LanguageProvider } from "@/lib/i18n";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { setupOffline } from "../lib/offline";
@@ -149,10 +150,10 @@ function RootComponent() {
   useEffect(() => { if (access.loaded) void setupOffline(access.premium); }, [access.loaded, access.premium]);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <LanguageProvider><QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <OfflineGate premium={access.premium} loaded={access.loaded}><Outlet /></OfflineGate>
       <Toaster position="top-center" />
-    </QueryClientProvider>
+    </QueryClientProvider></LanguageProvider>
   );
 }

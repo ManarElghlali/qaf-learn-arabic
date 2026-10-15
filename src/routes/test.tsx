@@ -36,6 +36,7 @@ type State = "idle" | "recording" | "analyzing" | "correct" | "wrong" | "denied"
 type Syllable = { target: string; heard: string; correct: boolean };
 
 function TestRoute() {
+  const { t } = useLanguage();
   const { lesson } = Route.useSearch();
   const p = useLoadedProgress();
   const access = useAccess();

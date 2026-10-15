@@ -31,11 +31,12 @@ export const Route = createFileRoute("/quiz")({
       { property: "og:description", content: "Three quiz modes to practise reading Arabic." },
     ],
   }),
-  component: () => <ClientOnly fallback={<AppShell title={t("Quiz")}><div className="h-96" aria-busy="true" /></AppShell>}><QuizRoute /></ClientOnly>,
+  component: () => <ClientOnly fallback={<AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>}><QuizRoute /></ClientOnly>,
 });
 
 
 function QuizRoute() {
+  const { t } = useLanguage();
   const { lesson, q } = Route.useSearch();
   const p = useLoadedProgress();
   const access = useAccess();
