@@ -29,3 +29,5 @@
 - Gate /api/public/check-reading through the service-role-only consume_check database function (anonymous hashed device + IP, daily/global caps, free quota flag in check_limits), so AI cost limits are enforced server-side and adjustable without an app update.
 - Schedule daily reminders only through src/lib/reminders.ts (Capacitor LocalNotifications on native, permission asked after an in-app explanation), so no push server or recurring cost is needed.
 - Native shells (capacitor.config.ts) load dist/client and call the checker via VITE_API_BASE; the checker's CORS allow-list covers capacitor://localhost and https://localhost.
+- Native builds run `bun run build:native` (CAPACITOR=1 build, scripts/native-shell.ts renders a static index.html, then cap sync), so the web build stays server-rendered while ios/ and android/ get a static shell.
+- Premium check limits come only from server-side premium_entitlements rows (per billing period, counted in check_premium_usage by consume_check); rows must be written only after store receipt verification, never from the client.
