@@ -3,12 +3,14 @@ import { toast } from "sonner";
 import { Check, LoaderCircle, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { buy, FALLBACK_PRICE, restore, storeAvailable, storePrices, type Plan } from "@/lib/purchases";
+import { useAccess } from "@/lib/access";
 
 export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () => void; reason?: string | undefined }) {
   const [plan, setPlan] = useState<Plan>("yearly");
   const [prices, setPrices] = useState<Partial<Record<Plan, string>>>({});
   const [store, setStore] = useState<boolean | null>(null);
   const [busy, setBusy] = useState<"buy" | "restore" | null>(null);
+  const { canBuy } = useAccess();
   useEffect(() => {
     if (!open) return;
     void storeAvailable().then(setStore);
@@ -37,10 +39,15 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
         </div>
         {reason && <p className="mb-4 rounded-2xl bg-accent p-3 text-sm text-muted-foreground">{reason}</p>}
         <ul className="mb-5 space-y-2 text-sm text-muted-foreground">
-          {["100 AI pronunciation checks every billing month", "All lessons, recordings and quizzes stay free", "Cancel anytime in your store settings"].map((t) => (
+          {["Every Reading unit, word, quiz and reading test", "Every Sound Practice set", "Learn offline with downloaded lessons and audio", "100 AI pronunciation checks every billing month", "Cancel anytime in your store settings"].map((t) => (
             <li key={t} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-primary" />{t}</li>
           ))}
         </ul>
+        {!canBuy ? <div className="rounded-2xl bg-accent p-4 text-center">
+          <p className="font-semibold text-primary">Premium is coming soon</p>
+          <p className="mt-1 text-sm text-muted-foreground">$5.99/month or $39.99/year. For now you can keep learning the 10 free Fatha words, their 5 quizzes and the free Fatha sounds.</p>
+          <button className="mt-4 w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground" onClick={onClose}>Got it</button>
+        </div> : <>
         {(["monthly", "yearly"] as const).map((k) => (
           <button key={k} onClick={() => setPlan(k)}
             className={`mb-3 flex w-full items-center justify-between rounded-2xl border-2 p-4 text-left ${plan === k ? "border-primary bg-accent" : "border-border"}`}>
@@ -53,6 +60,7 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
           onClick={() => run("buy")}>{busy === "buy" && <LoaderCircle className="h-4 w-4 animate-spin" />}Subscribe</button>
         <button disabled={!store || !!busy} className="mt-3 flex w-full items-center justify-center gap-2 text-sm text-muted-foreground disabled:opacity-50"
           onClick={() => run("restore")}>{busy === "restore" && <LoaderCircle className="h-4 w-4 animate-spin" />}Restore purchase</button>
+        </>}
         <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
           Payment is charged to your Apple ID or Google Play account. Subscriptions renew automatically unless cancelled at least 24 hours before the period ends.{" "}
           <Link to="/terms" className="underline" onClick={onClose}>Terms of Use</Link> · <Link to="/privacy" className="underline" onClick={onClose}>Privacy</Link>
