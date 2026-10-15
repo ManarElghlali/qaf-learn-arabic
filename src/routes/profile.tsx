@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { patchOnboarding, readOnboarding, type Goal, type Level } from "@/lib/onboarding";
-import { toast } from "sonner";
-import { Bell, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
+import { ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { AppShell } from "@/components/AppShell";
 import { Paywall } from "@/components/Paywall";
 import { update, useProgress } from "@/lib/progress";
@@ -16,7 +14,7 @@ export const Route = createFileRoute("/profile")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { title: "Profile & settings — Qaf" },
-      { name: "description", content: "Your streak, words learned, test scores and reminders." },
+      { name: "description", content: "Your streak, words learned, test scores and settings." },
       { property: "og:title", content: "Profile — Qaf" },
       { property: "og:description", content: "Track your Arabic reading progress." },
     ],
@@ -31,14 +29,6 @@ function Profile() {
   const [level, setLevel] = useState<Level | undefined>();
   useEffect(() => { const o = readOnboarding(); setGoal(o.goal); setLevel(o.level); }, []);
   const best = p.scores.length ? Math.max(...p.scores) : 0;
-  const toggleRem = async () => {
-    if (!p.reminders && "Notification" in window) {
-      const r = await Notification.requestPermission();
-      if (r !== "granted") { toast.error("Notifications are blocked in your browser"); return; }
-      new Notification("Qaf", { body: "Daily reminders are on. See you tomorrow!" });
-    }
-    update((s) => ({ ...s, reminders: !s.reminders }));
-  };
   return (
     <AppShell title="Profile">
       <h2 className="mb-3 text-base font-semibold">Your progress</h2>
@@ -61,10 +51,6 @@ function Profile() {
         </select></label>
       <h2 className="mb-2 mt-7 text-base font-semibold">Settings</h2>
       <div className="divide-y divide-border">
-        <div className="grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
-          <label htmlFor="reminders" className="flex min-w-0 items-center gap-3 text-sm font-medium"><Bell className="h-5 w-5 shrink-0 text-muted-foreground" />Daily reminder</label>
-          <Switch id="reminders" checked={p.reminders} onCheckedChange={toggleRem} />
-        </div>
         <Button variant="ghost" onClick={() => setPay(true)} className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
           <span className="flex items-center gap-3"><Crown className="h-5 w-5" />{p.premium ? "Premium active" : "Go Premium"}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Button>
