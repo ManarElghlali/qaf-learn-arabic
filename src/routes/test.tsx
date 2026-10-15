@@ -9,6 +9,8 @@ import { LESSONS, parseLesson, unitState, recordUnitResult, PASS_PCT, UNIT_ORDER
 import { UnitLocked } from "@/components/LessonSwitch";
 import { Link } from "@tanstack/react-router";
 import { playWord, stopAudio } from "@/lib/audio";
+import { Paywall } from "@/components/Paywall";
+import { quotaStatus, type QuotaStatus } from "@/lib/purchases";
 import { touchStreak, update, useLoadedProgress, type Progress } from "@/lib/progress";
 
 export const Route = createFileRoute("/test")({
@@ -55,6 +57,10 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   const lastMs = useRef(0);
   const autoStop = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [errMsg, setErrMsg] = useState("");
+  const [quota, setQuota] = useState<QuotaStatus | null>(null);
+  const [pay, setPay] = useState<string | null>(null);
+  const refreshQuota = () => { void quotaStatus().then((q) => q && setQuota(q)); };
+  useEffect(refreshQuota, []);
   const w = words[i] ?? WORDS[0];
   const finished = i >= words.length;
   useEffect(() => {
@@ -83,7 +89,9 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
       fd.append("durationMs", String(Math.max(1, Math.min(lastMs.current, 6000))));
       fd.append("file", new File([blob], type.includes("mp4") ? "reading.m4a" : "reading.webm", { type }));
       const res = await fetch(`${API_BASE}/api/public/check-reading`, { method: "POST", body: fd, headers: { "x-qaf-device": deviceId() } });
-      const data = (await res.json()) as { correct?: boolean; heard?: string; syllables?: Syllable[]; error?: string };
+      const data = (await res.json()) as { correct?: boolean; heard?: string; syllables?: Syllable[]; error?: string; limit?: string };
+      refreshQuota();
+      if (res.status === 429 && data.limit === "quota") setPay(data.error ?? "You've used your free pronunciation checks.");
       if (!res.ok || !data.syllables) { setErrMsg(data.error ?? "Reading check failed. Please try again."); setSt("error"); return; }
       judge({ correct: !!data.correct, heard: data.heard ?? "", syllables: data.syllables });
     } catch { setErrMsg("Couldn't reach the reading checker. Check your connection and try again."); setSt("error"); }
@@ -161,6 +169,10 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
   return (
     <AppShell title="Reading test">
       <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{LESSONS[lesson].en} · Word {i + 1} of {words.length}</span><span>{correct} correct</span></div>
+      {quota && (quota.premium || quota.enforced) && <p className="mb-2 text-center text-xs text-muted-foreground" aria-live="polite">
+        {quota.premium ? `Premium · ${Math.max(0, quota.limit - quota.used)} of ${quota.limit} checks left this month` : `${Math.max(0, quota.limit - quota.used)} of ${quota.limit} free checks left`}
+        {!quota.premium && <button className="ml-2 font-medium text-primary underline" onClick={() => setPay("")}>Go Premium</button>}
+      </p>}
       <div className="mb-4 flex gap-1">{words.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? "bg-primary" : "bg-muted"}`} />)}</div>
       <div className="learning-surface p-6 text-center">
         <p className="mb-2 text-sm text-muted-foreground">Read this word aloud</p>
@@ -185,6 +197,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
         )}
         {st === "wrong" && <Button variant="ghost" className="text-muted-foreground" onClick={() => { setI((x) => x + 1); setSt("idle"); setSyl([]); }}>Skip</Button>}
       </div>
+      <Paywall open={pay !== null} reason={pay || undefined} onClose={() => setPay(null)} />
     </AppShell>
   );
 }

@@ -15,11 +15,14 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ReadingRouteImport } from './routes/reading'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as SoundsIndexRouteImport } from './routes/sounds.index'
 import { Route as SoundsCategoryRouteImport } from './routes/sounds.$category'
 import { Route as ApiPublicCheckReadingRouteImport } from './routes/api/public/check-reading'
+import { Route as ApiPublicCheckStatusRouteImport } from './routes/api/public/check-status'
+import { Route as ApiPublicVerifyReceiptRouteImport } from './routes/api/public/verify-receipt'
 import { Route as SoundsPracticeSetRouteImport } from './routes/sounds.practice.$set'
 
 const IndexRoute = IndexRouteImport.update({
@@ -52,6 +55,11 @@ const ReadingRoute = ReadingRouteImport.update({
   path: '/reading',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TestRoute = TestRouteImport.update({
   id: '/test',
   path: '/test',
@@ -77,6 +85,16 @@ const ApiPublicCheckReadingRoute = ApiPublicCheckReadingRouteImport.update({
   path: '/api/public/check-reading',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicCheckStatusRoute = ApiPublicCheckStatusRouteImport.update({
+  id: '/api/public/check-status',
+  path: '/api/public/check-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicVerifyReceiptRoute = ApiPublicVerifyReceiptRouteImport.update({
+  id: '/api/public/verify-receipt',
+  path: '/api/public/verify-receipt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SoundsPracticeSetRoute = SoundsPracticeSetRouteImport.update({
   id: '/sounds/practice/$set',
   path: '/sounds/practice/$set',
@@ -90,11 +108,14 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
+  '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
   '/sounds/': typeof SoundsIndexRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
+  '/api/public/check-status': typeof ApiPublicCheckStatusRoute
+  '/api/public/verify-receipt': typeof ApiPublicVerifyReceiptRoute
   '/sounds/practice/$set': typeof SoundsPracticeSetRoute
 }
 export interface FileRoutesByTo {
@@ -104,11 +125,14 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
+  '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
   '/sounds': typeof SoundsIndexRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
+  '/api/public/check-status': typeof ApiPublicCheckStatusRoute
+  '/api/public/verify-receipt': typeof ApiPublicVerifyReceiptRoute
   '/sounds/practice/$set': typeof SoundsPracticeSetRoute
 }
 export interface FileRoutesById {
@@ -119,11 +143,14 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
+  '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
   '/sounds/': typeof SoundsIndexRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
+  '/api/public/check-status': typeof ApiPublicCheckStatusRoute
+  '/api/public/verify-receipt': typeof ApiPublicVerifyReceiptRoute
   '/sounds/practice/$set': typeof SoundsPracticeSetRoute
 }
 export interface FileRouteTypes {
@@ -135,11 +162,14 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reading'
+    | '/terms'
     | '/test'
     | '/welcome'
     | '/sounds/$category'
     | '/sounds/'
     | '/api/public/check-reading'
+    | '/api/public/check-status'
+    | '/api/public/verify-receipt'
     | '/sounds/practice/$set'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -149,11 +179,14 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reading'
+    | '/terms'
     | '/test'
     | '/welcome'
     | '/sounds/$category'
     | '/sounds'
     | '/api/public/check-reading'
+    | '/api/public/check-status'
+    | '/api/public/verify-receipt'
     | '/sounds/practice/$set'
   id:
     | '__root__'
@@ -163,11 +196,14 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reading'
+    | '/terms'
     | '/test'
     | '/welcome'
     | '/sounds/$category'
     | '/sounds/'
     | '/api/public/check-reading'
+    | '/api/public/check-status'
+    | '/api/public/verify-receipt'
     | '/sounds/practice/$set'
   fileRoutesById: FileRoutesById
 }
@@ -178,11 +214,14 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   QuizRoute: typeof QuizRoute
   ReadingRoute: typeof ReadingRoute
+  TermsRoute: typeof TermsRoute
   TestRoute: typeof TestRoute
   WelcomeRoute: typeof WelcomeRoute
   SoundsCategoryRoute: typeof SoundsCategoryRoute
   SoundsIndexRoute: typeof SoundsIndexRoute
   ApiPublicCheckReadingRoute: typeof ApiPublicCheckReadingRoute
+  ApiPublicCheckStatusRoute: typeof ApiPublicCheckStatusRoute
+  ApiPublicVerifyReceiptRoute: typeof ApiPublicVerifyReceiptRoute
   SoundsPracticeSetRoute: typeof SoundsPracticeSetRoute
 }
 
@@ -230,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReadingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/test': {
       id: '/test'
       path: '/test'
@@ -265,6 +311,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCheckReadingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/check-status': {
+      id: '/api/public/check-status'
+      path: '/api/public/check-status'
+      fullPath: '/api/public/check-status'
+      preLoaderRoute: typeof ApiPublicCheckStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/verify-receipt': {
+      id: '/api/public/verify-receipt'
+      path: '/api/public/verify-receipt'
+      fullPath: '/api/public/verify-receipt'
+      preLoaderRoute: typeof ApiPublicVerifyReceiptRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sounds/practice/$set': {
       id: '/sounds/practice/$set'
       path: '/sounds/practice/$set'
@@ -282,11 +342,14 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   QuizRoute: QuizRoute,
   ReadingRoute: ReadingRoute,
+  TermsRoute: TermsRoute,
   TestRoute: TestRoute,
   WelcomeRoute: WelcomeRoute,
   SoundsCategoryRoute: SoundsCategoryRoute,
   SoundsIndexRoute: SoundsIndexRoute,
   ApiPublicCheckReadingRoute: ApiPublicCheckReadingRoute,
+  ApiPublicCheckStatusRoute: ApiPublicCheckStatusRoute,
+  ApiPublicVerifyReceiptRoute: ApiPublicVerifyReceiptRoute,
   SoundsPracticeSetRoute: SoundsPracticeSetRoute,
 }
 export const routeTree = rootRouteImport

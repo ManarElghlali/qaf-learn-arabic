@@ -84,6 +84,9 @@ function Profile() {
         <Button asChild variant="ghost" className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
           <Link to="/privacy"><span className="flex items-center gap-3"><Shield className="h-5 w-5" />Privacy Policy</span><ChevronRight className="h-4 w-4 text-muted-foreground" /></Link>
         </Button>
+        <Button asChild variant="ghost" className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
+          <Link to="/terms"><span className="flex items-center gap-3"><Shield className="h-5 w-5" />Terms of Use</span><ChevronRight className="h-4 w-4 text-muted-foreground" /></Link>
+        </Button>
         <Button variant="ghost" onClick={() => { if (confirm("Reset all progress?")) update((s) => ({ ...s, learned: [], streak: 0, scores: [], lastDay: "" })); }}
           className="h-16 w-full justify-start gap-3 rounded-none px-0 text-sm font-medium text-destructive"><RotateCcw className="h-5 w-5" />Reset progress</Button>
       </div>
