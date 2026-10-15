@@ -263,3 +263,20 @@ body { letter-spacing: 0; }
   .quiz-feedback { height: 28px; }
   .activity-command { height: 44px; }
 }
+
+/* Language direction changes interface chrome, never the teaching text or sound order. */
+html[lang="ar"] body { font-family: var(--font-arabic); }
+html[dir="rtl"] .qaf-shell svg.lucide-chevron-left,
+html[dir="rtl"] .qaf-shell svg.lucide-chevron-right,
+html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-left,
+html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-right { transform: rotate(180deg); }
+.qaf-onboarding { gap: 12px; }
+.qaf-onboarding button { white-space: normal; }
+.sound-letter-tile { box-shadow: var(--shadow-soft); }
+.sound-letter-tile:hover { border-color: var(--primary); }
+.sound-letter-tile[aria-pressed="true"] { border-color: var(--primary); background: var(--accent); }
+@media (max-height: 640px) {
+  .sound-practice { gap: 6px; }
+  .sound-letter-grid { gap: 8px; }
+  .sound-letter-tile .font-arabic { font-size: 28px; line-height: 1.5; }
+}

@@ -176,6 +176,8 @@ export const ARABIC: Record<string, string> = {
   "Sound Practice · Fatha": "تدريب الأصوات · الفتحة"
 };
 
+Object.assign(ARABIC, {"Step {current} of {total}": "الخطوة {current} من {total}", "Letter {current} of {total}": "الحرف {current} من {total}", "Word {current} of {total}": "الكلمة {current} من {total}", "Question {current} of {total}": "السؤال {current} من {total}", "Start with {lesson} instead": "ابدأ بـ {lesson} بدلًا من ذلك", "Go straight to {lesson}": "انتقل مباشرة إلى {lesson}", "Hear {sound}": "استمع إلى {sound}", "Great job! You practised all {total} letters.": "أحسنت! تدربت على جميع الحروف وعددها {total}.", "Main navigation": "التنقل الرئيسي", "You heard Arabic sounds and read your first word.": "استمعت إلى أصوات العربية وقرأت كلمتك الأولى.", "Reading · Fatha & Kasra": "القراءة · الفتحة والكسرة"});
+
 export function translate(language: Language, text: string, values: Record<string, string | number> = {}) {
   const template = language === "ar" ? ARABIC[text] ?? text : text;
   return template.replace(/\{(\w+)\}/g, (match, key: string) => String(values[key] ?? match));
