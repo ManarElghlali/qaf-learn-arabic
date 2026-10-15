@@ -10,10 +10,16 @@ import { Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { stopAudio } from "@/lib/audio";
 import { Button } from "@/components/ui/button";
+import { useAccess, canOpenUnit, FREE_QUIZZES, FREE_QUIZ_LENGTH, freeQuizOpen, markFreeQuiz, useFreeQuizzes, type FreeQuizMode } from "@/lib/access";
+import { PremiumLocked } from "@/components/PremiumLock";
+import { LockKeyhole } from "lucide-react";
 import { BuildQuestion, PickQuestion, type QuizMode } from "@/components/QuizQuestion";
 
 export const Route = createFileRoute("/quiz")({
-  validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
+  validateSearch: (s: Record<string, unknown>): { lesson: LessonId; q?: number } => {
+    const q = Number(s["q"]);
+    return { lesson: parseLesson(s["lesson"]), ...(q >= 1 && q <= 5 ? { q } : {}) };
+  },
   head: () => ({
     meta: [
       { property: "og:type", content: "website" },
@@ -29,15 +35,43 @@ export const Route = createFileRoute("/quiz")({
 
 
 function QuizRoute() {
-  const { lesson } = Route.useSearch();
+  const { lesson, q } = Route.useSearch();
   const p = useLoadedProgress();
+  const access = useAccess();
+  const done = useFreeQuizzes();
+  if (!access.loaded) return <AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>;
+  if (!canOpenUnit(lesson, access.premium)) return <AppShell title="Quiz"><PremiumLocked what={`The ${LESSONS[lesson].en} quiz`} /></AppShell>;
+  if (!access.premium) {
+    const fq = FREE_QUIZZES.find((x) => x.n === q);
+    if (!fq || !freeQuizOpen(fq.n, done)) return <FreeQuizList done={done} />;
+    return <Quiz key={`free-${fq.n}`} lesson={lesson} words={fq.words} label={`Free quiz ${fq.n} · ${fq.title}`} forced={fq.mode} length={FREE_QUIZ_LENGTH} onFinish={() => markFreeQuiz(fq.n)} freeN={fq.n} />;
+  }
   if (!p) return <AppShell title="Quiz"><div className="h-96" aria-busy="true" /></AppShell>;
   const s = unitState(p, lesson);
   if (!s.unlocked) return <AppShell title="Quiz"><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
   return <Quiz key={lesson} lesson={lesson} words={LESSONS[lesson].words} label={LESSONS[lesson].en} />;
 }
 
-function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]; label: string }) {
+function FreeQuizList({ done }: { done: number[] }) {
+  return (
+    <AppShell title="Free quizzes">
+      <p className="mb-3 text-sm text-muted-foreground">Five quizzes on your 10 free Fatha words. Each one opens after the one before it.</p>
+      <div className="space-y-2">{FREE_QUIZZES.map((fq) => {
+        const open = freeQuizOpen(fq.n, done);
+        const body = <><span className="min-w-0"><span className="block text-sm font-bold">Quiz {fq.n}</span><span className="block text-xs text-muted-foreground">{fq.title}</span></span>
+          {done.includes(fq.n) ? <Check className="h-4 w-4 text-success" /> : open ? <ChevronRight className="h-4 w-4 text-primary" /> : <LockKeyhole className="h-4 w-4 text-muted-foreground" />}</>;
+        return open
+          ? <Link key={fq.n} to="/quiz" search={{ lesson: "fatha", q: fq.n }} className="learning-surface flex min-h-16 items-center justify-between gap-3 p-4">{body}</Link>
+          : <div key={fq.n} aria-disabled="true" className="learning-surface flex min-h-16 items-center justify-between gap-3 p-4 opacity-60">{body}</div>;
+      })}</div>
+      {done.length >= 5 && <Button asChild className="mt-5 w-full"><Link to="/test" search={{ lesson: "fatha" }}>Take the free reading test</Link></Button>}
+    </AppShell>
+  );
+}
+
+const MODES: QuizMode[] = ["build", "listen", "picture"];
+
+function Quiz({ lesson, words: WORDS, label, forced, length, onFinish, freeN }: { lesson: LessonId; words: Word[]; label: string; forced?: FreeQuizMode; length?: number; onFinish?: () => void; freeN?: number }) {
   const [n, setN] = useState(0);
   const [score, setScore] = useState(0);
   const [misses, setMisses] = useState<number[]>([]);
@@ -48,7 +82,7 @@ function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]
     const pool: typeof WORDS = misses.length && Math.random() < 0.5 ? WORDS.filter((w) => misses.includes(w.id)) : WORDS;
     const w = pool[Math.floor(Math.random() * pool.length)] ?? WORDS[0];
     if (!w) return null;
-    const mode: QuizMode = n % 3 === 0 ? "build" : n % 3 === 1 ? "listen" : "picture";
+    const mode: QuizMode = forced && forced !== "mixed" ? forced : MODES[n % 3]!;
     return { w, mode, opts: shuffle([w, ...shuffle(WORDS.filter((x) => x.id !== w.id)).slice(0, 3)]) };
   }, [n, round]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => () => stopAudio(), []);
@@ -59,9 +93,12 @@ function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]
     else setMisses((m) => [...new Set([...m, q.w.id])]);
 
   };
-  const total = Math.min(QUIZ_LENGTH, WORDS.length);
+  const total = length ?? Math.min(QUIZ_LENGTH, WORDS.length);
   const finished = n >= total;
-  useEffect(() => { if (finished) update((p) => recordUnitResult(p, lesson, "quiz", Math.round(score / total * 100))); }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!finished) return;
+    if (onFinish) onFinish(); else update((p) => recordUnitResult(p, lesson, "quiz", Math.round(score / total * 100)));
+  }, [finished]); // eslint-disable-line react-hooks/exhaustive-deps
   if (finished) {
     const pct = Math.round(score / total * 100);
     const passed = pct >= PASS_PCT;
@@ -72,7 +109,8 @@ function Quiz({ lesson, words: WORDS, label }: { lesson: LessonId; words: Word[]
           <h2 className="mt-3 text-2xl font-bold">{passed ? "Quiz passed" : "Keep practising"}</h2>
           <p className="mt-2 text-muted-foreground">{score} of {total} correct · {pct}%</p>
           {!passed && <p className="mt-1 text-xs text-muted-foreground">You need {PASS_PCT}% to pass this unit’s quiz.</p>}
-          {passed && <Button asChild className="mt-6 w-full"><Link to="/test" search={{ lesson }}>Take the {label} reading test</Link></Button>}
+          {freeN ? <Button asChild className="mt-6 w-full">{freeN < 5 ? <Link to="/quiz" search={{ lesson, q: freeN + 1 }}>Next free quiz</Link> : <Link to="/test" search={{ lesson }}>Take the free reading test</Link>}</Button>
+            : passed && <Button asChild className="mt-6 w-full"><Link to="/test" search={{ lesson }}>Take the {label} reading test</Link></Button>}
           <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => { setN(0); setScore(0); setMisses([]); setAnswered(false); setRound((r) => r + 1); }}>Try the quiz again</Button>
         </div>
       </AppShell>
