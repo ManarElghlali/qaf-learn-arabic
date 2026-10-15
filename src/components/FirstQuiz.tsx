@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronRight, RotateCcw, Star, Volume2, X } from "lucide-react";
 import { Ar } from "@/components/AppShell";
@@ -23,6 +24,7 @@ export function firstQuizQuestions(level: Level | undefined): Q[] {
 }
 
 export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFinish: () => void }) {
+  const { t } = useLanguage();
   const qs = useMemo(() => firstQuizQuestions(level), [level]);
   const [n, setN] = useState(0);
   const [wrong, setWrong] = useState<string[]>([]);
@@ -37,17 +39,17 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
         <span className="grid h-20 w-20 place-items-center rounded-full bg-success-soft"><Check className="h-10 w-10 text-success" /></span>
-        <h2 className="text-2xl font-bold">You did it!</h2>
+        <h2 className="text-2xl font-bold">{t("You did it!")}</h2>
         <p className="max-w-xs text-muted-foreground">You heard Arabic sounds and read your first word, <Ar className="text-xl text-primary">أَكَلَ</Ar>.</p>
         <div className="mt-2 rounded-2xl border border-border p-3">
-          <p className="text-xs text-muted-foreground">{rating ? "Thank you for your rating!" : "Enjoying Qaf so far? (optional)"}</p>
+          <p className="text-xs text-muted-foreground">{rating ? t("Thank you for your rating!") : t("Enjoying Qaf so far? (optional)")}</p>
           <div className="mt-1 flex justify-center gap-1">{[1, 2, 3, 4, 5].map((r) => (
             <button key={r} type="button" aria-label={`Rate ${r} of 5`} aria-pressed={rating === r} onClick={() => { setRating(r); patchOnboarding({ rating: r }); }} className="grid h-11 w-11 place-items-center rounded-full">
               <Star className={`h-6 w-6 ${rating && r <= rating ? "fill-gold text-gold" : "text-muted-foreground"}`} />
             </button>
           ))}</div>
         </div>
-        <Button className="mt-2 h-14 w-full rounded-full text-base" onClick={onFinish}>Continue<ChevronRight /></Button>
+        <Button className="mt-2 h-14 w-full rounded-full text-base" onClick={onFinish}>{t("Continue")}<ChevronRight /></Button>
       </div>
     );
   }
@@ -67,11 +69,11 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
     <div className="flex flex-1 flex-col gap-4">
       <div className="flex items-center gap-3 text-xs text-muted-foreground"><span>Question {n + 1} of {qs.length}</span><progress value={n} max={qs.length} aria-label="First quiz progress" className="qaf-progress h-1.5 flex-1" /></div>
       <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-        <h2 className="text-lg font-bold">{q.kind === "sound" ? "Which sound did you hear?" : "Which word did you hear?"}</h2>
+        <h2 className="text-lg font-bold">{q.kind === "sound" ? t("Which sound did you hear?") : t("Which word did you hear?")}</h2>
         {w && <><WordIllustration word={w} className="w-28" /><p className="text-sm font-medium">{w.en}</p></>}
-        <Button aria-label={q.kind === "sound" ? "Play the sound again" : "Play the word again"} onClick={hear} className="h-16 w-16 rounded-full [&_svg]:size-7"><Volume2 /></Button>
+        <Button aria-label={q.kind === "sound" ? t("Play the sound again") : t("Play the word again")} onClick={hear} className="h-16 w-16 rounded-full [&_svg]:size-7"><Volume2 /></Button>
       </div>
-      <div className="grid grid-cols-1 gap-2" aria-label="Answer choices">{q.choices.map((c) => {
+      <div className="grid grid-cols-1 gap-2" aria-label={t("Answer choices")}>{q.choices.map((c) => {
         const isRight = solved && c === q.answer, isWrong = wrong.includes(c);
         return (
           <Button key={c} variant="outline" aria-pressed={isRight || isWrong} disabled={solved || isWrong} onClick={() => choose(c)}
@@ -81,10 +83,10 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
         );
       })}</div>
       <div className="min-h-6 text-center" role="status">
-        {solved ? <p className="flex items-center justify-center gap-2 text-sm font-semibold text-success"><Check className="size-4" />Correct!</p>
-          : wrong.length > 0 ? <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><RotateCcw className="size-4" />Not quite — listen again and try another.</p> : null}
+        {solved ? <p className="flex items-center justify-center gap-2 text-sm font-semibold text-success"><Check className="size-4" />{t("Correct!")}</p>
+          : wrong.length > 0 ? <p className="flex items-center justify-center gap-2 text-sm text-muted-foreground"><RotateCcw className="size-4" />{t("Not quite — listen again and try another.")}</p> : null}
       </div>
-      <Button disabled={!solved} className="h-14 w-full rounded-full text-base" onClick={next}>{n === qs.length - 1 ? "Finish" : "Continue"}<ChevronRight /></Button>
+      <Button disabled={!solved} className="h-14 w-full rounded-full text-base" onClick={next}>{n === qs.length - 1 ? t("Finish") : t("Continue")}<ChevronRight /></Button>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/learn")({
 });
 
 function Learn() {
+  const { t } = useLanguage();
   const { lesson } = Route.useSearch();
   const L = LESSONS[lesson];
   const access = useAccess();
@@ -44,8 +46,8 @@ function Learn() {
   useEffect(() => { setSelectedSound(null); stopAudio(); }, [i, lesson]);
   useEffect(() => { const ws = WORDS.slice(i, i + 2).filter(Boolean); preloadAudio("w", ws.map((x) => x.ar)); preloadAudio("u", ws.flatMap((x) => x.units)); }, [i, WORDS]);
   if (!w) return null;
-  if (access.loaded && !canOpenUnit(lesson, access.premium)) return <AppShell title={`${L.en} · ${L.ar}`}><PremiumLocked what={`The ${L.en} unit`} /></AppShell>;
-  if (lp && !unitState(lp, lesson).unlocked) return <AppShell title={`${L.en} · ${L.ar}`}><UnitLocked id={lesson} progress={lp} need="unit" /></AppShell>;
+  if (access.loaded && !canOpenUnit(lesson, access.premium)) return <AppShell title={`${t(L.en)} · ${L.ar}`}><PremiumLocked what={`The ${t(L.en)} unit`} /></AppShell>;
+  if (lp && !unitState(lp, lesson).unlocked) return <AppShell title={`${t(L.en)} · ${L.ar}`}><UnitLocked id={lesson} progress={lp} need="unit" /></AppShell>;
   const unit = lp ? unitState(lp, lesson) : null;
   const go = (d: number) => {
     update((s) => (s[L.key].includes(w.id) ? s : { ...s, [L.key]: [...s[L.key], w.id] }));
@@ -55,16 +57,16 @@ function Learn() {
   };
   const freeDone = free && lesson === "fatha" && !!lp && FREE_WORDS.every((x) => lp.learned.includes(x.id));
   return (
-    <AppShell title={`${L.en} · ${L.ar}`} singleScreen>
+    <AppShell title={`${t(L.en)} · ${L.ar}`} singleScreen>
       <div className="activity-meta grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground">
         <span>Word {i + 1} of {WORDS.length}</span>
         <label className="flex items-center gap-2">Transliteration
           <input type="checkbox" checked={p.translit} onChange={(e) => update((s) => ({ ...s, translit: e.target.checked }))} className="accent-primary" />
         </label>
       </div>
-      <progress aria-label="Lesson progress" className="qaf-progress h-1.5 w-full shrink-0" value={i + 1} max={WORDS.length} />
+      <progress aria-label={t("Lesson progress")} className="qaf-progress h-1.5 w-full shrink-0" value={i + 1} max={WORDS.length} />
       <div className="learning-surface lesson-content text-center">
-        <Button variant="ghost" aria-label="Play word" onClick={() => { setSelectedSound(null); playWord(w.ar); }} className="lesson-art mx-auto rounded-2xl p-0"><WordIllustration word={w} /></Button>
+        <Button variant="ghost" aria-label={t("Play word")} onClick={() => { setSelectedSound(null); playWord(w.ar); }} className="lesson-art mx-auto rounded-2xl p-0"><WordIllustration word={w} /></Button>
         <div className="lesson-word">
           <Ar className="block font-semibold">{w.ar}</Ar>
           {p.translit && <p className="text-sm text-muted-foreground">{w.tr}</p>}
@@ -82,20 +84,20 @@ function Learn() {
         </Button>
       </div>
       <div className="activity-actions flex gap-3">
-        <Button variant="outline" disabled={i === 0} onClick={() => go(-1)} className="activity-command min-w-0 flex-1"><ChevronLeft className="h-4 w-4" />Previous</Button>
-        <Button onClick={() => go(1)} className="activity-command min-w-0 flex-1">{i === WORDS.length - 1 ? "Finish lesson" : "Next"}<ChevronRight className="h-4 w-4" /></Button>
+        <Button variant="outline" disabled={i === 0} onClick={() => go(-1)} className="activity-command min-w-0 flex-1"><ChevronLeft className="h-4 w-4" />{t("Previous")}</Button>
+        <Button onClick={() => go(1)} className="activity-command min-w-0 flex-1">{i === WORDS.length - 1 ? t("Finish lesson") : t("Next")}<ChevronRight className="h-4 w-4" /></Button>
       </div>
       {freeDone && (
         <div className="lesson-completion grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
           <p className="text-xs font-semibold text-primary">All {FREE_WORDS.length} free words learned</p>
-          <Button asChild variant="outline" size="sm"><Link to="/quiz" search={{ lesson }}>Free quizzes<ChevronRight /></Link></Button>
+          <Button asChild variant="outline" size="sm"><Link to="/quiz" search={{ lesson }}>{t("Free quizzes")}<ChevronRight /></Link></Button>
         </div>
       )}
       <Paywall open={pay} onClose={() => setPay(false)} reason={`You've reached the end of the ${FREE_WORDS.length} free Fatha words. The rest of Fatha and every other unit are part of Premium.`} />
       {!free && unit?.lessonsDone && (
         <div className="lesson-completion grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-          <p className="text-xs font-semibold text-primary">{unit.complete ? "Unit complete" : `All ${unit.total} words learned`}</p>
-          <Button asChild variant="outline" size="sm"><Link to={unit.step === "test" ? "/test" : "/quiz"} search={{ lesson }}>{unit.step === "test" ? "Take the test" : "Take the quiz"}<ChevronRight /></Link></Button>
+          <p className="text-xs font-semibold text-primary">{unit.complete ? t("Unit complete") : `All ${unit.total} words learned`}</p>
+          <Button asChild variant="outline" size="sm"><Link to={unit.step === "test" ? "/test" : "/quiz"} search={{ lesson }}>{unit.step === "test" ? t("Take the test") : t("Take the quiz")}<ChevronRight /></Link></Button>
         </div>
       )}
     </AppShell>

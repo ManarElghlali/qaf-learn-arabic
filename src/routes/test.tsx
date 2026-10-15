@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { API_BASE, deviceId } from "@/lib/api";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
@@ -38,14 +39,15 @@ function TestRoute() {
   const { lesson } = Route.useSearch();
   const p = useLoadedProgress();
   const access = useAccess();
-  if (!p || !access.loaded) return <AppShell title="Reading test"><div className="h-96" aria-busy="true" /></AppShell>;
-  if (!canOpenUnit(lesson, access.premium)) return <AppShell title="Reading test"><PremiumLocked what={`The ${LESSONS[lesson].en} reading test`} /></AppShell>;
+  if (!p || !access.loaded) return <AppShell title={t("Reading test")}><div className="h-96" aria-busy="true" /></AppShell>;
+  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Reading test")}><PremiumLocked what={`The ${LESSONS[lesson].en} reading test`} /></AppShell>;
   const s = unitState(p, lesson);
-  if (!s.unlocked) return <AppShell title="Reading test"><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
+  if (!s.unlocked) return <AppShell title={t("Reading test")}><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
   return <Test key={`${lesson}-${access.premium}`} lesson={lesson} progress={p} free={!access.premium} />;
 }
 
 function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesson>; progress: Progress; free: boolean }) {
+  const { t } = useLanguage();
   const WORDS = free ? FREE_WORDS : LESSONS[lesson].words;
   const [words, setWords] = useState(WORDS.slice(0, 10));
   const [i, setI] = useState(0);
@@ -140,19 +142,19 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
     const complete = unitState(recordUnitResult(progress, lesson, "test", pct), lesson).complete;
     const next = UNIT_ORDER[UNIT_ORDER.indexOf(lesson) + 1];
     return (
-      <AppShell title="Reading test">
+      <AppShell title={t("Reading test")}>
         <div className="learning-surface p-7 text-center">
           <Trophy className="mx-auto h-12 w-12 text-gold" />
-          <h2 className="mt-3 text-2xl font-bold">{complete ? `${LESSONS[lesson].en} unit complete` : passed ? "Reading test passed" : "Test complete"}</h2>
+          <h2 className="mt-3 text-2xl font-bold">{complete ? `${LESSONS[lesson].en} unit complete` : passed ? t("Reading test passed") : t("Test complete")}</h2>
           <p className="mt-2 text-muted-foreground">You read {correct} of {words.length} words · {pct}%</p>
           {!passed && <p className="mt-1 text-xs text-muted-foreground">You need {PASS_PCT}% to complete this unit.</p>}
-          {free && <Button className="mt-6 w-full" onClick={() => setPay("")}>Unlock all units with Premium</Button>}
+          {free && <Button className="mt-6 w-full" onClick={() => setPay("")}>{t("Unlock all units with Premium")}</Button>}
           {!free && complete && next && <Button asChild className="mt-6 w-full"><Link to="/learn" search={{ lesson: next }}>Start {LESSONS[next].en}</Link></Button>}
-          {!free && passed && !complete && <Button asChild className="mt-6 w-full"><Link to={unitState(progress, lesson).lessonsDone ? "/quiz" : "/learn"} search={{ lesson }}>Continue this unit</Link></Button>}
-          <Button asChild variant="outline" className="mt-3 w-full"><Link to="/">Back to Home</Link></Button>
+          {!free && passed && !complete && <Button asChild className="mt-6 w-full"><Link to={unitState(progress, lesson).lessonsDone ? "/quiz" : "/learn"} search={{ lesson }}>{t("Continue this unit")}</Link></Button>}
+          <Button asChild variant="outline" className="mt-3 w-full"><Link to="/">{t("Back to Home")}</Link></Button>
           <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => {
             setWords(shuffle(WORDS).slice(0, 10)); setI(0); setCorrect(0); setSt("idle");
-          }}>Try the test again</Button>
+          }}>{t("Try the test again")}</Button>
         </div>
         <Paywall open={pay !== null} reason={pay || undefined} onClose={() => setPay(null)} />
       </AppShell>
@@ -160,24 +162,24 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
   }
 
   const msg: Record<State, string> = {
-    idle: "Press and hold the mic, read the word, then release.",
-    recording: "Listening… release when done",
-    analyzing: "Checking your reading…",
-    correct: "Correct! ✓",
-    wrong: "Try again",
-    denied: "Microphone access was blocked. Allow it in your browser settings, then tap the mic again.",
-    unsupported: "Recording isn't supported in this browser. Try an up-to-date Chrome or Safari.",
+    idle: t("Press and hold the mic, read the word, then release."),
+    recording: t("Listening\u2026 release when done"),
+    analyzing: t("Checking your reading\u2026"),
+    correct: t("Correct! \u2713"),
+    wrong: t("Try again"),
+    denied: t("Microphone access was blocked. Allow it in your browser settings, then tap the mic again."),
+    unsupported: t("Recording isn't supported in this browser. Try an up-to-date Chrome or Safari."),
     error: errMsg,
   };
 
   if (!w) return null;
 
   return (
-    <AppShell title="Reading test">
+    <AppShell title={t("Reading test")}>
       <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{LESSONS[lesson].en} · Word {i + 1} of {words.length}</span><span>{correct} correct</span></div>
       {quota && (quota.premium || quota.enforced) && <p className="mb-2 text-center text-xs text-muted-foreground" aria-live="polite">
         {quota.premium ? `Premium · ${Math.max(0, quota.limit - quota.used)} of ${quota.limit} checks left this month` : `${Math.max(0, quota.limit - quota.used)} of ${quota.limit} free checks left`}
-        {!quota.premium && <button className="ml-2 font-medium text-primary underline" onClick={() => setPay("")}>Go Premium</button>}
+        {!quota.premium && <button className="ml-2 font-medium text-primary underline" onClick={() => setPay("")}>{t("Go Premium")}</button>}
       </p>}
       <div className="mb-4 flex gap-1">{words.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? "bg-primary" : "bg-muted"}`} />)}</div>
       <div className="learning-surface p-6 text-center">
@@ -201,7 +203,7 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
             <Volume2 className="h-4 w-4" /> Hear the word
           </Button>
         )}
-        {st === "wrong" && <Button variant="ghost" className="text-muted-foreground" onClick={() => { setI((x) => x + 1); setSt("idle"); setSyl([]); }}>Skip</Button>}
+        {st === "wrong" && <Button variant="ghost" className="text-muted-foreground" onClick={() => { setI((x) => x + 1); setSt("idle"); setSyl([]); }}>{t("Skip")}</Button>}
       </div>
       <Paywall open={pay !== null} reason={pay || undefined} onClose={() => setPay(null)} />
     </AppShell>

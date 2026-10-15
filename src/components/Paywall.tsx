@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Check, LoaderCircle, X } from "lucide-react";
@@ -6,6 +7,7 @@ import { buy, FALLBACK_PRICE, restore, storeAvailable, storePrices, type Plan } 
 import { useAccess } from "@/lib/access";
 
 export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () => void; reason?: string | undefined }) {
+  const { t } = useLanguage();
   const [plan, setPlan] = useState<Plan>("yearly");
   const [prices, setPrices] = useState<Partial<Record<Plan, string>>>({});
   const [store, setStore] = useState<boolean | null>(null);
@@ -34,8 +36,8 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={onClose}>
       <div className="w-full max-w-md rounded-t-3xl bg-card p-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Qaf Premium</h2>
-          <button aria-label="Close" onClick={onClose}><X className="h-5 w-5" /></button>
+          <h2 className="text-xl font-bold">{t("Qaf Premium")}</h2>
+          <button aria-label={t("Close")} onClick={onClose}><X className="h-5 w-5" /></button>
         </div>
         {reason && <p className="mb-4 rounded-2xl bg-accent p-3 text-sm text-muted-foreground">{reason}</p>}
         <ul className="mb-5 space-y-2 text-sm text-muted-foreground">
@@ -44,18 +46,18 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
           ))}
         </ul>
         {!canBuy ? <div className="rounded-2xl bg-accent p-4 text-center">
-          <p className="font-semibold text-primary">Premium is coming soon</p>
+          <p className="font-semibold text-primary">{t("Premium is coming soon")}</p>
           <p className="mt-1 text-sm text-muted-foreground">$5.99/month or $39.99/year. For now you can keep learning the 10 free Fatha words, their 5 quizzes and the free Fatha sounds.</p>
-          <button className="mt-4 w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground" onClick={onClose}>Got it</button>
+          <button className="mt-4 w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground" onClick={onClose}>{t("Got it")}</button>
         </div> : <>
         {(["monthly", "yearly"] as const).map((k) => (
           <button key={k} onClick={() => setPlan(k)}
             className={`mb-3 flex w-full items-center justify-between rounded-2xl border-2 p-4 text-left ${plan === k ? "border-primary bg-accent" : "border-border"}`}>
-            <span><span className="block font-semibold">{k === "monthly" ? "Monthly" : "Yearly"}</span><span className="text-sm text-muted-foreground">{prices[k] ?? FALLBACK_PRICE[k]}</span></span>
-            {k === "yearly" && <span className="rounded-full bg-primary px-2 py-1 text-xs text-primary-foreground">Save 44%</span>}
+            <span><span className="block font-semibold">{k === "monthly" ? t("Monthly") : t("Yearly")}</span><span className="text-sm text-muted-foreground">{prices[k] ?? FALLBACK_PRICE[k]}</span></span>
+            {k === "yearly" && <span className="rounded-full bg-primary px-2 py-1 text-xs text-primary-foreground">{t("Save 44%")}</span>}
           </button>
         ))}
-        {store === false && <p className="mb-2 text-center text-xs text-muted-foreground">Subscriptions are available in the Qaf app for iPhone and Android.</p>}
+        {store === false && <p className="mb-2 text-center text-xs text-muted-foreground">{t("Subscriptions are available in the Qaf app for iPhone and Android.")}</p>}
         <button disabled={!store || !!busy} className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground disabled:opacity-50"
           onClick={() => run("buy")}>{busy === "buy" && <LoaderCircle className="h-4 w-4 animate-spin" />}Subscribe</button>
         <button disabled={!store || !!busy} className="mt-3 flex w-full items-center justify-center gap-2 text-sm text-muted-foreground disabled:opacity-50"
@@ -63,7 +65,7 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
         </>}
         <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
           Payment is charged to your Apple ID or Google Play account. Subscriptions renew automatically unless cancelled at least 24 hours before the period ends.{" "}
-          <Link to="/terms" className="underline" onClick={onClose}>Terms of Use</Link> · <Link to="/privacy" className="underline" onClick={onClose}>Privacy</Link>
+          <Link to="/terms" className="underline" onClick={onClose}>{t("Terms of Use")}</Link> · <Link to="/privacy" className="underline" onClick={onClose}>{t("Privacy")}</Link>
         </p>
       </div>
     </div>
