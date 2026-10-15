@@ -26,6 +26,7 @@ async function sha(s: string) {
 const LIMIT_MSG: Record<string, string> = {
   quota: "You've used your free pronunciation checks. Lessons and quizzes stay open.",
   daily: "You've reached today's pronunciation-check limit. Please try again tomorrow.",
+  premium_monthly: "You've used this month's 100 Premium pronunciation checks. They refresh with your next billing month.",
   global: "The reading checker is resting for today. Please try again tomorrow.",
   paused: "The reading checker is paused. Lessons and quizzes stay open.",
 };
