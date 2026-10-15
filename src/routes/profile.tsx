@@ -1,10 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { patchOnboarding, readOnboarding, type Goal, type Level } from "@/lib/onboarding";
-import { toast } from "sonner";
-import { Bell, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
+import { ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import { AppShell } from "@/components/AppShell";
 import { Paywall } from "@/components/Paywall";
 import { update, useProgress } from "@/lib/progress";
