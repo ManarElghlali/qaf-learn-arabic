@@ -14,13 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      check_daily_total: {
+        Row: {
+          count: number
+          day: string
+        }
+        Insert: {
+          count?: number
+          day?: string
+        }
+        Update: {
+          count?: number
+          day?: string
+        }
+        Relationships: []
+      }
+      check_device_usage: {
+        Row: {
+          day: string
+          day_count: number
+          device_id: string
+          lifetime: number
+          updated_at: string
+        }
+        Insert: {
+          day?: string
+          day_count?: number
+          device_id: string
+          lifetime?: number
+          updated_at?: string
+        }
+        Update: {
+          day?: string
+          day_count?: number
+          device_id?: string
+          lifetime?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      check_ip_usage: {
+        Row: {
+          count: number
+          day: string
+          ip_hash: string
+        }
+        Insert: {
+          count?: number
+          day?: string
+          ip_hash: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          ip_hash?: string
+        }
+        Relationships: []
+      }
+      check_limits: {
+        Row: {
+          device_daily: number
+          enabled: boolean
+          enforce_free_quota: boolean
+          free_lifetime: number
+          global_daily: number
+          id: boolean
+          ip_daily: number
+          premium_monthly: number
+        }
+        Insert: {
+          device_daily?: number
+          enabled?: boolean
+          enforce_free_quota?: boolean
+          free_lifetime?: number
+          global_daily?: number
+          id?: boolean
+          ip_daily?: number
+          premium_monthly?: number
+        }
+        Update: {
+          device_daily?: number
+          enabled?: boolean
+          enforce_free_quota?: boolean
+          free_lifetime?: number
+          global_daily?: number
+          id?: boolean
+          ip_daily?: number
+          premium_monthly?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_check: { Args: { _device: string; _ip: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never
