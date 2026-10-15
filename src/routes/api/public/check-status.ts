@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { cors, deviceHeader, originAllowed, sha } from "@/lib/public-api.server";
 
-// Read-only: how many pronunciation checks this anonymous device has used.
+// Read-only: this anonymous device's checks, plus a fresh signed Premium pass when Premium is active.
 export const Route = createFileRoute("/api/public/check-status")({
   server: {
     handlers: {
@@ -12,10 +12,16 @@ export const Route = createFileRoute("/api/public/check-status")({
         const device = deviceHeader(request);
         if (!device) return json({ error: "Missing device." }, 400);
         try {
+          const dev = await sha(device);
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-          const { data, error } = await supabaseAdmin.rpc("check_status", { _device: await sha(device) });
+          const { data, error } = await supabaseAdmin.rpc("check_status", { _device: dev });
           if (error) throw error;
-          return json(data);
+          const s = data as { premium: boolean; renews?: string };
+          if (s.premium && s.renews) {
+            const { signPass } = await import("@/lib/premium-pass.server");
+            return json({ ...s, pass: await signPass(dev, s.renews) });
+          }
+          return json(s);
         } catch (e) {
           console.error("check-status failed", e);
           return json({ error: "Unavailable" }, 503);
