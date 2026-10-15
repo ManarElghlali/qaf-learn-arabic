@@ -73,6 +73,7 @@ export type Database = {
       }
       check_limits: {
         Row: {
+          billing_live: boolean
           device_daily: number
           enabled: boolean
           enforce_free_quota: boolean
@@ -80,9 +81,11 @@ export type Database = {
           global_daily: number
           id: boolean
           ip_daily: number
+          max_moves_30d: number
           premium_monthly: number
         }
         Insert: {
+          billing_live?: boolean
           device_daily?: number
           enabled?: boolean
           enforce_free_quota?: boolean
@@ -90,9 +93,11 @@ export type Database = {
           global_daily?: number
           id?: boolean
           ip_daily?: number
+          max_moves_30d?: number
           premium_monthly?: number
         }
         Update: {
+          billing_live?: boolean
           device_daily?: number
           enabled?: boolean
           enforce_free_quota?: boolean
@@ -100,6 +105,7 @@ export type Database = {
           global_daily?: number
           id?: boolean
           ip_daily?: number
+          max_moves_30d?: number
           premium_monthly?: number
         }
         Relationships: []
@@ -119,6 +125,24 @@ export type Database = {
           count?: number
           device_id?: string
           period_start?: string
+        }
+        Relationships: []
+      }
+      entitlement_moves: {
+        Row: {
+          device_id: string
+          moved_at: string
+          original_transaction_id: string
+        }
+        Insert: {
+          device_id: string
+          moved_at?: string
+          original_transaction_id: string
+        }
+        Update: {
+          device_id?: string
+          moved_at?: string
+          original_transaction_id?: string
         }
         Relationships: []
       }
@@ -170,6 +194,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      revoke_entitlement: { Args: { _original: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
