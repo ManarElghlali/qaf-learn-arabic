@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronRight } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { shuffle, type Word } from "@/lib/words";
-import { LESSONS, parseLesson, unitState, recordUnitResult, QUIZ_LENGTH, PASS_PCT, type LessonId } from "@/lib/lessons";
+import { LESSONS, parseLesson, unitState, recordUnitResult, PASS_PCT, type LessonId } from "@/lib/lessons";
+import { quizWords } from "@/lib/quiz-session";
 import { UnitLocked } from "@/components/LessonSwitch";
 import { update, useLoadedProgress } from "@/lib/progress";
 import { Link } from "@tanstack/react-router";
@@ -19,7 +20,7 @@ import { BuildQuestion, PickQuestion, type QuizMode } from "@/components/QuizQue
 export const Route = createFileRoute("/quiz")({
   validateSearch: (s: Record<string, unknown>): { lesson: LessonId; q?: number } => {
     const q = Number(s["q"]);
-    return { lesson: parseLesson(s["lesson"]), ...(q >= 1 && q <= 5 ? { q } : {}) };
+    return { lesson: parseLesson(s["lesson"]), ...(FREE_QUIZZES.some((quiz) => quiz.n === q) ? { q } : {}) };
   },
   head: () => ({
     meta: [
@@ -58,7 +59,7 @@ function FreeQuizList({ done }: { done: number[] }) {
   const { t } = useLanguage();
   return (
     <AppShell title={t("Free quizzes")}>
-      <p className="mb-3 text-sm text-muted-foreground">{t("Five quizzes on your 10 free Fatha words. Each one opens after the one before it.")}</p>
+      <p className="mb-3 text-sm text-muted-foreground">{t("Three quizzes on your 10 free Fatha words. Each one opens after the one before it.")}</p>
       <div className="space-y-2">{FREE_QUIZZES.map((fq) => {
         const open = freeQuizOpen(fq.n, done);
         const body = <><span className="min-w-0"><span className="block text-sm font-bold">{t("Quiz {number}", { number: fq.n })}</span><span className="block text-xs text-muted-foreground">{t(fq.title)}</span></span>
@@ -67,7 +68,7 @@ function FreeQuizList({ done }: { done: number[] }) {
           ? <Link key={fq.n} to="/quiz" search={{ lesson: "fatha", q: fq.n }} className="learning-surface flex min-h-16 items-center justify-between gap-3 p-4">{body}</Link>
           : <div key={fq.n} aria-disabled="true" className="learning-surface flex min-h-16 items-center justify-between gap-3 p-4 opacity-60">{body}</div>;
       })}</div>
-      {done.length >= 5 && <Button asChild className="mt-5 w-full"><Link to="/test" search={{ lesson: "fatha" }}>{t("Take the free reading test")}</Link></Button>}
+      {FREE_QUIZZES.every((quiz) => done.includes(quiz.n)) && <Button asChild className="mt-5 w-full"><Link to="/test" search={{ lesson: "fatha" }}>{t("Take the free reading test")}</Link></Button>}
     </AppShell>
   );
 }
@@ -78,26 +79,24 @@ function Quiz({ lesson, words: WORDS, label, forced, length, onFinish, freeN }: 
   const { t } = useLanguage();
   const [n, setN] = useState(0);
   const [score, setScore] = useState(0);
-  const [misses, setMisses] = useState<number[]>([]);
   const [round, setRound] = useState(0);
   const [answered, setAnswered] = useState(false);
-  // adaptive: half the time re-ask a missed word
+  const deck = useMemo(() => quizWords(WORDS, length), [WORDS, length, round]);
+  // Targets are fixed for the attempt, including after an incorrect answer.
   const q = useMemo(() => {
-    const pool: typeof WORDS = misses.length && Math.random() < 0.5 ? WORDS.filter((w) => misses.includes(w.id)) : WORDS;
-    const w = pool[Math.floor(Math.random() * pool.length)] ?? WORDS[0];
+    const w = deck[n];
     if (!w) return null;
-    const mode: QuizMode = forced && forced !== "mixed" ? forced : MODES[n % 3]!;
+    const mode: QuizMode = forced && forced !== "mixed" ? forced : MODES[n % 3] ?? "build";
     return { w, mode, opts: shuffle([w, ...shuffle(WORDS.filter((x) => x.id !== w.id)).slice(0, 3)]) };
-  }, [n, round]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [n, deck, forced, WORDS]);
   useEffect(() => () => stopAudio(), []);
   const done = (ok: boolean) => {
     if (!q || answered) return;
     setAnswered(true);
-    if (ok) { setScore((s) => s + 1); setMisses((m) => m.filter((id) => id !== q.w.id)); }
-    else setMisses((m) => [...new Set([...m, q.w.id])]);
+    if (ok) setScore((s) => s + 1);
 
   };
-  const total = length ?? Math.min(QUIZ_LENGTH, WORDS.length);
+  const total = deck.length;
   const finished = n >= total;
   useEffect(() => {
     if (!finished) return;
@@ -113,9 +112,9 @@ function Quiz({ lesson, words: WORDS, label, forced, length, onFinish, freeN }: 
           <h2 className="mt-3 text-2xl font-bold">{passed ? t("Quiz passed") : t("Keep practising")}</h2>
           <p className="mt-2 text-muted-foreground">{t("{score} of {total} correct · {percent}%", { score, total, percent: pct })}</p>
           {!passed && <p className="mt-1 text-xs text-muted-foreground">{t("You need {percent}% to pass this unit’s quiz.", { percent: PASS_PCT })}</p>}
-          {freeN ? <Button asChild className="mt-6 w-full">{freeN < 5 ? <Link to="/quiz" search={{ lesson, q: freeN + 1 }}>{t("Next free quiz")}</Link> : <Link to="/test" search={{ lesson }}>{t("Take the free reading test")}</Link>}</Button>
+           {freeN ? <Button asChild className="mt-6 w-full">{freeN < FREE_QUIZZES.length ? <Link to="/quiz" search={{ lesson, q: freeN + 1 }}>{t("Next free quiz")}</Link> : <Link to="/test" search={{ lesson }}>{t("Take the free reading test")}</Link>}</Button>
             : passed && <Button asChild className="mt-6 w-full"><Link to="/test" search={{ lesson }}>{t("Take the {lesson} reading test", { lesson: t(label) })}</Link></Button>}
-          <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => { setN(0); setScore(0); setMisses([]); setAnswered(false); setRound((r) => r + 1); }}>{t("Try the quiz again")}</Button>
+          <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => { setN(0); setScore(0); setAnswered(false); setRound((r) => r + 1); }}>{t("Try the quiz again")}</Button>
         </div>
       </AppShell>
     );

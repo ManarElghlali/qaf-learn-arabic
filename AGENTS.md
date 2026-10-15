@@ -17,6 +17,8 @@
 - unitState gates units (learn → quiz pass → test pass) with results in progress.units, so units stay independent.
 - Reading checks use the shared reading-sounds parser and are judged syllable by syllable in /api/public/check-reading.
 - Quiz controls live in a shared presentation module with answer-gated advancement; Learn/Quiz use the opt-in one-screen AppShell layout.
+- Quiz attempts use the browser-safe quiz-session sampler for fixed unique targets, so wrong answers cannot reinsert a target; unit coverage is independent of the pass threshold.
+- Free quiz completion is versioned and migrated by matching old formats, so changed quiz numbers cannot incorrectly unlock a different format.
 - Sound Practice and onboarding each keep their own module and storage key, so they never alter learning progress.
 - public/manifest.webmanifest is the only manifest; Vite manifest generation stays disabled.
 - Teacher audio is re-recorded/audited only via scripts/audio-audit (two AI listeners; results.json tracks status).

@@ -4,6 +4,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { FirstQuiz } from "@/components/FirstQuiz";
+import { WordIllustration } from "@/components/WordIllustration";
+import { WORDS } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { completeOnboarding, ONBOARDING_STEPS, patchOnboarding, readOnboarding, recommend, saveStep, type Onboarding, type Recommendation } from "@/lib/onboarding";
 import { BookOpen, Check, ChevronLeft, ChevronRight, Headphones, Volume2 } from "lucide-react";
@@ -21,6 +23,7 @@ export const Route = createFileRoute("/welcome")({
 });
 
 const QUIZ_STEP = 7;
+const LISTENING_WORD = WORDS.find((word) => word.ar === "أَكَلَ");
 
 function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
   return (
@@ -66,13 +69,14 @@ function Welcome() {
       </div></>;
   } else if (step === 2) {
     body = <><h1 className="text-2xl font-bold">{t("Learn by listening")}</h1><p className="max-w-xs text-muted-foreground">{t("Tap a sound to hear it. Tap the speaker to hear the whole word.")}</p>
+      {LISTENING_WORD && <WordIllustration word={LISTENING_WORD} className="onboarding-listening-art" />}
       <div dir="rtl" className="flex gap-2">{["أَ", "كَ", "لَ"].map((u) => <Button key={u} variant="outline" aria-label={`Hear ${u}`} onClick={() => playUnit(u)} className="sound-button h-16 w-16 border-primary/20 bg-accent text-3xl text-primary"><Ar>{u}</Ar></Button>)}</div>
       <Button variant="ghost" onClick={() => playWord("أَكَلَ")} className="h-14 gap-3 rounded-full text-primary"><Volume2 className="!h-6 !w-6" /><Ar className="text-3xl">أَكَلَ</Ar><span className="text-sm text-muted-foreground">{t("He ate")}</span></Button></>;
   } else if (step === 3) {
     body = <><h1 className="text-2xl font-bold">{t("Choose your path")}</h1><p className="text-sm text-muted-foreground">{t("You can use both any time.")}</p>
       <div role="radiogroup" aria-label="Learning path" className="grid w-full gap-3">
-        <Choice selected={o.path === "reading"} onClick={() => set({ path: "reading" })}><span className="flex items-center gap-2 font-bold"><BookOpen className="h-5 w-5 text-primary" />{t("Reading")} <Ar className="text-primary">القِرَاءَة</Ar></span><span className="block text-xs text-muted-foreground">{t("Build and read whole words, with quizzes and reading tests.")}</span></Choice>
-        <Choice selected={o.path === "sounds"} onClick={() => set({ path: "sounds" })}><span className="flex items-center gap-2 font-bold"><Headphones className="h-5 w-5 text-primary" />{t("Sound Practice")} <Ar className="text-primary">صَوْتِي</Ar></span><span className="block text-xs text-muted-foreground">{t("Hear and repeat every letter with each vowel.")}</span></Choice>
+        <Choice selected={o.path === "reading"} onClick={() => set({ path: "reading" })}><span className="flex items-center gap-2 font-bold"><BookOpen className="h-5 w-5 text-primary" />{t("Reading")}</span><span className="block text-xs text-muted-foreground">{t("Build and read whole words, with quizzes and reading tests.")}</span></Choice>
+        <Choice selected={o.path === "sounds"} onClick={() => set({ path: "sounds" })}><span className="flex items-center gap-2 font-bold"><Headphones className="h-5 w-5 text-primary" />{t("Sound Practice")}</span><span className="block text-xs text-muted-foreground">{t("Hear and repeat every letter with each vowel.")}</span></Choice>
       </div></>;
   } else if (step === 4) {
     body = <><h1 className="text-2xl font-bold">{t("What is your goal?")}</h1><div role="radiogroup" aria-label={t("Goal")} className="grid w-full gap-3">
