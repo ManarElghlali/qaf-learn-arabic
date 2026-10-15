@@ -101,7 +101,15 @@ export const Route = createFileRoute("/api/public/check-reading")({
         try {
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-          const { data: gate, error: gErr } = await supabaseAdmin.rpc("consume_check", { _device: await sha(device), _ip: await sha(ip) });
+          const dev = await sha(device);
+          // Free devices may only check the 10 free Fatha words, even if the app is tampered with.
+          const { FREE_WORD_TEXTS } = await import("@/lib/access");
+          if (!FREE_WORD_TEXTS.includes(expected)) {
+            const { data: st, error: sErr } = await supabaseAdmin.rpc("check_status", { _device: dev });
+            if (sErr) throw sErr;
+            if (!(st as { premium?: boolean }).premium) return json({ error: "This word is part of Qaf Premium.", limit: "premium_content" }, 403);
+          }
+          const { data: gate, error: gErr } = await supabaseAdmin.rpc("consume_check", { _device: dev, _ip: await sha(ip) });
           if (gErr) throw gErr;
           const g = gate as { allowed: boolean; reason?: string };
           if (!g.allowed) return json({ error: LIMIT_MSG[g.reason ?? ""] ?? LIMIT_MSG["daily"], limit: g.reason }, 429);

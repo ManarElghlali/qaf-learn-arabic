@@ -11,6 +11,8 @@ import { Link } from "@tanstack/react-router";
 import { playWord, stopAudio } from "@/lib/audio";
 import { Paywall } from "@/components/Paywall";
 import { quotaStatus, type QuotaStatus } from "@/lib/purchases";
+import { useAccess, canOpenUnit, FREE_WORDS } from "@/lib/access";
+import { PremiumLocked } from "@/components/PremiumLock";
 import { touchStreak, update, useLoadedProgress, type Progress } from "@/lib/progress";
 
 export const Route = createFileRoute("/test")({
@@ -35,14 +37,16 @@ type Syllable = { target: string; heard: string; correct: boolean };
 function TestRoute() {
   const { lesson } = Route.useSearch();
   const p = useLoadedProgress();
-  if (!p) return <AppShell title="Reading test"><div className="h-96" aria-busy="true" /></AppShell>;
+  const access = useAccess();
+  if (!p || !access.loaded) return <AppShell title="Reading test"><div className="h-96" aria-busy="true" /></AppShell>;
+  if (!canOpenUnit(lesson, access.premium)) return <AppShell title="Reading test"><PremiumLocked what={`The ${LESSONS[lesson].en} reading test`} /></AppShell>;
   const s = unitState(p, lesson);
   if (!s.unlocked) return <AppShell title="Reading test"><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
-  return <Test key={lesson} lesson={lesson} progress={p} />;
+  return <Test key={`${lesson}-${access.premium}`} lesson={lesson} progress={p} free={!access.premium} />;
 }
 
-function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; progress: Progress }) {
-  const WORDS = LESSONS[lesson].words;
+function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesson>; progress: Progress; free: boolean }) {
+  const WORDS = free ? FREE_WORDS : LESSONS[lesson].words;
   const [words, setWords] = useState(WORDS.slice(0, 10));
   const [i, setI] = useState(0);
   const [st, setSt] = useState<State>("idle");
@@ -91,7 +95,7 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
       const res = await fetch(`${API_BASE}/api/public/check-reading`, { method: "POST", body: fd, headers: { "x-qaf-device": deviceId() } });
       const data = (await res.json()) as { correct?: boolean; heard?: string; syllables?: Syllable[]; error?: string; limit?: string };
       refreshQuota();
-      if (res.status === 429 && data.limit === "quota") setPay(data.error ?? "You've used your free pronunciation checks.");
+      if ((res.status === 429 && data.limit === "quota") || data.limit === "premium_content") setPay(data.error ?? "You've used your free pronunciation checks.");
       if (!res.ok || !data.syllables) { setErrMsg(data.error ?? "Reading check failed. Please try again."); setSt("error"); return; }
       judge({ correct: !!data.correct, heard: data.heard ?? "", syllables: data.syllables });
     } catch { setErrMsg("Couldn't reach the reading checker. Check your connection and try again."); setSt("error"); }
@@ -142,13 +146,15 @@ function Test({ lesson, progress }: { lesson: ReturnType<typeof parseLesson>; pr
           <h2 className="mt-3 text-2xl font-bold">{complete ? `${LESSONS[lesson].en} unit complete` : passed ? "Reading test passed" : "Test complete"}</h2>
           <p className="mt-2 text-muted-foreground">You read {correct} of {words.length} words · {pct}%</p>
           {!passed && <p className="mt-1 text-xs text-muted-foreground">You need {PASS_PCT}% to complete this unit.</p>}
-          {complete && next && <Button asChild className="mt-6 w-full"><Link to="/learn" search={{ lesson: next }}>Start {LESSONS[next].en}</Link></Button>}
-          {passed && !complete && <Button asChild className="mt-6 w-full"><Link to={unitState(progress, lesson).lessonsDone ? "/quiz" : "/learn"} search={{ lesson }}>Continue this unit</Link></Button>}
+          {free && <Button className="mt-6 w-full" onClick={() => setPay("")}>Unlock all units with Premium</Button>}
+          {!free && complete && next && <Button asChild className="mt-6 w-full"><Link to="/learn" search={{ lesson: next }}>Start {LESSONS[next].en}</Link></Button>}
+          {!free && passed && !complete && <Button asChild className="mt-6 w-full"><Link to={unitState(progress, lesson).lessonsDone ? "/quiz" : "/learn"} search={{ lesson }}>Continue this unit</Link></Button>}
           <Button asChild variant="outline" className="mt-3 w-full"><Link to="/">Back to Home</Link></Button>
           <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => {
             setWords(shuffle(WORDS).slice(0, 10)); setI(0); setCorrect(0); setSt("idle");
           }}>Try the test again</Button>
         </div>
+        <Paywall open={pay !== null} reason={pay || undefined} onClose={() => setPay(null)} />
       </AppShell>
     );
   }

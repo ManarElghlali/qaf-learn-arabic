@@ -3,6 +3,7 @@ import { Check, ChevronRight, LockKeyhole } from "lucide-react";
 import { Ar } from "@/components/AppShell";
 import { LESSONS, unitState, type LessonId } from "@/lib/lessons";
 import type { Progress } from "@/lib/progress";
+import { useAccess, canOpenUnit, FREE_WORDS } from "@/lib/access";
 
 type DestinationProps = {
   ar: string; en: string; image: string; landmark: string; accent: string;
@@ -11,6 +12,7 @@ type DestinationProps = {
 };
 
 export function CurriculumDestination({ ar, en, image, landmark, accent, live, status, progress, lessons }: DestinationProps) {
+  const { premium } = useAccess();
   const heading = <>
     <img src={image} alt={`${landmark} illustration`} width={512} height={512} className="destination-art" />
     <div className="min-w-0 flex-1 text-right">
@@ -27,7 +29,12 @@ export function CurriculumDestination({ ar, en, image, landmark, accent, live, s
       <summary className="destination-heading cursor-pointer list-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label={`${en} lessons`}>{heading}</summary>
       <div className="mx-4 mb-3 border-t border-border">
         {lessons.map(l => l.available && l.lesson ? (
-          <UnitRow key={l.en} ar={l.ar} en={l.en} state={unitState(progress, l.lesson)} />
+          canOpenUnit(l.lesson, premium)
+            ? <UnitRow key={l.en} ar={l.ar} en={l.en} state={unitState(progress, l.lesson)} free={!premium} progress={progress} />
+            : <Link key={l.en} to="/learn" search={{ lesson: l.lesson }} className="flex min-h-16 items-center justify-between gap-3 border-b border-border/60 py-3 text-muted-foreground last:border-0">
+                <LockKeyhole className="h-4 w-4 shrink-0 text-gold" />
+                <span className="min-w-0 text-right"><Ar className="block text-base">{l.ar}</Ar><span className="block text-[11px]">{l.en} · Premium</span></span>
+              </Link>
         ) : (
           <div key={l.en} aria-disabled="true" className="flex min-h-16 items-center justify-between gap-3 border-b border-border/60 py-3 text-muted-foreground last:border-0">
             <LockKeyhole className="h-4 w-4 shrink-0" />
@@ -45,7 +52,14 @@ export function CurriculumDestination({ ar, en, image, landmark, accent, live, s
 }
 const STEP_ROUTE = { learn: "/learn", quiz: "/quiz", test: "/test", done: "/learn" } as const;
 
-function UnitRow({ ar, en, state: s }: { ar: string; en: string; state: ReturnType<typeof unitState> }) {
+function UnitRow({ ar, en, state: s, free, progress }: { ar: string; en: string; state: ReturnType<typeof unitState>; free: boolean; progress: Progress }) {
+  if (free) {
+    const learned = FREE_WORDS.filter((w) => progress.learned.includes(w.id)).length;
+    return <Link to={learned < FREE_WORDS.length ? "/learn" : "/quiz"} search={{ lesson: s.id }} className="flex min-h-16 items-center justify-between gap-3 border-b border-border/60 py-3">
+      <ChevronRight className="h-4 w-4 shrink-0 text-primary" />
+      <span className="min-w-0 text-right"><Ar className="block text-lg font-bold">{ar}</Ar><span className="block text-xs text-muted-foreground">{en} · Free: {learned}/{FREE_WORDS.length} words, 5 quizzes, reading test</span></span>
+    </Link>;
+  }
   const steps = [
     { label: `Learn ${s.learned}/${s.total}`, done: s.lessonsDone },
     { label: "Quiz", done: s.quizPassed },

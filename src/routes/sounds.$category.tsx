@@ -2,7 +2,10 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { AppShell, Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { LETTERS, SOUND_CATEGORIES, setComplete, setDone, useSoundProgress } from "@/lib/sound-practice";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, LockKeyhole } from "lucide-react";
+import { useAccess, canOpenSoundSet } from "@/lib/access";
+import { useState } from "react";
+import { Paywall } from "@/components/Paywall";
 
 export const Route = createFileRoute("/sounds/$category")({
   loader: ({ params }) => { const c = SOUND_CATEGORIES.find((x) => x.id === params.category); if (!c) throw notFound(); return { id: c.id }; },
@@ -18,6 +21,8 @@ function Category() {
   const { id } = Route.useLoaderData();
   const c = SOUND_CATEGORIES.find((x) => x.id === id)!;
   const sp = useSoundProgress();
+  const access = useAccess();
+  const [pay, setPay] = useState(false);
   const done = c.sets.filter((s) => setComplete(sp, s)).length;
   return (
     <AppShell title={c.en}>
@@ -32,10 +37,13 @@ function Category() {
             <Ar className="text-sm font-bold">{s.ar}</Ar>
             <p className="text-[11px] font-semibold">{s.en}</p>
             <p className="text-[10px] text-muted-foreground">{status}</p>
-            <Button asChild size="sm" variant="secondary" className="mt-1 w-full rounded-full"><Link to="/sounds/practice/$set" params={{ set: s.id }}>{n > 0 && n < LETTERS.length ? "Continue" : n >= LETTERS.length ? "Review" : "Start"}</Link></Button>
+            {canOpenSoundSet(s.id, access.premium)
+              ? <Button asChild size="sm" variant="secondary" className="mt-1 w-full rounded-full"><Link to="/sounds/practice/$set" params={{ set: s.id }}>{n > 0 && n < LETTERS.length ? "Continue" : n >= LETTERS.length ? "Review" : "Start"}</Link></Button>
+              : <Button size="sm" variant="secondary" className="mt-1 w-full rounded-full" onClick={() => setPay(true)}><LockKeyhole className="h-3 w-3" />Premium</Button>}
           </div>
         );
       })}</div>
+      <Paywall open={pay} onClose={() => setPay(false)} reason="Free learners can practise the Fatha sounds. Every other sound set is part of Premium." />
     </AppShell>
   );
 }

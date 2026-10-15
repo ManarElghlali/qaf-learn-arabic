@@ -4,6 +4,8 @@ import { AppShell, Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { findSet, markPracticed, resetSet, setItems, useSoundProgress } from "@/lib/sound-practice";
 import { playUnits, preloadAudio, stopAudio } from "@/lib/audio";
+import { useAccess, canOpenSoundSet } from "@/lib/access";
+import { PremiumLocked } from "@/components/PremiumLock";
 import { CheckCircle2, ChevronLeft, ChevronRight, RotateCcw, Volume2 } from "lucide-react";
 
 export const Route = createFileRoute("/sounds/practice/$set")({
@@ -18,6 +20,13 @@ export const Route = createFileRoute("/sounds/practice/$set")({
 
 function Practice() {
   const { id } = Route.useLoaderData();
+  const access = useAccess();
+  if (!access.loaded) return <AppShell title="Sound Practice"><div className="h-96" aria-busy="true" /></AppShell>;
+  if (!canOpenSoundSet(id, access.premium)) return <AppShell title="Sound Practice"><PremiumLocked what="This sound set" /></AppShell>;
+  return <PracticeSet id={id} />;
+}
+
+function PracticeSet({ id }: { id: string }) {
   const { category, set } = findSet(id)!;
   const items = setItems(set);
   const sp = useSoundProgress();

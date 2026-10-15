@@ -14,6 +14,8 @@ import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { setupOffline } from "../lib/offline";
+import { useAccess } from "../lib/access";
+import { OfflineGate } from "../components/OfflineGate";
 import { toast } from "sonner";
 
 function NotFoundComponent() {
@@ -138,16 +140,18 @@ function RootComponent() {
       window.location.reload();
     };
     const t = setTimeout(() => sessionStorage.removeItem(KEY), 10000);
-    void setupOffline();
+    void import("../lib/purchases").then((m) => m.quotaStatus());
     window.addEventListener("vite:preloadError", recover);
     window.addEventListener("unhandledrejection", recover);
     return () => { clearTimeout(t); window.removeEventListener("vite:preloadError", recover); window.removeEventListener("unhandledrejection", recover); };
   }, []);
+  const access = useAccess();
+  useEffect(() => { if (access.loaded) void setupOffline(access.premium); }, [access.loaded, access.premium]);
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <OfflineGate premium={access.premium} loaded={access.loaded}><Outlet /></OfflineGate>
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
