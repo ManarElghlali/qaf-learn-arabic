@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -20,13 +21,14 @@ export const Route = createFileRoute("/terms")({
 });
 
 function Terms() {
+  const { t } = useLanguage();
   const h = "text-base font-semibold text-foreground";
   return (
     <AppShell title="Terms of Use">
       <Button asChild variant="ghost" className="mb-5 gap-2 px-0">
-        <Link to="/profile"><ArrowLeft className="h-4 w-4" />Back to Profile</Link>
+        <Link to="/profile"><ArrowLeft className="h-4 w-4" />{t("Back to Profile")}</Link>
       </Button>
-      <article className="space-y-6 text-sm leading-7 text-muted-foreground">
+      <article lang="en" dir="ltr" className="space-y-6 text-sm leading-7 text-muted-foreground">
         <header>
           <h2 className="text-xl font-bold text-primary">Terms of Use (EULA)</h2>
           <p className="mt-1 text-xs">Updated 15 October 2026</p>

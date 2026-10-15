@@ -42,7 +42,7 @@ function QuizRoute() {
   const access = useAccess();
   const done = useFreeQuizzes();
   if (!access.loaded) return <AppShell title={t("Quiz")}><div className="h-96" aria-busy="true" /></AppShell>;
-  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Quiz")}><PremiumLocked what={`The ${LESSONS[lesson].en} quiz`} /></AppShell>;
+  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Quiz")}><PremiumLocked what={t("The {lesson} quiz", { lesson: t(LESSONS[lesson].en) })} /></AppShell>;
   if (!access.premium) {
     const fq = FREE_QUIZZES.find((x) => x.n === q);
     if (!fq || !freeQuizOpen(fq.n, done)) return <FreeQuizList done={done} />;

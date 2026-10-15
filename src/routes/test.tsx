@@ -41,7 +41,7 @@ function TestRoute() {
   const p = useLoadedProgress();
   const access = useAccess();
   if (!p || !access.loaded) return <AppShell title={t("Reading test")}><div className="h-96" aria-busy="true" /></AppShell>;
-  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Reading test")}><PremiumLocked what={`The ${LESSONS[lesson].en} reading test`} /></AppShell>;
+  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Reading test")}><PremiumLocked what={t("The {lesson} reading test", { lesson: t(LESSONS[lesson].en) })} /></AppShell>;
   const s = unitState(p, lesson);
   if (!s.unlocked) return <AppShell title={t("Reading test")}><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
   return <Test key={`${lesson}-${access.premium}`} lesson={lesson} progress={p} free={!access.premium} />;

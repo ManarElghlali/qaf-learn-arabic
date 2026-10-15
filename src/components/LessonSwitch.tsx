@@ -1,3 +1,4 @@
+import { useLanguage } from "@/lib/i18n";
 import { Link } from "@tanstack/react-router";
 import { LockKeyhole } from "lucide-react";
 import { Ar } from "@/components/AppShell";
@@ -25,19 +26,20 @@ const STEP_ROUTE = { learn: "/learn", quiz: "/quiz", test: "/test", done: "/lear
 
 /** Shown instead of a step the learner hasn't reached yet; points to the step they need. */
 export function UnitLocked({ id, progress, need }: { id: LessonId; progress: Progress; need: "unit" | "quiz" | "test" }) {
+  const { t } = useLanguage();
   const s = unitState(progress, id);
   const prevName = s.prev ? LESSONS[s.prev].en : "";
   const text = need === "unit"
-    ? `Complete the ${prevName} unit first: its lessons, quiz and reading test.`
-    : need === "quiz" ? `Learn all ${s.total} ${LESSONS[id].en} words first (${s.learned}/${s.total} done).`
-    : `Pass the ${LESSONS[id].en} quiz first (${70}% or more).`;
+    ? t("Complete the {lesson} unit first: its lessons, quiz and reading test.", { lesson: t(prevName) })
+    : need === "quiz" ? t("Learn all {total} {lesson} words first ({done}/{total} done).", { total: s.total, lesson: t(LESSONS[id].en), done: s.learned })
+    : t("Pass the {lesson} quiz first (70% or more).", { lesson: t(LESSONS[id].en) });
   const target = need === "unit" && s.prev ? { route: STEP_ROUTE[unitState(progress, s.prev).step], lesson: s.prev } : { route: STEP_ROUTE[s.step], lesson: id };
   return (
     <div className="learning-surface p-6 text-center">
       <LockKeyhole className="mx-auto h-8 w-8 text-muted-foreground" />
-      <h2 className="mt-3 text-lg font-bold">Not unlocked yet</h2>
+      <h2 className="mt-3 text-lg font-bold">{t("Not unlocked yet")}</h2>
       <p className="mt-2 text-sm text-muted-foreground">{text}</p>
-      <Button asChild className="mt-5 w-full"><Link to={target.route} search={{ lesson: target.lesson }}>Continue</Link></Button>
+      <Button asChild className="mt-5 w-full"><Link to={target.route} search={{ lesson: target.lesson }}>{t("Continue")}</Link></Button>
     </div>
   );
 }

@@ -39,8 +39,8 @@ function Profile() {
   const turnOn = async () => {
     setAsk(false);
     const r = await enableReminders(time);
-    if (r === "denied") toast("Notifications are blocked. You can allow them in your phone's settings.");
-    else if (r === "web-limited") toast("Reminder saved. Daily notifications are sent by the Qaf phone app.");
+    if (r === "denied") toast(t("Notifications are blocked. You can allow them in your phone's settings."));
+    else if (r === "web-limited") toast(t("Reminder saved. Daily notifications are sent by the Qaf phone app."));
     else toast.success(t("Daily reminder set for {time}", { time }));
   };
   const best = p.scores.length ? Math.max(...p.scores) : 0;
