@@ -9,6 +9,8 @@ describe("App localization", () => {
   expect(translate("ar", "Word {current} of {total}", { current: 2, total: 10 })).toBe("الكلمة 2 من 10");
   expect(translate("ar", "أَكَلَ")).toBe("أَكَلَ");
   expect(translate("en", "Continue")).toBe("Continue");
+  expect(translate("ar", "Reading")).toBe("القراءة");
+  expect(translate("ar", "Sound Practice")).toBe("تدوين الاصوات");
  });
  it("persists a language and changes document direction without changing progress", async () => {
   localStorage.setItem("qaf-progress-v1", '{"learned":[1,2]}');
