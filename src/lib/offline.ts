@@ -35,10 +35,17 @@ async function warm() {
   }
 }
 
-export async function setupOffline() {
+async function clearOffline() {
+  await unregisterStale();
+  if (typeof caches !== "undefined") for (const k of await caches.keys()) if (k.startsWith("qaf-") || k.includes("workbox")) await caches.delete(k);
+}
+
+/** Offline learning is Premium-only: free learners get no stored copy, and any earlier copy is removed. */
+export async function setupOffline(premium: boolean) {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
   try {
     if (refused()) { await unregisterStale(); return; }
+    if (!premium) { await clearOffline(); return; }
     await navigator.serviceWorker.register(SW, { scope: "/" });
     await navigator.serviceWorker.ready;
     if (navigator.onLine) setTimeout(() => { void warm(); }, 3000);
