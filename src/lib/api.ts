@@ -1,5 +1,5 @@
 // Native app builds set VITE_API_BASE to the published site so server checks stay online.
-export const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined)?.replace(/\/$/, "") ?? "";
+export const API_BASE = (import.meta.env['VITE_API_BASE'] as string | undefined)?.replace(/\/$/, "") ?? "";
 
 const DEVICE_KEY = "qaf-device-id";
 /** Anonymous random ID used only to count pronunciation checks. No account needed. */
