@@ -1,7 +1,7 @@
 # Mobile-store foundation
-- [ ] Add manifest and matching Qaf public icons and head links.
-- [ ] Add Privacy and Profile access while preserving offline behavior and learning data.
-- [ ] Verify icons, navigation, metadata, phone layouts and existing tests.
+- [x] Add manifest and matching Qaf public icons and head links.
+- [x] Add Privacy and Profile access while preserving offline behavior and learning data.
+- [x] Verify icons, navigation, metadata, phone layouts and existing tests; physical devices and published install/offline tests remain release checks.
 - [ ] Confirm third-party audio retention before store submission (requires provider confirmation).
 
 # Shaddah
