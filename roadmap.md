@@ -1,9 +1,8 @@
-# Mobile-store foundation
 # Language and Sound Practice refinement
-- [ ] Add persistent English/Arabic selection without removing existing onboarding steps.
-- [ ] Centralize interface translations and RTL; add language choice in Profile.
-- [ ] Match Sound Practice letter tiles to the reference while preserving sets, audio, progress and access locks.
-- [ ] Verify welcome, language switching, sound playback and existing regression tests.
+- [x] Add persistent English/Arabic selection without removing existing onboarding steps.
+- [x] Centralize interface translations and RTL; add language choice in Profile. Existing English word meanings and legal documents remain explicitly English.
+- [x] Match Sound Practice letter tiles to the reference while preserving sets, audio, progress and access locks.
+- [x] Verify welcome, language switching, sound playback and existing regression tests (62 passed).
 
 # Mobile-store foundation
 - [x] Add manifest and matching Qaf public icons and head links.

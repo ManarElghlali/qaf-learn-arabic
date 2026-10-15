@@ -50,7 +50,7 @@ function Profile() {
       <div className="grid grid-cols-3 gap-2">
         {[["Streak", `${p.streak}`], ["Words", `${p.learned.length}/${WORDS.length}`], ["Best test", `${best}%`]].map(([l, v]) => (
           <div key={l} className="rounded-2xl border border-border bg-card px-2 py-4 text-center">
-            <p className="text-xl font-bold text-primary">{v}</p><p className="text-xs text-muted-foreground">{t(l)}</p>
+            <p className="text-xl font-bold text-primary">{v}</p><p className="text-xs text-muted-foreground">{t(l ?? "")}</p>
           </div>
         ))}
       </div>

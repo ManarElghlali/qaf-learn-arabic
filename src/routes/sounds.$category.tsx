@@ -12,7 +12,7 @@ export const Route = createFileRoute("/sounds/$category")({
   loader: ({ params }) => { const c = SOUND_CATEGORIES.find((x) => x.id === params.category); if (!c) throw notFound(); return { id: c.id }; },
   head: ({ loaderData }) => {
     const c = SOUND_CATEGORIES.find((x) => x.id === loaderData?.id);
-    const t = c ? `${t(c.en)} Sound Practice — Qaf ق` : "Sound Practice — Qaf ق";
+    const t = c ? `${c.en} Sound Practice — Qaf ق` : "Sound Practice — Qaf ق";
     return { meta: [{ title: t }, { name: "description", content: `Practise ${c?.en ?? "Arabic"} sounds with all 28 letters.` }, { property: "og:title", content: t }, { property: "og:description", content: "Hear and repeat Arabic letter sounds." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] };
   },
   component: Category,
@@ -21,10 +21,11 @@ export const Route = createFileRoute("/sounds/$category")({
 function Category() {
   const { t } = useLanguage();
   const { id } = Route.useLoaderData();
-  const c = SOUND_CATEGORIES.find((x) => x.id === id)!;
+  const c = SOUND_CATEGORIES.find((x) => x.id === id);
   const sp = useSoundProgress();
   const access = useAccess();
   const [pay, setPay] = useState(false);
+  if (!c) return null;
   const done = c.sets.filter((s) => setComplete(sp, s)).length;
   return (
     <AppShell title={t(c.en)}>
