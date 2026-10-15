@@ -63,3 +63,5 @@
 - [ ] Static SPA build for Capacitor + generate ios/android projects (needs Codemagic/CI)
 - [ ] Apple/Google in-app subscriptions (blocked: developer accounts + store products)
 - [ ] Turn on free 5-check quota once store billing exists
+
+- [ ] Free vs Premium gating (10 free Fatha words, 5 quizzes, Fatha sound set, Premium-only offline, secure receipts) — awaiting plan approval

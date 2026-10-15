@@ -1,71 +1,103 @@
-# Qaf — Paid App Model: Audit and Plan
+# Qaf — Free vs Premium: Audit and Plan
 
-Nothing has been changed. This plan waits for your approval.
+Nothing has been changed yet. This plan follows your "Final Free vs Premium Requirements" and waits for your approval.
 
 ## 1. Audit: what exists today
 
 | Requirement | Status |
 |---|---|
-| Prices $5.99/month, $39.99/year | Done (store price shown when available) |
+| Prices $5.99/month, $39.99/year | Done |
 | Subscribe and Restore through Apple / Google | Built, not yet tested with real store accounts |
-| Premium granted only by the server after store check | Done |
-| 100 AI checks per billing month for Premium | Done and tested on the live database |
-| Daily safety limits (device, network, global) | Done, separate from the monthly allowance |
-| 5 AI checks total for free learners | Built, **switched off** (stays off as you asked) |
-| No account needed | Done (anonymous device ID) |
-| Free plan limited to a few intro lessons | **Missing.** Every unit, lesson, quiz, test and Sound Practice set is open to everyone |
-| Premium unlocks all content | **Missing.** Premium currently only raises the AI check allowance |
-| Paywall text matches the model | **Wrong.** It says "All lessons, recordings and quizzes stay free" |
-| Paywall shown when free content ends | **Missing.** It only appears when AI checks run out |
-| Safe against claiming someone else's subscription | **Missing.** Apple purchases are checked by transaction number only, which can be copied |
-| Premium works offline | Partly: a saved Premium flag exists, but nothing uses it to lock or unlock content yet |
+| Premium granted only after the server checks with the store | Done |
+| 100 AI checks per billing month for Premium | Done and tested |
+| Daily safety limits | Done, kept as an extra protection |
+| 5 AI checks total for free learners | Built, **off** (stays off) |
+| No account needed | Done |
+| Free plan = 10 Fatha words + 5 quizzes | **Missing.** Everything is open |
+| Sound Practice: only Fatha free | **Missing.** All sets are open |
+| Premium unlocks everything | **Missing.** Premium only raises the AI limit |
+| Offline only for Premium | **Missing.** Offline mode is on for everyone |
+| Paywall wording | **Wrong.** It says lessons stay free |
+| A copied receipt can't unlock Premium | **Missing.** Apple purchases are checked by number only |
 
-## 2. Accounts: not needed
+## 2. Free plan, exactly
 
-Premium can be managed safely without sign-up:
+- **Words:** the first 10 words of the existing approved Fatha list, in their current order, with their recordings and Learn screens. No words are changed or added.
+- **Quizzes:** 5 quizzes built only from those 10 words, using the existing quiz screens.
+- **Reading test:** a test on those 10 words. It uses the 5 free AI checks.
+- **Sound Practice:** only the Fatha (فَتْحَة) set is open.
+- **Everything else is locked:**
+  - the other Fatha words
+  - every other unit, quiz and test
+  - every other sound set
 
-- **Apple:** each purchase gets a private code linked to the learner's device. The app sends Apple's signed purchase record, and the server checks Apple's signature. A copied transaction number on its own will be rejected.
-- **Google:** the purchase carries the same private device code. Google only gives the purchase token to the Google account that paid for it.
-- **Restore:** on a new or reset phone, Restore asks Apple or Google directly. They only return purchases made by the Apple ID or Google account signed in on that phone. The server checks the record and moves Premium to that phone.
-- **Limits:** one active phone per subscription at a time. When it moves, the previous phone loses Premium the next time it connects. This stops sharing without needing accounts.
+  Locked items show a lock and open the Premium screen. Saved progress is kept but stays locked.
 
-Learners do need to stay signed in to their own Apple ID or Google account on the phone. Accounts would only matter if you later want one subscription shared between iPhone, Android and the web.
+## 3. How the free limits are enforced
 
-## 3. Proposed changes
+- **One shared list decides what's free:** 10 word IDs plus the Fatha sound set. Home, Learn, Quiz, Test, Sound Practice and the links between them all read from it, so no screen can open locked content.
+- **The AI checker on the server also uses this list:** a free device can only have the 10 free words checked. This holds even if someone tampers with the app.
+- **Premium status comes only from a pass signed by the server.** A setting changed on the phone can't unlock anything.
 
-1. **Free plan:** an "intro" set marked in the lessons list, with its lessons, recordings, quiz and reading test all included so learners get one complete session. Everything else shows a lock that opens the Premium screen. Existing progress is kept, never reset.
-2. **Premium unlock:** every unit, lesson, quiz, test and Sound Practice set opens. Locking is applied in one shared place so each screen behaves the same way.
-3. **Paywall wording and timing:** remove the "everything stays free" line and list what Premium unlocks. Show the Premium screen when a learner taps locked content or finishes the free session.
-4. **Secure purchase check:**
-   - Apple: verify Apple's signed purchase record, not just the number.
-   - Google: verify the token.
-   - Both: check the device code and allow one active phone per subscription.
-5. **Offline:** the server signs a Premium pass that the app can check without internet, valid until the billing period ends plus a short grace period. Content you have already downloaded stays available offline.
-6. **5-free-check limit:** stays switched off. It will only be turned on after the full free-to-Premium journey and real store purchases have been tested.
-7. **Tests:**
-   - Unlocking and locking content
-   - Rejecting a copied receipt
-   - Moving Premium to another phone with Restore
-   - Offline pass expiry
-   - Existing checks still pass
+## 4. How offline is restricted to Premium
 
-Lessons, Arabic text, recordings, quizzes, progress, the reminder and offline mode all stay the same.
+- **Free learners:**
+  - Offline storage is switched off for them, and anything saved earlier is cleared.
+  - Free lessons only open when the phone can reach Qaf. Without internet, they see "Connect to the internet to continue, or go Premium to learn offline."
+- **Premium learners:**
+  - Lessons, audio and screens are saved for offline use.
+  - The signed Premium pass is checked on the phone, with no internet needed, until the billing period ends, plus a 3-day grace period.
+  - When the pass runs out, offline access stops until the app reconnects and the subscription is confirmed again. Saved files are then cleared if Premium has ended.
+- **Honest limit:** in the phone apps, the app's screens and Arabic text are installed with the app. A determined person could tamper with their own copy to read locked text offline. Recordings and AI checks stay protected by the server. This is normal for learning apps and doesn't put paid features at risk.
 
-## 4. Honest limits
+## 5. Purchase security without accounts
 
-- The lessons are stored inside the app so they work offline. Someone determined enough could tamper with their own copy to unlock lessons. This is normal for offline learning apps. AI checks and Premium itself can't be faked, because they're checked on the server.
-- Purchases can only be tested once your Apple and Google developer accounts and products exist.
+- **Apple:**
+  - Each purchase carries a private code tied to the learner's device.
+  - The app sends Apple's signed purchase record, and the server checks Apple's signature.
+  - A copied transaction number is rejected.
+- **Google:**
+  - Each purchase carries the same private device code.
+  - The purchase token is checked with Google and acknowledged.
+- **Restore:**
+  - Apple and Google only return purchases made by the account signed in on that phone. The server checks them, then moves Premium to that phone.
+  - Only one phone has Premium at a time, which stops sharing.
+- **No Qaf account is needed.** One would only be needed to share a subscription between iPhone and Android.
 
-## 5. Decisions needed
+## 6. Changes
 
-1. **What is free?** Option A: the first 5 Fatha words, plus their quiz and reading test. Option B: the whole Fatha unit.
-2. **Sound Practice:** should one free sound set be open, or should it all be Premium?
-3. **Learners who already have progress in later units:** should they keep access, or be locked like everyone else?
+1. Free-access list and the locks across all screens and links.
+2. Free quiz mode with 5 quizzes and a free test on the 10 words.
+3. Sound Practice locks, except Fatha.
+4. Server-side free-word check in the AI checker.
+5. Signed Premium pass, and offline mode only for Premium.
+6. Secure Apple and Google verification, plus one phone at a time.
+7. New paywall wording, and the paywall opens when a learner taps locked content or finishes the free session.
+8. Tests for:
+   - locks
+   - copied receipt rejected
+   - Restore on a new phone
+   - offline pass expiry
+   - free learners offline
+
+   All existing tests must still pass.
+9. The 5-free-check limit stays off until real store purchases and the full free-to-Premium journey are tested on both iPhone and Android.
+
+Unchanged: Arabic text, recordings, existing quizzes, progress and reminders.
+
+## 7. Please confirm
+
+1. **"5 quizzes":** 5 separate quiz rounds on the 10 words (assumed)? Or 5 questions in total?
+2. **Free reading test:** may a free learner take a test on the 10 words? This is where the 5 AI checks are used.
+3. **Before purchases are live,** should the locks already be switched on? Or kept off, like the check limit, until purchases are tested? If they're switched on now, nobody can unlock Premium yet.
 
 ## Technical notes
 
-- Apple: set `appAccountToken` (a device-derived UUID) when buying, send StoreKit 2 `jwsRepresentation`, and verify the x5c chain up to the Apple Root CA G3 using WebCrypto.
-- Google: set `obfuscatedAccountId` and acknowledge the purchase.
-- `premium_entitlements` gets a unique `original` subscription key, linked to one device hash at a time.
-- The offline pass is signed with Ed25519: the private key stays on the server, the public key is in the app.
-- The gate lives in the lessons registry (`isLocked(unit, item, premium)`).
+- **Free list:** `FREE_ACCESS` in the lessons registry, read through `canAccess(item, entitlement)`.
+- **Server checks:**
+  - `check-reading` rejects words that aren't free for non-premium device hashes.
+  - The `premium_entitlements` table gets a unique original-transaction key, bound to one device hash.
+- **Apple:** `appAccountToken` is a UUID derived from the device. Verify StoreKit 2's `jwsRepresentation` by checking its x5c chain against Apple Root CA G3 using WebCrypto.
+- **Google:** send `obfuscatedAccountId` and call acknowledge.
+- **Premium pass:** an Ed25519-signed token (device hash, period end). The public key is in the app.
+- **Offline:** the offline module registers the service worker only when the pass is valid. Otherwise it unregisters it and clears the caches. Free routes check connectivity with a ping before loading.
