@@ -19,7 +19,7 @@ export type ReminderResult = "on" | "denied" | "web-limited";
 async function schedule(time: string) {
   const LN = await native();
   if (!LN) return false;
-  const [hour, minute] = time.split(":").map(Number);
+  const [hour = 19, minute = 0] = time.split(":").map(Number);
   await LN.cancel({ notifications: [{ id: REMINDER_ID }] });
   await LN.schedule({ notifications: [{
     id: REMINDER_ID, title: "Time for Arabic 📖", body: "A few minutes of reading keeps your streak going.",

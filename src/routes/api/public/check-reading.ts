@@ -103,7 +103,7 @@ export const Route = createFileRoute("/api/public/check-reading")({
           const { data: gate, error: gErr } = await supabaseAdmin.rpc("consume_check", { _device: await sha(device), _ip: await sha(ip) });
           if (gErr) throw gErr;
           const g = gate as { allowed: boolean; reason?: string };
-          if (!g.allowed) return json({ error: LIMIT_MSG[g.reason ?? ""] ?? LIMIT_MSG.daily, limit: g.reason }, 429);
+          if (!g.allowed) return json({ error: LIMIT_MSG[g.reason ?? ""] ?? LIMIT_MSG["daily"], limit: g.reason }, 429);
         } catch (err) {
           console.error("check limit failed", err);
           return json({ error: "Reading check is unavailable right now. Please try again." }, 503);
