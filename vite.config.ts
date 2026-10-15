@@ -12,6 +12,8 @@ export default defineConfig({
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
+    // Native builds (CAPACITOR=1) emit a static index.html shell for Capacitor; the web build stays server-rendered.
+    ...(process.env["CAPACITOR"] ? { spa: { enabled: true, prerender: { outputPath: "/index.html" } } } : {}),
   },
   vite: {
     plugins: [

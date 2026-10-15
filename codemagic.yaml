@@ -1,0 +1,33 @@
+workflows:
+  android:
+    name: Qaf Android
+    instance_type: linux_x2
+    environment:
+      node: 22
+      java: 21
+      # Add a keystore in Codemagic (Team settings > Code signing) named qaf_keystore.
+      android_signing: [qaf_keystore]
+    scripts:
+      - npm install -g bun && bun install
+      - bun run build:native
+      - cd android && ./gradlew bundleRelease
+    artifacts:
+      - android/app/build/outputs/**/*.aab
+
+  ios:
+    name: Qaf iOS
+    instance_type: mac_mini_m2
+    environment:
+      node: 22
+      xcode: latest
+      # Connect your Apple Developer account in Codemagic first.
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: app.qaf.learnarabic
+    scripts:
+      - npm install -g bun && bun install
+      - bun run build:native
+      - xcode-project use-profiles --project ios/App/App.xcodeproj
+      - xcode-project build-ipa --project ios/App/App.xcodeproj --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
