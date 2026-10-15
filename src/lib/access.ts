@@ -13,11 +13,9 @@ export const FREE_SOUND_SET = "fatha";
 
 export type FreeQuizMode = "listen" | "picture" | "build" | "mixed";
 export const FREE_QUIZZES: { n: number; title: string; words: Word[]; mode: FreeQuizMode }[] = [
-  { n: 1, title: "Listen and pick · words 1–5", words: FREE_WORDS.slice(0, 5), mode: "listen" },
-  { n: 2, title: "Listen and pick · words 6–10", words: FREE_WORDS.slice(5, 10), mode: "listen" },
-  { n: 3, title: "Match the picture", words: FREE_WORDS, mode: "picture" },
-  { n: 4, title: "Build the word", words: FREE_WORDS, mode: "build" },
-  { n: 5, title: "Mixed review", words: FREE_WORDS, mode: "mixed" },
+  { n: 1, title: "Listen and pick", words: FREE_WORDS, mode: "listen" },
+  { n: 2, title: "Build the word", words: FREE_WORDS, mode: "build" },
+  { n: 3, title: "Mixed review", words: FREE_WORDS, mode: "mixed" },
 ];
 export const FREE_QUIZ_LENGTH = 6;
 
@@ -27,13 +25,23 @@ export const canOpenSoundSet = (setId: string, premium: boolean) => premium || s
 // ---- Free quiz progress (own key; never touches saved lesson progress).
 const QKEY = "qaf-free-quizzes-v1";
 export function freeQuizzesDone(): number[] {
-  try { const v = JSON.parse(localStorage.getItem(QKEY) || "[]"); return Array.isArray(v) ? v.filter((x) => typeof x === "number") : []; } catch { return []; }
+  try {
+    const v = JSON.parse(localStorage.getItem(QKEY) || "[]");
+    // Legacy quiz 3 was picture matching; it must not count as the new mixed quiz.
+    if (Array.isArray(v)) {
+      const done = [v.includes(1) && v.includes(2) ? 1 : 0, v.includes(4) ? 2 : 0, v.includes(5) ? 3 : 0].filter(Boolean);
+      localStorage.setItem(QKEY, JSON.stringify({ version: 2, done }));
+      return done;
+    }
+    return v?.version === 2 && Array.isArray(v.done) ? [...new Set<number>(v.done.filter((x: unknown) => typeof x === "number" && FREE_QUIZZES.some((q) => q.n === x)))] : [];
+  } catch { return []; }
 }
 export function markFreeQuiz(n: number) {
   const d = freeQuizzesDone(); if (d.includes(n)) return;
-  localStorage.setItem(QKEY, JSON.stringify([...d, n])); emit();
+  if (!FREE_QUIZZES.some((q) => q.n === n)) return;
+  localStorage.setItem(QKEY, JSON.stringify({ version: 2, done: [...d, n] })); emit();
 }
-export const freeQuizOpen = (n: number, done: number[]) => n === 1 || done.includes(n - 1);
+export const freeQuizOpen = (n: number, done: number[]) => FREE_QUIZZES.some((q) => q.n === n) && (n === 1 || done.includes(n - 1));
 
 // ---- Signed Premium pass.
 const PASS_KEY = "qaf-premium-pass";

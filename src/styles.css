@@ -272,6 +272,11 @@ html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-left,
 html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-right { transform: rotate(180deg); }
 .qaf-onboarding { gap: 12px; }
 .qaf-onboarding button { white-space: normal; }
+.onboarding-listening-art { width: 128px; height: 128px; flex-shrink: 0; }
+@media (max-height: 740px) {
+  .qaf-onboarding > .flex-1 { gap: 12px; }
+  .onboarding-listening-art { width: 88px; height: 88px; }
+}
 .sound-letter-tile { box-shadow: var(--shadow-soft); }
 .sound-letter-tile:hover { border-color: var(--primary); }
 .sound-letter-tile[aria-pressed="true"] { border-color: var(--primary); background: var(--accent); }

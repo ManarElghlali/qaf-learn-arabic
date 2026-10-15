@@ -49,7 +49,7 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
         </ul>
         {!canBuy ? <div className="rounded-2xl bg-accent p-4 text-center">
           <p className="font-semibold text-primary">{t("Premium is coming soon")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("$5.99/month or $39.99/year. For now you can keep learning the 10 free Fatha words, their 5 quizzes and the free Fatha sounds.")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("$5.99/month or $39.99/year. For now you can keep learning the 10 free Fatha words, their 3 quizzes and the free Fatha sounds.")}</p>
           <Button className="mt-4 w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground" onClick={onClose}>{t("Got it")}</Button>
         </div> : <>
         {(["monthly", "yearly"] as const).map((k) => (

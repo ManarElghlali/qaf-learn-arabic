@@ -60,7 +60,7 @@ function UnitRow({ ar, en, state: s, free, progress }: { ar: string; en: string;
     const learned = FREE_WORDS.filter((w) => progress.learned.includes(w.id)).length;
     return <Link to={learned < FREE_WORDS.length ? "/learn" : "/quiz"} search={{ lesson: s.id }} className="flex min-h-16 items-center justify-between gap-3 border-b border-border/60 py-3">
       <ChevronRight className="h-4 w-4 shrink-0 text-primary" />
-      <span className="min-w-0 text-right"><Ar className="block text-lg font-bold">{ar}</Ar><span className="block text-xs text-muted-foreground">{t(en)} · {t("Free: {done}/{total} words, 5 quizzes, reading test", { done: learned, total: FREE_WORDS.length })}</span></span>
+      <span className="min-w-0 text-right"><Ar className="block text-lg font-bold">{ar}</Ar><span className="block text-xs text-muted-foreground">{t(en)} · {t("Free: {done}/{total} words, 3 quizzes, reading test", { done: learned, total: FREE_WORDS.length })}</span></span>
     </Link>;
   }
   const steps = [
