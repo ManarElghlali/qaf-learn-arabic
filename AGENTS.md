@@ -27,3 +27,7 @@
 - Premium unlocks come only from a server-signed Ed25519 pass (QAF_PASS_PRIVATE_KEY) bound to the device hash; entitlements are written only by verify-receipt after store verification (iOS signed JWS chained to Apple Root G3, never bare transaction IDs; one phone per subscription).
 - The offline service worker is registered only for Premium via the guarded offline module (never dev/preview); free learners get caches cleared and OfflineGate.
 - check_limits.billing_live (or VITE_STORE_TESTING=1) gates Subscribe; otherwise the paywall shows "coming soon".
+
+- Interface translations and language persistence live only in src/lib/i18n.tsx through LanguageProvider/useLanguage; never translate stable curriculum IDs, Arabic teaching text, or audio lookup arguments. This keeps language changes independent of learning and billing state.
+- Onboarding persists a version alongside its existing key and migrates old numeric steps when steps are inserted, so interrupted learners retain their position.
+- Sound Practice uses a paged three-column letter grid within the existing set route; all 28 letters, progress, audio and sequential completion remain in the existing sound-practice module.

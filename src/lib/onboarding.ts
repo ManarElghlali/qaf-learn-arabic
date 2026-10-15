@@ -4,10 +4,10 @@ const KEY = "qaf-onboarding-v1";
 export type Path = "reading" | "sounds";
 export type Goal = "read" | "sounds" | "both";
 export type Level = "beginner" | "letters" | "some";
-// welcome, listen, path, goal, level, recommendation, first quiz
-export const ONBOARDING_STEPS = 7;
+// welcome, language, listen, path, goal, level, recommendation, first quiz
+export const ONBOARDING_STEPS = 8;
 export type Onboarding = {
-  completed: boolean; step: number; completedAt?: string | undefined;
+  completed: boolean; step: number; version?: number; completedAt?: string | undefined;
   path?: Path | undefined; goal?: Goal | undefined; level?: Level | undefined;
   firstQuizDone?: boolean | undefined; firstCorrectAt?: string | undefined; rating?: number | undefined;
 };
@@ -32,9 +32,10 @@ export function readOnboarding(): Onboarding {
     const raw = localStorage.getItem(KEY);
     if (raw) {
       const o = JSON.parse(raw) as Record<string, unknown>;
-      const step = Math.min(Math.max(Number(o["step"]) || 0, 0), ONBOARDING_STEPS - 1);
+      const savedStep = Math.max(Number(o["step"]) || 0, 0);
+      const step = Math.min(savedStep + (o["version"] !== 2 && savedStep > 0 ? 1 : 0), ONBOARDING_STEPS - 1);
       return {
-        completed: !!o["completed"], step,
+        completed: !!o["completed"], step, version: 2,
         completedAt: typeof o["completedAt"] === "string" ? o["completedAt"] : undefined,
         path: pick(o["path"], PATHS), goal: pick(o["goal"], GOALS), level: pick(o["level"], LEVELS),
         firstQuizDone: !!o["firstQuizDone"],
@@ -48,7 +49,7 @@ export function readOnboarding(): Onboarding {
 }
 
 function saveOnboarding(o: Onboarding) {
-  try { localStorage.setItem(KEY, JSON.stringify(o)); } catch { /* private mode: keep going in memory */ }
+  try { localStorage.setItem(KEY, JSON.stringify({ ...o, version: 2 })); } catch { /* private mode: keep going in memory */ }
   return o;
 }
 

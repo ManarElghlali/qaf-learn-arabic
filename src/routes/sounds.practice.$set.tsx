@@ -1,10 +1,11 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { createFileRoute, Link, notFound, useHydrated } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { findSet, markPracticed, resetSet, setItems, useSoundProgress } from "@/lib/sound-practice";
 import { playUnits, preloadAudio, stopAudio } from "@/lib/audio";
 import { useAccess, canOpenSoundSet } from "@/lib/access";
+import { useLanguage } from "@/lib/i18n";
 import { PremiumLocked } from "@/components/PremiumLock";
 import { CheckCircle2, ChevronLeft, ChevronRight, RotateCcw, Volume2 } from "lucide-react";
 
@@ -17,51 +18,57 @@ export const Route = createFileRoute("/sounds/practice/$set")({
   },
   component: Practice,
 });
-
 function Practice() {
   const { id } = Route.useLoaderData();
   const access = useAccess();
-  if (!access.loaded) return <AppShell title="Sound Practice"><div className="h-96" aria-busy="true" /></AppShell>;
+  const hydrated = useHydrated();
+  if (!hydrated || !access.loaded) return <AppShell title="Sound Practice"><div className="h-96" aria-busy="true" /></AppShell>;
   if (!canOpenSoundSet(id, access.premium)) return <AppShell title="Sound Practice"><PremiumLocked what="This sound set" /></AppShell>;
   return <PracticeSet id={id} />;
 }
-
 function PracticeSet({ id }: { id: string }) {
-  const { category, set } = findSet(id)!;
-  const items = setItems(set);
+  const { t } = useLanguage();
+  const found = findSet(id);
+  const items = useMemo(() => found ? setItems(found.set) : [], [id]);
   const sp = useSoundProgress();
   const [i, setI] = useState(0);
   const [finished, setFinished] = useState(false);
   const started = useRef(false);
-  useEffect(() => { if (!started.current) { started.current = true; const n = (sp[id] ?? []).length; if (n > 0 && n < items.length) setI(n); } }, [sp, id, items.length]);
+  useEffect(() => { const saved = sp[id]; if (!started.current && saved) { started.current = true; const next = items.findIndex((_, k) => !saved.includes(k)); setI(next < 0 ? 0 : next); } }, [sp, id, items]);
   useEffect(() => () => stopAudio(), []);
-  const item = items[i]!;
-  useEffect(() => { preloadAudio("u", items.slice(i, i + 3).flatMap((x) => x.units)); }, [i, items]);
-  const hear = () => { playUnits(item.units); markPracticed(id, i); };
+  const pageStart = Math.floor(i / 9) * 9;
+  useEffect(() => { preloadAudio("u", items.slice(pageStart, pageStart + 9).flatMap((x) => x.units)); }, [pageStart, items]);
+  if (!found || !items[i]) return null;
+  const { category, set } = found;
+  const hear = (k: number) => { const item = items[k]; if (!item) return; stopAudio(); setI(k); playUnits(item.units); markPracticed(id, k); };
   const go = (n: number) => { stopAudio(); markPracticed(id, i); if (n >= items.length) { setFinished(true); return; } setI(Math.max(0, n)); };
-  const strip = items.map((_, k) => k).filter((k) => Math.abs(k - i) <= 2 || (i < 2 && k < 5) || (i > items.length - 3 && k >= items.length - 5));
+  const done = Math.min((sp[id] ?? []).length, items.length);
   return (
-    <AppShell title={set.en} singleScreen>
-      <div className="flex h-full flex-col gap-3">
-        <div className="flex items-center justify-between"><Link to="/sounds/$category" params={{ category: category.id }} className="flex items-center gap-1 text-xs font-semibold text-primary"><ChevronLeft className="h-4 w-4" />{category.en}</Link><Ar className="text-xl font-bold text-primary">{set.ar}</Ar><span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-primary">{i + 1} of {items.length}</span></div>
-        <progress value={finished ? items.length : i} max={items.length} aria-label="Lesson progress" className="qaf-progress h-1.5 w-full" />
-        {finished ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-            <CheckCircle2 className="h-14 w-14 text-success" />
-            <h2 className="text-lg font-bold text-primary">Lesson Complete!</h2><p className="text-sm text-muted-foreground">Great job! You practised all {items.length} letters.</p>
-            <Button variant="outline" className="w-full rounded-full" onClick={() => { resetSet(id); setI(0); setFinished(false); }}><RotateCcw />Practice Again</Button>
-            <Button asChild className="w-full rounded-full"><Link to="/sounds/$category" params={{ category: category.id }}>Continue<ChevronRight /></Link></Button>
+    <AppShell title="Sound Practice" singleScreen>
+      <div className="sound-practice flex min-h-0 flex-1 flex-col gap-3">
+        <p className="text-sm text-muted-foreground">{t("Practise individual letter sounds")}</p>
+        <div className="flex items-center justify-between gap-2">
+          <Button asChild variant="link" className="h-9 px-0 text-xs"><Link to="/sounds/$category" params={{ category: category.id }}><ChevronLeft />{t(set.en)}</Link></Button>
+          <span className="text-xs text-muted-foreground">{done}/{items.length}</span>
+        </div>
+        <progress value={done} max={items.length} aria-label={t("Lesson progress")} className="qaf-progress h-1.5 w-full shrink-0" />
+        {finished ? <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
+          <CheckCircle2 className="h-14 w-14 text-success" /><h2 className="text-xl font-bold">{t("Lesson Complete!")}</h2>
+          <p className="text-sm text-muted-foreground">{t("Great job! You practised all {total} letters.", { total: items.length })}</p>
+          <Button variant="outline" className="w-full" onClick={() => { resetSet(id); setI(0); setFinished(false); }}><RotateCcw />{t("Practice Again")}</Button>
+          <Button asChild className="w-full"><Link to="/sounds/$category" params={{ category: category.id }}>{t("Continue")}<ChevronRight /></Link></Button>
+        </div> : <>
+          <div dir="ltr" className="sound-letter-grid grid min-h-0 flex-1 grid-cols-3 grid-rows-3 gap-3" aria-label={t("Sound choices")}>
+            {Array.from({ length: 9 }, (_, offset) => { const k = pageStart + offset; const item = items[k]; if (!item) return <div key={k} />;
+              return <Button key={k} variant="outline" aria-label={t("Hear {sound}", { sound: item.units.join(" ") })} aria-pressed={k === i} onClick={() => hear(k)} className={`sound-letter-tile relative flex h-full min-h-0 w-full flex-col gap-2 rounded-2xl p-2 text-primary ${k === i ? "border-primary bg-accent" : "border-border bg-card"}`}>
+                <Ar className={`font-bold ${item.units.length > 1 ? "text-xl" : "text-4xl"}`}>{item.units.join(" ")}</Ar>
+                <Volume2 className="h-4 w-4" />
+                {(sp[id] ?? []).includes(k) && <CheckCircle2 className="absolute end-2 top-2 h-3 w-3 text-success" />}
+              </Button>;
+            })}
           </div>
-        ) : <>
-          <button type="button" onClick={hear} aria-label={`Hear ${item.units.join(" ")}`} className={`grid flex-1 min-h-32 place-items-center rounded-3xl border border-border ${category.accent}`}>
-            <Ar className="text-7xl font-bold leading-normal text-primary">{item.units.join(" ")}</Ar>
-          </button>
-          <div className="flex flex-col items-center gap-1"><Button size="icon" onClick={hear} aria-label="Hear sound" className="h-16 w-16 rounded-full"><Volume2 className="!h-7 !w-7" /></Button><span className="text-sm font-semibold text-primary">Hear Sound</span><p className="text-[11px] text-muted-foreground">Listen, then say it out loud.</p></div>
-          <div className="grid grid-cols-2 gap-3"><Button variant="outline" className="h-12 rounded-full" disabled={i === 0} onClick={() => go(i - 1)}><ChevronLeft />Previous</Button><Button className="h-12 rounded-full" onClick={() => go(i + 1)}>{i === items.length - 1 ? "Finish" : "Next"}<ChevronRight /></Button></div>
-          <div dir="rtl" className="flex justify-center gap-2">{strip.map((k) => (
-            <button key={k} type="button" onClick={() => { stopAudio(); setI(k); }} aria-label={`Letter ${items[k]!.letter}`} aria-current={k === i}
-              className={`grid h-10 w-10 place-items-center rounded-full border font-arabic text-lg ${k === i ? "border-primary bg-primary text-primary-foreground" : (sp[id] ?? []).includes(k) ? "border-success bg-success-soft" : "border-border"}`}>{items[k]!.letter}</button>
-          ))}</div>
+          <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground"><span>{t("Letter {current} of {total}", { current: i + 1, total: items.length })}</span><Button variant="ghost" size="sm" onClick={() => hear(i)}><Volume2 />{t("Hear Sound")}</Button></div>
+          <div className="grid shrink-0 grid-cols-2 gap-3"><Button variant="outline" className="h-12" disabled={i === 0} onClick={() => go(i - 1)}><ChevronLeft />{t("Previous")}</Button><Button className="h-12" onClick={() => go(i + 1)}>{t(i === items.length - 1 ? "Finish" : "Next")}<ChevronRight /></Button></div>
         </>}
       </div>
     </AppShell>
