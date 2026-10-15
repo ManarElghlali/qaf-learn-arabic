@@ -1,3 +1,9 @@
+# Mobile-store foundation
+- [ ] Add manifest and matching Qaf public icons and head links.
+- [ ] Add Privacy and Profile access while preserving offline behavior and learning data.
+- [ ] Verify icons, navigation, metadata, phone layouts and existing tests.
+- [ ] Confirm third-party audio retention before store submission (requires provider confirmation).
+
 # Shaddah
 - [x] Add all four exact word banks (32 words) with independent lessons, quizzes and reading tests.
 - [x] Create 24 storybook subjects mapped to all 32 words and recordings for all 32 words and 46 distinct tiles; refine flagged word clips.

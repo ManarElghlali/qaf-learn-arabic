@@ -24,4 +24,5 @@
 - Keep Sound Practice in its own module with its own saved-progress key and sound-keyed recordings shared with Reading, so the two paths never change each other's progress or content.
 - Keep first-run state in its own onboarding module and storage key, auto-completing it for learners with existing progress, so onboarding can never reset or loop over learning data.
 - Register the offline service worker only through the guarded offline module (never in dev or preview), with NetworkFirst pages and all built screens precached, so unvisited lessons still open offline without serving stale updates.
+- Keep public/manifest.webmanifest as the single installability manifest and reference real public icons from the root head; Vite manifest generation stays disabled to avoid duplicate metadata.
 - Re-record or audit teacher audio only through scripts/audio-audit (two independent AI listeners must accept a take; results.json records status), so corrections stay traceable and never silently replace approved Arabic text.

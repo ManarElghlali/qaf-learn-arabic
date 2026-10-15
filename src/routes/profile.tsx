@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { patchOnboarding, readOnboarding, type Goal, type Level } from "@/lib/onboarding";
 import { toast } from "sonner";
-import { Bell, ChevronRight, Crown, RotateCcw } from "lucide-react";
+import { Bell, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { AppShell } from "@/components/AppShell";
@@ -67,6 +67,9 @@ function Profile() {
         </div>
         <Button variant="ghost" onClick={() => setPay(true)} className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
           <span className="flex items-center gap-3"><Crown className="h-5 w-5" />{p.premium ? "Premium active" : "Go Premium"}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
+        </Button>
+        <Button asChild variant="ghost" className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
+          <Link to="/privacy"><span className="flex items-center gap-3"><Shield className="h-5 w-5" />Privacy Policy</span><ChevronRight className="h-4 w-4 text-muted-foreground" /></Link>
         </Button>
         <Button variant="ghost" onClick={() => { if (confirm("Reset all progress?")) update((s) => ({ ...s, learned: [], streak: 0, scores: [], lastDay: "" })); }}
           className="h-16 w-full justify-start gap-3 rounded-none px-0 text-sm font-medium text-destructive"><RotateCcw className="h-5 w-5" />Reset progress</Button>
