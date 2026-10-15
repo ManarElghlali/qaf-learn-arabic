@@ -15,6 +15,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as QuizRouteImport } from './routes/quiz'
 import { Route as ReadingRouteImport } from './routes/reading'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as TestRouteImport } from './routes/test'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as SoundsIndexRouteImport } from './routes/sounds.index'
@@ -52,6 +53,11 @@ const QuizRoute = QuizRouteImport.update({
 const ReadingRoute = ReadingRouteImport.update({
   id: '/reading',
   path: '/reading',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TestRoute = TestRouteImport.update({
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
+  '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
@@ -118,6 +125,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
+  '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/quiz': typeof QuizRoute
   '/reading': typeof ReadingRoute
+  '/terms': typeof TermsRoute
   '/test': typeof TestRoute
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
@@ -153,6 +162,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reading'
+    | '/terms'
     | '/test'
     | '/welcome'
     | '/sounds/$category'
@@ -169,6 +179,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reading'
+    | '/terms'
     | '/test'
     | '/welcome'
     | '/sounds/$category'
@@ -185,6 +196,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/quiz'
     | '/reading'
+    | '/terms'
     | '/test'
     | '/welcome'
     | '/sounds/$category'
@@ -202,6 +214,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   QuizRoute: typeof QuizRoute
   ReadingRoute: typeof ReadingRoute
+  TermsRoute: typeof TermsRoute
   TestRoute: typeof TestRoute
   WelcomeRoute: typeof WelcomeRoute
   SoundsCategoryRoute: typeof SoundsCategoryRoute
@@ -254,6 +267,13 @@ declare module '@tanstack/react-router' {
       path: '/reading'
       fullPath: '/reading'
       preLoaderRoute: typeof ReadingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/test': {
@@ -322,6 +342,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   QuizRoute: QuizRoute,
   ReadingRoute: ReadingRoute,
+  TermsRoute: TermsRoute,
   TestRoute: TestRoute,
   WelcomeRoute: WelcomeRoute,
   SoundsCategoryRoute: SoundsCategoryRoute,
