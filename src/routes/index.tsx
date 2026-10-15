@@ -36,12 +36,12 @@ function Home() {
       <div className="space-y-4">
         <Link to="/reading" className="path-card flex items-center gap-4 rounded-3xl bg-primary p-5 text-primary-foreground shadow-sm">
           <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-primary-foreground/15"><BookOpen className="h-8 w-8 text-gold" /></span>
-          <span className="min-w-0 flex-1"><Ar className="block text-2xl font-bold">القِرَاءَة</Ar><span className="block text-base font-bold">{t("Reading")}</span><span className="block text-xs opacity-80">Learn to combine sounds and read words · {unitsDone}/{UNIT_ORDER.length} units</span></span>
+          <span className="min-w-0 flex-1"><Ar className="block text-2xl font-bold">القِرَاءَة</Ar><span className="block text-base font-bold">{t("Reading")}</span><span className="block text-xs opacity-80">{t("Learn to combine sounds and read words · {done}/{total} units", { done: unitsDone, total: UNIT_ORDER.length })}</span></span>
           <ChevronRight className="h-5 w-5 shrink-0" />
         </Link>
         <Link to="/sounds" className="path-card flex items-center gap-4 rounded-3xl border border-border bg-stage-lavender p-5">
           <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-background"><Headphones className="h-8 w-8 text-primary" /></span>
-          <span className="min-w-0 flex-1"><Ar className="block text-2xl font-bold text-primary">صَوْتِي</Ar><span className="block text-base font-bold">{t("Sound Practice")}</span><span className="block text-xs text-muted-foreground">Hear, repeat and practise individual letter sounds · {setsDone}/{sets.length} lessons</span></span>
+          <span className="min-w-0 flex-1"><Ar className="block text-2xl font-bold text-primary">صَوْتِي</Ar><span className="block text-base font-bold">{t("Sound Practice")}</span><span className="block text-xs text-muted-foreground">{t("Hear, repeat and practise individual letter sounds · {done}/{total} lessons", { done: setsDone, total: sets.length })}</span></span>
           <ChevronRight className="h-5 w-5 shrink-0 text-primary" />
         </Link>
         <p className="flex items-center gap-2 rounded-2xl border border-border p-4 text-xs text-muted-foreground"><Sparkles className="h-4 w-4 text-gold" />{t("Small steps. Big progress. You can do it!")}</p>

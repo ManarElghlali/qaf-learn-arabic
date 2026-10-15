@@ -19,7 +19,7 @@ export function PickQuestion({ w, opts, mode, onDone }: { w: Word; opts: Word[];
         <h2 className="text-sm font-semibold text-muted-foreground">{mode === "listen" ? t("Listen & choose") : t("Match the picture")}</h2>
         {mode === "listen"
           ? <Button aria-label={t("Listen to the word")} onClick={() => playWord(w.ar)} className="quiz-listen mx-auto rounded-full [&_svg]:size-7"><Volume2 /></Button>
-          : <><WordIllustration word={w} className="quiz-art" /><p className="text-sm font-medium">{w.en}</p></>}
+          : <><WordIllustration word={w} className="quiz-art" /><p lang="en" dir="ltr" className="text-sm font-medium">{w.en}</p></>}
       </div>
       <div className="quiz-answers grid grid-cols-1 gap-2" aria-label={t("Answer choices")}>
         {opts.map((o) => {
@@ -63,7 +63,7 @@ export function BuildQuestion({ w, words, onDone }: { w: Word; words: Word[]; on
       <div className="quiz-prompt text-center">
         <h2 className="text-sm font-semibold text-muted-foreground">{t("Build the word")}</h2>
         <WordIllustration word={w} className="quiz-art" />
-        <div className="flex items-center justify-center gap-3"><p className="text-sm font-medium">{w.en}</p>
+        <div className="flex items-center justify-center gap-3"><p lang="en" dir="ltr" className="text-sm font-medium">{w.en}</p>
         <Button variant="ghost" aria-label={t("Hear the word")} onClick={() => playWord(w.ar)} size="icon" className="text-primary"><Volume2 className="size-4" /></Button></div>
       </div>
       <div dir="rtl" aria-label={t("Your word")} className="quiz-slots grid gap-2" style={{ gridTemplateColumns: `repeat(${w.units.length}, minmax(0, 1fr))` }}>
@@ -72,14 +72,14 @@ export function BuildQuestion({ w, words, onDone }: { w: Word; words: Word[]; on
       <div dir="rtl" className={`quiz-sounds grid gap-2 ${blocks.length > 4 && w.units.some((u) => u.length > 2) ? "grid-cols-3" : "grid-flow-col auto-cols-fr"}`} aria-label={t("Sound choices")}>
         {blocks.map((b) => {
           const selected = picked.some((p) => p.k === b.k);
-          return <Button variant="outline" key={b.k} aria-label={`Choose sound ${b.u}`} aria-pressed={selected}
+          return <Button variant="outline" key={b.k} aria-label={t("Choose sound {sound}", { sound: b.u })} aria-pressed={selected}
             onClick={() => tap(b)} disabled={selected || res !== null}
             className={`sound-button disabled:opacity-100 ${selected ? "border-primary bg-primary text-primary-foreground" : "border-primary/20 bg-accent text-primary"}`}><Ar>{b.u}</Ar></Button>;
         })}
       </div>
       <div className="quiz-feedback">
         {res === true && <p role="status" className="flex items-center gap-2 text-sm font-semibold text-success"><Check className="size-4" />{t("Correct!")}</p>}
-        {res === false && <p role="status" className="text-sm text-destructive">Answer: <Ar className="text-2xl">{w.ar}</Ar></p>}
+        {res === false && <p role="status" className="text-sm text-destructive">{t("Answer:")} <Ar className="text-2xl">{w.ar}</Ar></p>}
         {picked.length > 0 && res === null && <Button variant="ghost" onClick={() => setPicked([])} className="text-muted-foreground"><RotateCcw className="size-4" />{t("Clear")}</Button>}
       </div>
     </div>

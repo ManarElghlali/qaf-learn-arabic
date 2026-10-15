@@ -28,7 +28,7 @@ function Sounds() {
       <div className="space-y-3">{SOUND_CATEGORIES.map((c) => (
         <Link key={c.id} to="/sounds/$category" params={{ category: c.id }} className={`flex items-center gap-4 rounded-3xl border border-border p-4 ${c.accent}`}>
           <Ar className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-background text-3xl font-bold text-primary">{c.mark}</Ar>
-          <span className="min-w-0 flex-1"><span className="block text-sm font-bold">{t(c.en)}</span><Ar className="block text-xl font-bold text-primary">{c.ar}</Ar><span className="block text-[11px] text-muted-foreground">{c.sets.length} lessons · {c.sets.filter((s) => setComplete(sp, s)).length}/{c.sets.length}</span></span>
+          <span className="min-w-0 flex-1"><span className="block text-sm font-bold">{t(c.en)}</span><Ar className="block text-xl font-bold text-primary">{c.ar}</Ar><span className="block text-[11px] text-muted-foreground">{t("{total} lessons · {done}/{total}", { total: c.sets.length, done: c.sets.filter((s) => setComplete(sp, s)).length })}</span></span>
           <ChevronRight className="h-5 w-5 text-primary" />
         </Link>
       ))}</div>

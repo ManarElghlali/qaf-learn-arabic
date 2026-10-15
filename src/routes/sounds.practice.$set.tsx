@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useHydrated } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AppShell, Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,8 @@ export const Route = createFileRoute("/sounds/practice/$set")({
 function Practice() {
   const { id } = Route.useLoaderData();
   const access = useAccess();
-  if (!access.loaded) return <AppShell title="Sound Practice"><div className="h-96" aria-busy="true" /></AppShell>;
+  const hydrated = useHydrated();
+  if (!hydrated || !access.loaded) return <AppShell title="Sound Practice"><div className="h-96" aria-busy="true" /></AppShell>;
   if (!canOpenSoundSet(id, access.premium)) return <AppShell title="Sound Practice"><PremiumLocked what="This sound set" /></AppShell>;
   return <PracticeSet id={id} />;
 }

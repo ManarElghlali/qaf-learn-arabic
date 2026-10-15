@@ -9,7 +9,7 @@ import { WORDS } from "@/lib/words";
 import { patchOnboarding, recordFirstCorrect, type Level } from "@/lib/onboarding";
 
 type Q = { kind: "sound" | "word"; answer: string; choices: string[] };
-const word = (ar: string) => WORDS.find((w) => w.ar === ar)!;
+const word = (ar: string) => WORDS.find((w) => w.ar === ar);
 
 /** Three short questions built only from sounds shown on the "Learn by listening" screen (أَ كَ لَ) and existing recordings. */
 export function firstQuizQuestions(level: Level | undefined): Q[] {
@@ -40,13 +40,13 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
       <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
         <span className="grid h-20 w-20 place-items-center rounded-full bg-success-soft"><Check className="h-10 w-10 text-success" /></span>
         <h2 className="text-2xl font-bold">{t("You did it!")}</h2>
-        <p className="max-w-xs text-muted-foreground">You heard Arabic sounds and read your first word, <Ar className="text-xl text-primary">أَكَلَ</Ar>.</p>
+        <p className="max-w-xs text-muted-foreground">{t("You heard Arabic sounds and read your first word.")} <Ar className="text-xl text-primary">أَكَلَ</Ar>.</p>
         <div className="mt-2 rounded-2xl border border-border p-3">
           <p className="text-xs text-muted-foreground">{rating ? t("Thank you for your rating!") : t("Enjoying Qaf so far? (optional)")}</p>
           <div className="mt-1 flex justify-center gap-1">{[1, 2, 3, 4, 5].map((r) => (
-            <button key={r} type="button" aria-label={`Rate ${r} of 5`} aria-pressed={rating === r} onClick={() => { setRating(r); patchOnboarding({ rating: r }); }} className="grid h-11 w-11 place-items-center rounded-full">
+            <Button variant="ghost" key={r} type="button" aria-label={t("Rate {rating} of 5", { rating: r })} aria-pressed={rating === r} onClick={() => { setRating(r); patchOnboarding({ rating: r }); }} className="grid h-11 w-11 place-items-center rounded-full">
               <Star className={`h-6 w-6 ${rating && r <= rating ? "fill-gold text-gold" : "text-muted-foreground"}`} />
-            </button>
+            </Button>
           ))}</div>
         </div>
         <Button className="mt-2 h-14 w-full rounded-full text-base" onClick={onFinish}>{t("Continue")}<ChevronRight /></Button>
@@ -67,10 +67,10 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
 
   return (
     <div className="flex flex-1 flex-col gap-4">
-      <div className="flex items-center gap-3 text-xs text-muted-foreground"><span>Question {n + 1} of {qs.length}</span><progress value={n} max={qs.length} aria-label="First quiz progress" className="qaf-progress h-1.5 flex-1" /></div>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground"><span>{t("Question {current} of {total}", { current: n + 1, total: qs.length })}</span><progress value={n} max={qs.length} aria-label={t("First quiz progress")} className="qaf-progress h-1.5 flex-1" /></div>
       <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
         <h2 className="text-lg font-bold">{q.kind === "sound" ? t("Which sound did you hear?") : t("Which word did you hear?")}</h2>
-        {w && <><WordIllustration word={w} className="w-28" /><p className="text-sm font-medium">{w.en}</p></>}
+        {w && <><WordIllustration word={w} className="w-28" /><p lang="en" dir="ltr" className="text-sm font-medium">{w.en}</p></>}
         <Button aria-label={q.kind === "sound" ? t("Play the sound again") : t("Play the word again")} onClick={hear} className="h-16 w-16 rounded-full [&_svg]:size-7"><Volume2 /></Button>
       </div>
       <div className="grid grid-cols-1 gap-2" aria-label={t("Answer choices")}>{q.choices.map((c) => {

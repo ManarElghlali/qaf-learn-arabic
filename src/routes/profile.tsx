@@ -41,7 +41,7 @@ function Profile() {
     const r = await enableReminders(time);
     if (r === "denied") toast("Notifications are blocked. You can allow them in your phone's settings.");
     else if (r === "web-limited") toast("Reminder saved. Daily notifications are sent by the Qaf phone app.");
-    else toast.success(`Daily reminder set for ${time}`);
+    else toast.success(t("Daily reminder set for {time}", { time }));
   };
   const best = p.scores.length ? Math.max(...p.scores) : 0;
   return (
@@ -54,7 +54,7 @@ function Profile() {
           </div>
         ))}
       </div>
-      {p.scores.length > 0 && <p className="mt-3 text-sm text-muted-foreground">Recent tests: {p.scores.slice(-5).join("%, ")}%</p>}
+      {p.scores.length > 0 && <p className="mt-3 text-sm text-muted-foreground">{t("Recent tests: {scores}%", { scores: p.scores.slice(-5).join("%, ") })}</p>}
       <h2 className="mb-2 mt-7 text-base font-semibold">{t("Your learning preferences")}</h2>
       <label className="mb-3 block text-sm font-medium">{t("Goal")}
         <select value={goal ?? ""} onChange={(e) => { const v = (e.target.value || undefined) as Goal | undefined; setGoal(v); patchOnboarding({ goal: v }); }} className="mt-1 h-12 w-full rounded-xl border border-border bg-card px-3 text-sm">
@@ -73,7 +73,7 @@ function Profile() {
         </label>
         <div className="flex min-h-16 items-center justify-between gap-3 py-2">
           <label htmlFor="reminder" className="flex items-center gap-3 text-sm font-medium"><Bell className="h-5 w-5" />{t("Daily reminder")}</label>
-          <Switch id="reminder" checked={p.reminders} onCheckedChange={(on) => { if (on) setAsk(true); else { void disableReminders(); toast("Daily reminder turned off"); } }} />
+          <Switch id="reminder" checked={p.reminders} onCheckedChange={(on) => { if (on) setAsk(true); else { void disableReminders(); toast(t("Daily reminder turned off")); } }} />
         </div>
         {ask && (
           <div className="rounded-2xl border border-border bg-card p-4 text-sm">
@@ -94,7 +94,7 @@ function Profile() {
         <Button asChild variant="ghost" className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
           <Link to="/terms"><span className="flex items-center gap-3"><Shield className="h-5 w-5" />{t("Terms of Use")}</span><ChevronRight className="h-4 w-4 text-muted-foreground" /></Link>
         </Button>
-        <Button variant="ghost" onClick={() => { if (confirm("Reset all progress?")) update((s) => ({ ...s, learned: [], streak: 0, scores: [], lastDay: "" })); }}
+        <Button variant="ghost" onClick={() => { if (confirm(t("Reset all progress?"))) update((s) => ({ ...s, learned: [], streak: 0, scores: [], lastDay: "" })); }}
           className="h-16 w-full justify-start gap-3 rounded-none px-0 text-sm font-medium text-destructive"><RotateCcw className="h-5 w-5" />{t("Reset progress")}</Button>
       </div>
       <Paywall open={pay} onClose={() => setPay(false)} />

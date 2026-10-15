@@ -8,6 +8,7 @@ import { useAccess } from "@/lib/access";
 
 export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () => void; reason?: string | undefined }) {
   const { t } = useLanguage();
+  const translateText = t;
   const [plan, setPlan] = useState<Plan>("yearly");
   const [prices, setPrices] = useState<Partial<Record<Plan, string>>>({});
   const [store, setStore] = useState<boolean | null>(null);
@@ -39,15 +40,15 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
           <h2 className="text-xl font-bold">{t("Qaf Premium")}</h2>
           <button aria-label={t("Close")} onClick={onClose}><X className="h-5 w-5" /></button>
         </div>
-        {reason && <p className="mb-4 rounded-2xl bg-accent p-3 text-sm text-muted-foreground">{reason}</p>}
+        {reason && <p className="mb-4 rounded-2xl bg-accent p-3 text-sm text-muted-foreground">{t(reason)}</p>}
         <ul className="mb-5 space-y-2 text-sm text-muted-foreground">
           {["Every Reading unit, word, quiz and reading test", "Every Sound Practice set", "Learn offline with downloaded lessons and audio", "100 AI pronunciation checks every billing month", "Cancel anytime in your store settings"].map((t) => (
-            <li key={t} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-primary" />{t}</li>
+            <li key={t} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-primary" />{translateText(t)}</li>
           ))}
         </ul>
         {!canBuy ? <div className="rounded-2xl bg-accent p-4 text-center">
           <p className="font-semibold text-primary">{t("Premium is coming soon")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">$5.99/month or $39.99/year. For now you can keep learning the 10 free Fatha words, their 5 quizzes and the free Fatha sounds.</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("$5.99/month or $39.99/year. For now you can keep learning the 10 free Fatha words, their 5 quizzes and the free Fatha sounds.")}</p>
           <button className="mt-4 w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground" onClick={onClose}>{t("Got it")}</button>
         </div> : <>
         {(["monthly", "yearly"] as const).map((k) => (
@@ -64,7 +65,7 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
           onClick={() => run("restore")}>{busy === "restore" && <LoaderCircle className="h-4 w-4 animate-spin" />}Restore purchase</button>
         </>}
         <p className="mt-4 text-center text-[11px] leading-relaxed text-muted-foreground">
-          Payment is charged to your Apple ID or Google Play account. Subscriptions renew automatically unless cancelled at least 24 hours before the period ends.{" "}
+          {t("Payment is charged to your Apple ID or Google Play account. Subscriptions renew automatically unless cancelled at least 24 hours before the period ends.")}{" "}
           <Link to="/terms" className="underline" onClick={onClose}>{t("Terms of Use")}</Link> · <Link to="/privacy" className="underline" onClick={onClose}>{t("Privacy")}</Link>
         </p>
       </div>

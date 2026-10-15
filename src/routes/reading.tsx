@@ -55,9 +55,9 @@ function Reading() {
     <AppShell title={t("Reading")}>
       <section aria-label="Your learning progress" className="home-progress mb-4 grid grid-cols-[minmax(0,1fr)_48px] items-center gap-4 rounded-3xl bg-primary p-4 text-primary-foreground">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-sm font-semibold">{t(L.en)} progress</h2>{p.streak > 0 && <span className="flex items-center gap-1 text-[11px]"><Flame className="h-3.5 w-3.5 text-gold" />{p.streak} day streak</span>}</div>
-          <p className="mb-2 mt-1 text-xs opacity-80">{cur.learned}/{cur.total} words learned</p>
-          <progress aria-label={`${t(L.en)} progress`} value={cur.learned} max={cur.total} className="qaf-progress h-1.5 w-full" />
+          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-sm font-semibold">{t("{lesson} progress", { lesson: t(L.en) })}</h2>{p.streak > 0 && <span className="flex items-center gap-1 text-[11px]"><Flame className="h-3.5 w-3.5 text-gold" />{t("{total} day streak", { total: p.streak })}</span>}</div>
+          <p className="mb-2 mt-1 text-xs opacity-80">{t("{done}/{total} words learned", { done: cur.learned, total: cur.total })}</p>
+          <progress aria-label={`${t("{lesson} progress", { lesson: t(L.en) })}`} value={cur.learned} max={cur.total} className="qaf-progress h-1.5 w-full" />
         </div>
         <Ar className="text-center text-5xl text-gold">ق</Ar>
       </section>
@@ -69,7 +69,7 @@ function Reading() {
             <Button asChild className="mt-2 h-11 w-full justify-between rounded-full px-4 text-xs"><Link to={stepRoute} search={{ lesson: cur.id }}><span>{actionLabel}</span><ArrowRight /></Link></Button>
           </div>
         </div>
-        {cur.step === "learn" && started && <p className="mt-3 text-right text-[11px] text-muted-foreground">Word {learningSummary(p[L.key], L.words).resumeIndex + 1} of {cur.total}</p>}
+        {cur.step === "learn" && started && <p className="mt-3 text-right text-[11px] text-muted-foreground">{t("Word {current} of {total}", { current: learningSummary(p[L.key], L.words).resumeIndex + 1, total: cur.total })}</p>}
       </section>
       <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-bold">{t("Learning journey")}</h2><Ar className="text-base text-muted-foreground">رحلة التعلّم</Ar></div>
       <div className="space-y-3">{stages.map(s => <CurriculumDestination key={t(s.en)} {...s} status={stageStatus(s.lessons)} progress={p} />)}</div>

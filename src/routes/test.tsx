@@ -146,11 +146,11 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
       <AppShell title={t("Reading test")}>
         <div className="learning-surface p-7 text-center">
           <Trophy className="mx-auto h-12 w-12 text-gold" />
-          <h2 className="mt-3 text-2xl font-bold">{complete ? `${LESSONS[lesson].en} unit complete` : passed ? t("Reading test passed") : t("Test complete")}</h2>
-          <p className="mt-2 text-muted-foreground">You read {correct} of {words.length} words · {pct}%</p>
-          {!passed && <p className="mt-1 text-xs text-muted-foreground">You need {PASS_PCT}% to complete this unit.</p>}
+          <h2 className="mt-3 text-2xl font-bold">{complete ? t("{lesson} unit complete", { lesson: t(LESSONS[lesson].en) }) : passed ? t("Reading test passed") : t("Test complete")}</h2>
+          <p className="mt-2 text-muted-foreground">{t("You read {correct} of {total} words · {percent}%", { correct, total: words.length, percent: pct })}</p>
+          {!passed && <p className="mt-1 text-xs text-muted-foreground">{t("You need {percent}% to complete this unit.", { percent: PASS_PCT })}</p>}
           {free && <Button className="mt-6 w-full" onClick={() => setPay("")}>{t("Unlock all units with Premium")}</Button>}
-          {!free && complete && next && <Button asChild className="mt-6 w-full"><Link to="/learn" search={{ lesson: next }}>Start {LESSONS[next].en}</Link></Button>}
+          {!free && complete && next && <Button asChild className="mt-6 w-full"><Link to="/learn" search={{ lesson: next }}>{t("Start {lesson}", { lesson: t(LESSONS[next].en) })}</Link></Button>}
           {!free && passed && !complete && <Button asChild className="mt-6 w-full"><Link to={unitState(progress, lesson).lessonsDone ? "/quiz" : "/learn"} search={{ lesson }}>{t("Continue this unit")}</Link></Button>}
           <Button asChild variant="outline" className="mt-3 w-full"><Link to="/">{t("Back to Home")}</Link></Button>
           <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => {
@@ -177,9 +177,9 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
 
   return (
     <AppShell title={t("Reading test")}>
-      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{LESSONS[lesson].en} · Word {i + 1} of {words.length}</span><span>{correct} correct</span></div>
+      <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span>{t(LESSONS[lesson].en)} · {t("Word {current} of {total}", { current: i + 1, total: words.length })}</span><span>{t("{score} correct", { score: correct })}</span></div>
       {quota && (quota.premium || quota.enforced) && <p className="mb-2 text-center text-xs text-muted-foreground" aria-live="polite">
-        {quota.premium ? `Premium · ${Math.max(0, quota.limit - quota.used)} of ${quota.limit} checks left this month` : `${Math.max(0, quota.limit - quota.used)} of ${quota.limit} free checks left`}
+        {quota.premium ? t("Premium · {left} of {total} checks left this month", { left: Math.max(0, quota.limit - quota.used), total: quota.limit }) : t("{left} of {total} free checks left", { left: Math.max(0, quota.limit - quota.used), total: quota.limit })}
         {!quota.premium && <button className="ml-2 font-medium text-primary underline" onClick={() => setPay("")}>{t("Go Premium")}</button>}
       </p>}
       <div className="mb-4 flex gap-1">{words.map((_, k) => <div key={k} className={`h-1.5 flex-1 rounded-full ${k < i ? "bg-primary" : "bg-muted"}`} />)}</div>

@@ -59,8 +59,8 @@ function Learn() {
   return (
     <AppShell title={`${t(L.en)} · ${L.ar}`} singleScreen>
       <div className="activity-meta grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground">
-        <span>Word {i + 1} of {WORDS.length}</span>
-        <label className="flex items-center gap-2">Transliteration
+        <span>{t("Word {current} of {total}", { current: i + 1, total: WORDS.length })}</span>
+        <label className="flex items-center gap-2">{t("Transliteration")}
           <input type="checkbox" checked={p.translit} onChange={(e) => update((s) => ({ ...s, translit: e.target.checked }))} className="accent-primary" />
         </label>
       </div>
@@ -70,17 +70,17 @@ function Learn() {
         <div className="lesson-word">
           <Ar className="block font-semibold">{w.ar}</Ar>
           {p.translit && <p className="text-sm text-muted-foreground">{w.tr}</p>}
-          <p className="text-sm font-medium">{w.en}</p>
+          <p lang="en" dir="ltr" className="text-sm font-medium">{w.en}</p>
         </div>
         <div dir="rtl" className="lesson-sounds flex justify-center gap-3">
           {w.units.map((u, k) => (
-            <Button key={k} variant="outline" aria-label={`Play sound ${u}`} aria-pressed={selectedSound === k} onClick={() => { setSelectedSound(k); playUnit(u); }} className={`sound-button ${selectedSound === k ? "border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : "border-primary/20 bg-accent text-primary"}`}>
+            <Button key={k} variant="outline" aria-label={t("Play sound {sound}", { sound: u })} aria-pressed={selectedSound === k} onClick={() => { setSelectedSound(k); playUnit(u); }} className={`sound-button ${selectedSound === k ? "border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : "border-primary/20 bg-accent text-primary"}`}>
               <Ar>{u}</Ar>
             </Button>
           ))}
         </div>
         <Button onClick={() => { setSelectedSound(null); playWord(w.ar); }} className="activity-command w-full shrink-0">
-          <Volume2 className="h-5 w-5" /> Listen to the word
+          <Volume2 className="h-5 w-5" />{t("Listen to the word")}
         </Button>
       </div>
       <div className="activity-actions flex gap-3">
@@ -89,14 +89,14 @@ function Learn() {
       </div>
       {freeDone && (
         <div className="lesson-completion grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-          <p className="text-xs font-semibold text-primary">All {FREE_WORDS.length} free words learned</p>
+          <p className="text-xs font-semibold text-primary">{t("All {total} free words learned", { total: FREE_WORDS.length })}</p>
           <Button asChild variant="outline" size="sm"><Link to="/quiz" search={{ lesson }}>{t("Free quizzes")}<ChevronRight /></Link></Button>
         </div>
       )}
-      <Paywall open={pay} onClose={() => setPay(false)} reason={`You've reached the end of the ${FREE_WORDS.length} free Fatha words. The rest of Fatha and every other unit are part of Premium.`} />
+      <Paywall open={pay} onClose={() => setPay(false)} reason={t("You've reached the end of the {total} free Fatha words. The rest of Fatha and every other unit are part of Premium.", { total: FREE_WORDS.length })} />
       {!free && unit?.lessonsDone && (
         <div className="lesson-completion grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-          <p className="text-xs font-semibold text-primary">{unit.complete ? t("Unit complete") : `All ${unit.total} words learned`}</p>
+          <p className="text-xs font-semibold text-primary">{unit.complete ? t("Unit complete") : t("All {total} words learned", { total: unit.total })}</p>
           <Button asChild variant="outline" size="sm"><Link to={unit.step === "test" ? "/test" : "/quiz"} search={{ lesson }}>{unit.step === "test" ? t("Take the test") : t("Take the quiz")}<ChevronRight /></Link></Button>
         </div>
       )}

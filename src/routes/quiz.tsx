@@ -46,7 +46,7 @@ function QuizRoute() {
   if (!access.premium) {
     const fq = FREE_QUIZZES.find((x) => x.n === q);
     if (!fq || !freeQuizOpen(fq.n, done)) return <FreeQuizList done={done} />;
-    return <Quiz key={`free-${fq.n}`} lesson={lesson} words={fq.words} label={`Free quiz ${fq.n} · ${t(fq.title)}`} forced={fq.mode} length={FREE_QUIZ_LENGTH} onFinish={() => markFreeQuiz(fq.n)} freeN={fq.n} />;
+    return <Quiz key={`free-${fq.n}`} lesson={lesson} words={fq.words} label={t("Free quiz {number} · {title}", { number: fq.n, title: t(fq.title) })} forced={fq.mode} length={FREE_QUIZ_LENGTH} onFinish={() => markFreeQuiz(fq.n)} freeN={fq.n} />;
   }
   if (!p) return <AppShell title={t("Quiz")}><div className="h-96" aria-busy="true" /></AppShell>;
   const s = unitState(p, lesson);
@@ -58,10 +58,10 @@ function FreeQuizList({ done }: { done: number[] }) {
   const { t } = useLanguage();
   return (
     <AppShell title={t("Free quizzes")}>
-      <p className="mb-3 text-sm text-muted-foreground">Five quizzes on your 10 free Fatha words. Each one opens after the one before it.</p>
+      <p className="mb-3 text-sm text-muted-foreground">{t("Five quizzes on your 10 free Fatha words. Each one opens after the one before it.")}</p>
       <div className="space-y-2">{FREE_QUIZZES.map((fq) => {
         const open = freeQuizOpen(fq.n, done);
-        const body = <><span className="min-w-0"><span className="block text-sm font-bold">Quiz {fq.n}</span><span className="block text-xs text-muted-foreground">{t(fq.title)}</span></span>
+        const body = <><span className="min-w-0"><span className="block text-sm font-bold">{t("Quiz {number}", { number: fq.n })}</span><span className="block text-xs text-muted-foreground">{t(fq.title)}</span></span>
           {done.includes(fq.n) ? <Check className="h-4 w-4 text-success" /> : open ? <ChevronRight className="h-4 w-4 text-primary" /> : <LockKeyhole className="h-4 w-4 text-muted-foreground" />}</>;
         return open
           ? <Link key={fq.n} to="/quiz" search={{ lesson: "fatha", q: fq.n }} className="learning-surface flex min-h-16 items-center justify-between gap-3 p-4">{body}</Link>
@@ -111,10 +111,10 @@ function Quiz({ lesson, words: WORDS, label, forced, length, onFinish, freeN }: 
         <div className="learning-surface p-7 text-center">
           <Trophy className={`mx-auto h-12 w-12 ${passed ? "text-gold" : "text-muted-foreground"}`} />
           <h2 className="mt-3 text-2xl font-bold">{passed ? t("Quiz passed") : t("Keep practising")}</h2>
-          <p className="mt-2 text-muted-foreground">{score} of {total} correct · {pct}%</p>
-          {!passed && <p className="mt-1 text-xs text-muted-foreground">You need {PASS_PCT}% to pass this unit’s quiz.</p>}
+          <p className="mt-2 text-muted-foreground">{t("{score} of {total} correct · {percent}%", { score, total, percent: pct })}</p>
+          {!passed && <p className="mt-1 text-xs text-muted-foreground">{t("You need {percent}% to pass this unit’s quiz.", { percent: PASS_PCT })}</p>}
           {freeN ? <Button asChild className="mt-6 w-full">{freeN < 5 ? <Link to="/quiz" search={{ lesson, q: freeN + 1 }}>{t("Next free quiz")}</Link> : <Link to="/test" search={{ lesson }}>{t("Take the free reading test")}</Link>}</Button>
-            : passed && <Button asChild className="mt-6 w-full"><Link to="/test" search={{ lesson }}>Take the {t(label)} reading test</Link></Button>}
+            : passed && <Button asChild className="mt-6 w-full"><Link to="/test" search={{ lesson }}>{t("Take the {lesson} reading test", { lesson: t(label) })}</Link></Button>}
           <Button variant={passed ? "outline" : "default"} className="mt-3 w-full" onClick={() => { setN(0); setScore(0); setMisses([]); setAnswered(false); setRound((r) => r + 1); }}>{t("Try the quiz again")}</Button>
         </div>
       </AppShell>
@@ -123,7 +123,7 @@ function Quiz({ lesson, words: WORDS, label, forced, length, onFinish, freeN }: 
   if (!q) return null;
   return (
     <AppShell title={t("Quiz")} singleScreen>
-      <div className="activity-meta grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span className="min-w-0">{t(label)} · {n + 1}/{total}</span><span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-2 py-1 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{score} correct</span></div>
+      <div className="activity-meta grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 text-xs text-muted-foreground"><span className="min-w-0">{t(label)} · {n + 1}/{total}</span><span className="flex shrink-0 items-center gap-1.5 rounded-lg bg-accent px-2 py-1 font-semibold text-primary"><Check className="h-3.5 w-3.5" />{t("{score} correct", { score })}</span></div>
       <progress aria-label="Quiz progress" className="qaf-progress h-1.5 w-full shrink-0" value={n} max={total} />
       {q.mode === "build" && <BuildQuestion key={`${round}-${n}`} w={q.w} words={WORDS} onDone={done} />}
       {q.mode !== "build" && <PickQuestion key={`${round}-${n}`} w={q.w} opts={q.opts} mode={q.mode} onDone={done} />}
