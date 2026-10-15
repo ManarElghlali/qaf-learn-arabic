@@ -4,7 +4,7 @@ import { Check, LoaderCircle, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { buy, FALLBACK_PRICE, restore, storeAvailable, storePrices, type Plan } from "@/lib/purchases";
 
-export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () => void; reason?: string }) {
+export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () => void; reason?: string | undefined }) {
   const [plan, setPlan] = useState<Plan>("yearly");
   const [prices, setPrices] = useState<Partial<Record<Plan, string>>>({});
   const [store, setStore] = useState<boolean | null>(null);
