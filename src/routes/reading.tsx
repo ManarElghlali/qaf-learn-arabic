@@ -26,10 +26,10 @@ export const Route = createFileRoute("/reading")({
 });
 
 const stages = [
-  { ar: "الأصوات القصيرة", en: t("Short Sounds"), image: castle, landmark: "Castle", accent: "bg-stage-sage", live: true, lessons: SHORT_LESSONS },
-  { ar: "الأصوات الطويلة", en: t("Long Sounds"), image: lighthouse, landmark: "Lighthouse", accent: "bg-stage-sky", live: true, lessons: MADD_LESSONS },
-  { ar: "التنوين", en: t("Tanween"), image: garden, landmark: "Garden", accent: "bg-stage-lavender", live: true, lessons: TANWEEN_LESSONS },
-  { ar: "الشدة", en: t("Shaddah"), image: observatory, landmark: "Observatory", accent: "bg-stage-gold", live: true, lessons: SHADDAH_LESSONS },
+  { ar: "الأصوات القصيرة", en: "Short Sounds", image: castle, landmark: "Castle", accent: "bg-stage-sage", live: true, lessons: SHORT_LESSONS },
+  { ar: "الأصوات الطويلة", en: "Long Sounds", image: lighthouse, landmark: "Lighthouse", accent: "bg-stage-sky", live: true, lessons: MADD_LESSONS },
+  { ar: "التنوين", en: "Tanween", image: garden, landmark: "Garden", accent: "bg-stage-lavender", live: true, lessons: TANWEEN_LESSONS },
+  { ar: "الشدة", en: "Shaddah", image: observatory, landmark: "Observatory", accent: "bg-stage-gold", live: true, lessons: SHADDAH_LESSONS },
 ];
 
 function Reading() {
@@ -45,7 +45,7 @@ function Reading() {
   const completed = cur.complete;
   const stageStatus = (ls: readonly object[]) => {
     const us = units.filter((u) => ls.some((l) => (l as { lesson?: string }).lesson === u.id));
-    return us.length && us.every((u) => u.complete) ? t("Completed") : us.some((u) => u.learned > 0) ? t("In progress") : t("Available");
+    return us.length && us.every((u) => u.complete) ? "Completed" : us.some((u) => u.learned > 0) ? "In progress" : "Available";
   };
   const stepRoute = cur.step === "quiz" ? "/quiz" : cur.step === "test" ? "/test" : "/learn";
   const actionLabel = completed ? `Review ${t(L.en)}` : cur.step === "quiz" ? t("Take the quiz") : cur.step === "test" ? "Take the reading test" : started ? t("Continue") : t("Start Learning");
