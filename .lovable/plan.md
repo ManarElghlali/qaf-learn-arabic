@@ -85,11 +85,59 @@ Nothing has been changed yet. This plan follows your "Final Free vs Premium Requ
 
 Unchanged: Arabic text, recordings, existing quizzes, progress and reminders.
 
-## 7. Please confirm
+## 7. Confirmed details
 
-1. **"5 quizzes":** 5 separate quiz rounds on the 10 words (assumed)? Or 5 questions in total?
-2. **Free reading test:** may a free learner take a test on the 10 words? This is where the 5 AI checks are used.
-3. **Before purchases are live,** should the locks already be switched on? Or kept off, like the check limit, until purchases are tested? If they're switched on now, nobody can unlock Premium yet.
+### The 5 free quizzes
+
+All 5 quizzes use only the 10 free Fatha words. They use the existing quiz screens and scoring, and none of them use AI. Each quiz has 6 questions.
+
+| Quiz | Words | Question type |
+|---|---|---|
+| 1 | Words 1–5 | Listen and pick the word |
+| 2 | Words 6–10 | Listen and pick the word |
+| 3 | All 10 | Match the picture to the word |
+| 4 | All 10 | Build the word from letter blocks |
+| 5 | All 10 | Mixed review of all three types |
+
+Quizzes open in order: each one unlocks after the one before it is finished.
+
+### Free reading test
+
+- One reading test on the 10 free words.
+- It shares the same 5 AI checks in total. Quizzes never add extra checks.
+- When the checks run out, the test shows the Premium screen.
+- On the server, the checker only accepts those 10 words from free devices.
+
+### Rollout: locks now, Premium in testing only
+
+- The free locks are switched on now, everywhere, and tested.
+- Premium can only be unlocked with Apple/Google test (sandbox) purchases in TestFlight and Play internal-testing builds.
+- The public app and website show locked items with "Premium is coming soon". There's no Subscribe button until the purchase flow has been tested on both iPhone and Android.
+- The 5-check limit stays off until then.
+- One switch on the server turns on the final paywall and the 5-check limit together, with no app update needed.
+
+### Purchase scenarios that will be verified with sandbox accounts
+
+| Case | Expected result |
+|---|---|
+| Buy monthly or yearly | Premium is active after the server checks it |
+| Restore on the same phone, or a new or reset phone | Premium comes back if the store account has an active subscription |
+| Copied receipt or transaction number on another phone | Rejected |
+| Renewal | The next server check extends Premium, and 100 new checks start |
+| Cancellation | Premium lasts until the paid period ends, then turns off |
+| Expiry, refund or revoked purchase | Premium turns off at the next check, and offline files are cleared |
+| Offline Premium | Works until the period ends, plus 3 days, without internet; after that it must reconnect |
+
+Sandbox subscriptions renew every few minutes, so a whole year can be tested in an hour. Each case will be checked on both platforms, and I'll report the results.
+
+### Limits of not having accounts
+
+- **Tied to the phone and store account.** If the app is deleted, Restore is needed, and it only works when signed in to the same Apple ID or Google account.
+- **No sharing between platforms.** An iPhone subscription can't unlock an Android phone, and the reverse. This would need accounts.
+- **One phone at a time.** A family sharing one Apple ID can move Premium between phones with Restore, but only one phone has it at a time.
+- **Unused AI checks belong to the phone.** If a learner restores on a new phone, the month's count carries over with the subscription. Free checks don't carry over.
+- **Offline content is stored in the app.** A determined person could tamper with their own copy to read locked text. Recordings, AI checks and Premium status stay protected by the server.
+- **Support** can't look anyone up by name or email. It can only help using store receipts.
 
 ## Technical notes
 

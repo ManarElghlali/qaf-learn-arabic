@@ -65,3 +65,4 @@
 - [ ] Turn on free 5-check quota once store billing exists
 
 - [ ] Free vs Premium gating (10 free Fatha words, 5 quizzes, Fatha sound set, Premium-only offline, secure receipts) — awaiting plan approval
+- [ ] Free locks live now; Premium via sandbox only; verify restore/renew/cancel/expiry/offline on iOS+Android — awaiting approval
