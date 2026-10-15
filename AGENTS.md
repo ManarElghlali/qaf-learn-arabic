@@ -31,3 +31,4 @@
 - Native shells (capacitor.config.ts) load dist/client and call the checker via VITE_API_BASE; the checker's CORS allow-list covers capacitor://localhost and https://localhost.
 - Native builds run `bun run build:native` (CAPACITOR=1 build, scripts/native-shell.ts renders a static index.html, then cap sync), so the web build stays server-rendered while ios/ and android/ get a static shell.
 - Premium check limits come only from server-side premium_entitlements rows (per billing period, counted in check_premium_usage by consume_check); rows must be written only after store receipt verification, never from the client.
+- Premium is granted only by /api/public/verify-receipt (src/lib/store-verify.server.ts) after App Store Server API / Play Developer API confirm an active subscription; the client premium flag is a display cache synced from /api/public/check-status, so it can never unlock checks.
