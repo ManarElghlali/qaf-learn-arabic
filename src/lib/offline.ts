@@ -21,7 +21,7 @@ async function unregisterStale() {
 
 /** Store every screen and every teacher recording once, quietly, so lessons open offline. */
 async function warm() {
-  const pages = ["/", "/reading", "/sounds", "/learn", "/quiz", "/test", "/profile", "/welcome", "/privacy",
+  const pages = ["/", "/reading", "/sounds", "/learn", "/quiz", "/test", "/profile", "/welcome",
     ...SOUND_CATEGORIES.map((c) => `/sounds/${c.id}`), ...SOUND_CATEGORIES.flatMap((c) => c.sets.map((s) => `/sounds/practice/${s.id}`))];
   const pageCache = await caches.open("qaf-pages");
   for (const p of pages) { if (!(await pageCache.match(p))) await pageCache.add(p).catch(() => {}); }
