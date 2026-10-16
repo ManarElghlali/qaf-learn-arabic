@@ -8,8 +8,10 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
 
 const native = process.env["CAPACITOR"] === "1";
-// Native (CAPACITOR=1) builds land in Nitro's .output/public, the web build in dist/client.
-const clientOutDir = native ? ".output/public" : "dist/client";
+// Nitro writes the prerendered site to .output/public on the user's machine; inside the
+// Lovable sandbox the build is pinned to dist/client, so match wherever the client lands.
+const inSandbox = process.env["LOVABLE_SANDBOX"] === "1" || !!process.env["DEV_SERVER__PROJECT_PATH"];
+const clientOutDir = native && !inSandbox ? ".output/public" : "dist/client";
 
 export default defineConfig({
   tanstackStart: {
