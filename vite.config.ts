@@ -7,20 +7,17 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
 
-// Phone-app builds (CAPACITOR=1) write the static client straight into the folder Capacitor reads.
-const native = process.env["CAPACITOR"] === "1";
-const clientOutDir = native ? ".output/public" : "dist/client";
-
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
     // Native builds (CAPACITOR=1) prerender the home page to static HTML for Capacitor; the web build stays server-rendered.
-    ...(native ? { pages: [{ path: "/" }], prerender: { enabled: true, autoStaticPathsDiscovery: false } } : {}),
+    ...(process.env["CAPACITOR"]
+      ? { pages: [{ path: "/" }], prerender: { enabled: true, autoStaticPathsDiscovery: false } }
+      : {}),
   },
   vite: {
-    environments: { client: { build: { outDir: clientOutDir } } },
     plugins: [
       VitePWA({
         strategies: "generateSW",
@@ -29,10 +26,9 @@ export default defineConfig({
         devOptions: { enabled: false },
         manifest: false,
         filename: "sw.js",
-        outDir: clientOutDir,
+        outDir: "dist/client",
         workbox: {
-          // Every screen's code, styles and artwork are stored, so unvisited lessons still open offline.
-          globDirectory: clientOutDir,
+          globDirectory: "dist/client",
           globPatterns: ["**/*.{js,css,jpg,png,svg,ico,woff2}"],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallback: null,
