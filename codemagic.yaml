@@ -1,7 +1,7 @@
 workflows:
   android:
     name: Qaf Android
-    instance_type: linux_x2
+    instance_type: linux
     environment:
       node: 22
       java: 21
