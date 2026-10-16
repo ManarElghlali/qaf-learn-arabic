@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:native": "CAPACITOR=1 VITE_API_BASE=https://qaf-learn-arabic.lovable.app vite build && bun ./scripts/native-shell.ts && cap sync"
+    "build:native": "cross-env CAPACITOR=1 VITE_API_BASE=https://qaf-learn-arabic.lovable.app vite build && tsx ./scripts/native-shell.ts && cap sync"
   },
   "overrides": {
     "rolldown": "1.2.1"
@@ -88,6 +88,7 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "cross-env": "^10.1.0",
     "drizzle-kit": "0.x",
     "drizzle-orm": "0.x",
     "eslint": "^9.32.0",
@@ -100,6 +101,7 @@
     "nitro": "3.0.260603-beta",
     "postgres": "^3.4.9",
     "prettier": "^3.7.3",
+    "tsx": "^4.23.15",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "8.1.5",
