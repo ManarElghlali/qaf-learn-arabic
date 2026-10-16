@@ -28,7 +28,6 @@ export default defineConfig({
         filename: "sw.js",
         outDir: "dist/client",
         workbox: {
-          // Every screen's code, styles and artwork are stored, so unvisited lessons still open offline.
           globDirectory: "dist/client",
           globPatterns: ["**/*.{js,css,jpg,png,svg,ico,woff2}"],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
