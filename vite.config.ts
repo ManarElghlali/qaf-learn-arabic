@@ -7,15 +7,17 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
 
+// Phone-app builds (CAPACITOR=1) write the static client straight into the folder Capacitor reads.
+const native = process.env["CAPACITOR"] === "1";
+const clientOutDir = native ? ".output/public" : "dist/client";
+
 export default defineConfig({
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
     server: { entry: "server" },
     // Native builds (CAPACITOR=1) prerender the home page to static HTML for Capacitor; the web build stays server-rendered.
-    ...(process.env["CAPACITOR"]
-      ? { pages: [{ path: "/" }], prerender: { enabled: true, autoStaticPathsDiscovery: false } }
-      : {}),
+    ...(native ? { pages: [{ path: "/" }], prerender: { enabled: true, autoStaticPathsDiscovery: false } } : {}),
   },
   vite: {
     plugins: [
