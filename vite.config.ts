@@ -4,38 +4,14 @@
 //     nitro (build-only using cloudflare as a default target), VITE_* env injection, @ path alias,
 //     React/TanStack dedupe, error logger plugins, and sandbox detection (port/host/strictPort).
 // You can pass additional config via defineConfig({ vite: { ... }, etc... }) if needed.
-import { existsSync } from "node:fs";
-import { cp, rm } from "node:fs/promises";
-import { join, resolve } from "node:path";
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
-import type { Plugin } from "vite";
-
-// Phone-app builds (CAPACITOR=1) always finish in dist/client, so move the finished site into
-// the folder capacitor.config.ts points at (.output/public) once pages are prerendered.
-function capacitorWebAssets(): Plugin {
-  return {
-    name: "qaf-capacitor-web-assets",
-    // Sorted after every other plugin, so the copy runs once the start page is prerendered.
-    enforce: "post",
-    apply: "build",
-    buildApp: {
-      order: "post",
-      async handler() {
-        const from = resolve("dist/client");
-        const to = resolve(".output/public");
-        if (!existsSync(join(from, "index.html"))) {
-          throw new Error(`qaf-capacitor-web-assets: ${from} has no index.html to publish for Capacitor`);
-        }
-        await rm(to, { recursive: true, force: true });
-        await cp(from, to, { recursive: true });
-        console.log(`[qaf] copied ${from} -> ${to}`);
-      },
-    },
-  };
-}
 
 const native = process.env["CAPACITOR"] === "1";
+// Nitro writes the prerendered site to .output/public on the user's machine; inside the
+// Lovable sandbox the build is pinned to dist/client, so match wherever the client lands.
+const inSandbox = process.env["LOVABLE_SANDBOX"] === "1" || !!process.env["DEV_SERVER__PROJECT_PATH"];
+const clientOutDir = native && !inSandbox ? ".output/public" : "dist/client";
 
 export default defineConfig({
   tanstackStart: {
@@ -46,16 +22,16 @@ export default defineConfig({
     ...(native ? { pages: [{ path: "/" }], prerender: { enabled: true, autoStaticPathsDiscovery: false } } : {}),
   },
   vite: {
-    plugins: [...(native ? [capacitorWebAssets()] : []), VitePWA({
+    plugins: [VitePWA({
       strategies: "generateSW",
       registerType: "autoUpdate",
       injectRegister: null,
       devOptions: { enabled: false },
       manifest: false,
       filename: "sw.js",
-      outDir: "dist/client",
+      outDir: clientOutDir,
       workbox: {
-        globDirectory: "dist/client",
+        globDirectory: clientOutDir,
         globPatterns: ["**/*.{js,css,jpg,png,svg,ico,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: null,
