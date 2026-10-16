@@ -20,6 +20,7 @@ export default defineConfig({
     ...(native ? { pages: [{ path: "/" }], prerender: { enabled: true, autoStaticPathsDiscovery: false } } : {}),
   },
   vite: {
+    environments: { client: { build: { outDir: clientOutDir } } },
     plugins: [
       VitePWA({
         strategies: "generateSW",
@@ -28,10 +29,10 @@ export default defineConfig({
         devOptions: { enabled: false },
         manifest: false,
         filename: "sw.js",
-        outDir: "dist/client",
+        outDir: clientOutDir,
         workbox: {
           // Every screen's code, styles and artwork are stored, so unvisited lessons still open offline.
-          globDirectory: "dist/client",
+          globDirectory: clientOutDir,
           globPatterns: ["**/*.{js,css,jpg,png,svg,ico,woff2}"],
           maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallback: null,
