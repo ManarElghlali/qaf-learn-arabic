@@ -16,6 +16,8 @@ import type { Plugin } from "vite";
 function capacitorWebAssets(): Plugin {
   return {
     name: "qaf-capacitor-web-assets",
+    // Sorted after every other plugin, so the copy runs once the start page is prerendered.
+    enforce: "post",
     apply: "build",
     buildApp: {
       order: "post",
