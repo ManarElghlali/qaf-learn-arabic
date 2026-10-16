@@ -4,7 +4,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const config: CapacitorConfig = {
   appId: "app.qaf.learnarabic",
   appName: "Qaf Learn Arabic",
-  webDir: "dist/client",
+  webDir: ".output/public",
   ios: { contentInset: "never" },
   android: { allowMixedContent: false },
   plugins: {
