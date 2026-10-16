@@ -8,6 +8,8 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import { VitePWA } from "vite-plugin-pwa";
 
 const native = process.env["CAPACITOR"] === "1";
+// Native (CAPACITOR=1) builds land in Nitro's .output/public, the web build in dist/client.
+const clientOutDir = native ? ".output/public" : "dist/client";
 
 export default defineConfig({
   tanstackStart: {
@@ -25,9 +27,9 @@ export default defineConfig({
       devOptions: { enabled: false },
       manifest: false,
       filename: "sw.js",
-      outDir: "dist/client",
+      outDir: clientOutDir,
       workbox: {
-        globDirectory: "dist/client",
+        globDirectory: clientOutDir,
         globPatterns: ["**/*.{js,css,jpg,png,svg,ico,woff2}"],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         navigateFallback: null,
