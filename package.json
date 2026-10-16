@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "build:native": "cross-env CAPACITOR=1 NITRO_PRESET=static VITE_API_BASE=https://qaf-learn-arabic.lovable.app vite build && cap sync"
+    "build:native": "cross-env CAPACITOR=1 NITRO_PRESET=static VITE_API_BASE=https://qaf-learn-arabic.lovable.app vite build && node -e \"require('fs').cpSync('dist/client','.output/public',{recursive:true})\" && cap sync"
   },
   "overrides": {
     "rolldown": "1.2.1"
