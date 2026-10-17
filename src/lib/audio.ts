@@ -98,7 +98,7 @@ export function playUnits(units: string[]) {
 }
 
 /** Every teacher recording URL, used to store them for offline use. */
-export const allRecordingUrls = () => [...new Set([...Object.values(stored).map((s) => s.url), ...Object.values(files)])];
+export const allRecordingUrls = () => [...new Set([...Object.values(stored).map((s) => absolute(s.url)), ...Object.values(files)])];
 
 /** Starts downloading recordings ahead of time so the first tap plays without delay. */
 export function preloadAudio(kind: "w" | "u", texts: string[]) {
