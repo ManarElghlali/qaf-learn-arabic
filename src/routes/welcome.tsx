@@ -5,6 +5,8 @@ import { Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { FirstQuiz } from "@/components/FirstQuiz";
 import { WordIllustration } from "@/components/WordIllustration";
+import qafSculpture from "@/assets/onboarding/qaf-sculpture.jpg";
+import readingBook from "@/assets/onboarding/reading-book.jpg";
 import { WORDS } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { completeOnboarding, ONBOARDING_STEPS, patchOnboarding, readOnboarding, recommend, saveStep, type Onboarding, type Recommendation } from "@/lib/onboarding";
@@ -25,11 +27,11 @@ export const Route = createFileRoute("/welcome")({
 const QUIZ_STEP = 7;
 const LISTENING_WORD = WORDS.find((word) => word.ar === "أَكَلَ");
 
-function Choice({ selected, onClick, icon, title, hint }: { selected: boolean; onClick: () => void; icon: ReactNode; title: ReactNode; hint?: ReactNode }) {
+function Choice({ selected, onClick, icon, title, hint }: { selected: boolean; onClick: () => void; icon?: ReactNode; title: ReactNode; hint?: ReactNode }) {
   return (
     <Button variant="outline" type="button" role="radio" aria-checked={selected} onClick={onClick}
       className={`flex min-h-[4.5rem] w-full items-center gap-3.5 rounded-3xl p-4 text-start whitespace-normal transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selected ? "glass-card-selected border-2" : "glass-card"}`}>
-      <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl transition-colors ${selected ? "bg-primary/15 text-primary" : "bg-accent text-primary"}`}>{icon}</span>
+      {icon && <span className="onboarding-choice-icon grid h-14 w-14 shrink-0 place-items-center rounded-full text-primary">{icon}</span>}
       <span className="min-w-0 flex-1">
         <span className="block font-bold leading-snug">{title}</span>
         {hint && <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{hint}</span>}
@@ -42,7 +44,7 @@ function Choice({ selected, onClick, icon, title, hint }: { selected: boolean; o
 function StepTitle({ children, hint }: { children: ReactNode; hint?: ReactNode }) {
   return (
     <div className="w-full text-start">
-      <h1 className="text-[1.75rem] font-extrabold leading-tight tracking-tight">{children}</h1>
+      <h1 className="onboarding-heading text-[1.75rem] font-extrabold leading-tight">{children}</h1>
       {hint && <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{hint}</p>}
     </div>
   );
@@ -74,18 +76,9 @@ function Welcome() {
   let body: ReactNode = null, primary: ReactNode = null;
   if (step === 0) {
     body = <>
-      <div className="relative grid place-items-center py-2">
-        <span className="glass-orb liquid-float grid h-44 w-44 place-items-center rounded-full">
-          <Ar className="text-8xl font-bold text-primary drop-shadow-sm">ق</Ar>
-        </span>
-        <Ar className="liquid-float-slow absolute -end-2 top-2 text-2xl font-bold text-primary/25">ب</Ar>
-        <Ar className="liquid-float absolute -start-3 bottom-4 text-xl font-bold text-primary/20">ت</Ar>
-        <span className="liquid-float-slow absolute end-6 bottom-0 h-3 w-3 rounded-full bg-stage-gold/70" />
-        <span className="liquid-float absolute start-8 top-0 h-2 w-2 rounded-full bg-primary/30" />
-      </div>
-      <div className="w-full text-start">
-        <Ar className="text-xl font-bold text-primary">أَهْلًا وَسَهْلًا</Ar>
-        <h1 className="mt-1 text-3xl font-extrabold leading-tight tracking-tight">{t("Arabic, one sound at a time.")}</h1>
+      <img src={qafSculpture} alt="ق" width={768} height={1024} className="onboarding-welcome-art" />
+      <div className="onboarding-welcome-copy w-full text-start">
+        <h1 className="mt-1 max-w-64 text-3xl font-extrabold leading-tight">{t("Arabic, one sound at a time.")}</h1>
         <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">{t("A new language, a bigger world. No account needed.")}</p>
       </div>
     </>;
@@ -94,14 +87,14 @@ function Welcome() {
     body = <>
       <StepTitle hint={t("Select your preferred language for the app.")}>{t("Choose your language")}</StepTitle>
       <div role="radiogroup" aria-label={t("App language")} className="grid w-full gap-3">
-        <Choice selected={language === "en"} onClick={() => setLanguage("en")} icon={<span lang="en" dir="ltr" className="text-lg font-extrabold">A</span>} title={<span lang="en" dir="ltr" className="text-lg">English</span>} />
-        <Choice selected={language === "ar"} onClick={() => setLanguage("ar")} icon={<Ar className="text-xl font-bold">ع</Ar>} title={<Ar className="text-xl">العربية</Ar>} />
+        <Choice selected={language === "en"} onClick={() => setLanguage("en")} title={<span lang="en" dir="ltr" className="text-lg">English</span>} />
+        <Choice selected={language === "ar"} onClick={() => setLanguage("ar")} title={<Ar className="text-xl">العربية</Ar>} />
       </div>
     </>;
   } else if (step === 2) {
     body = <>
       <StepTitle hint={t("Tap a sound to hear it. Tap the speaker to hear the whole word.")}>{t("Learn by listening")}</StepTitle>
-      {LISTENING_WORD && <div className="glass-card rounded-3xl p-3"><WordIllustration word={LISTENING_WORD} className="onboarding-listening-art" /></div>}
+      {LISTENING_WORD && <WordIllustration word={LISTENING_WORD} className="onboarding-listening-art" />}
       <div dir="rtl" className="flex gap-2.5">{["أَ", "كَ", "لَ"].map((u) => <Button key={u} variant="outline" aria-label={`Hear ${u}`} onClick={() => playUnit(u)} className="sound-button glass-card h-16 w-16 rounded-2xl text-3xl text-primary"><Ar>{u}</Ar></Button>)}</div>
       <Button variant="ghost" onClick={() => playWord("أَكَلَ")} className="h-14 gap-3 rounded-full text-primary"><Volume2 className="!h-6 !w-6" /><Ar className="text-3xl">أَكَلَ</Ar><span className="text-sm text-muted-foreground">{t("He ate")}</span></Button>
     </>;
@@ -134,8 +127,8 @@ function Welcome() {
   } else if (step === 6) {
     body = <>
       <StepTitle hint={t("Based on your answers, we recommend starting with:")}>{t("Your personal learning path")}</StepTitle>
-      <div className="glass-card w-full rounded-3xl p-5 text-start">
-        {LISTENING_WORD && <div className="mb-3 grid place-items-center"><WordIllustration word={LISTENING_WORD} className="onboarding-listening-art" /></div>}
+      <div className="onboarding-recommendation glass-card w-full rounded-3xl p-4 text-center">
+        <img src={readingBook} alt={t("Reading")} width={1152} height={576} loading="lazy" className="onboarding-book-art" />
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">{t("Recommended")}</p>
         <p className="mt-0.5 text-lg font-bold">{t(rec.title)}</p>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(rec.why)}</p>
@@ -148,23 +141,17 @@ function Welcome() {
   }
 
   return (
-    <main className="qaf-onboarding relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <span className="onb-corner -top-24 -start-24 h-72 w-72 bg-accent" />
-        <span className="onb-corner -bottom-28 -end-28 h-80 w-80 bg-accent" />
-        <span className="liquid-blob liquid-float-slow top-1/4 -end-20 h-56 w-56 bg-stage-sky" />
-        <span className="liquid-blob liquid-float -bottom-16 start-1/4 h-48 w-48 bg-stage-gold/60" />
-        <Ar className="liquid-float absolute end-8 top-24 text-4xl font-bold text-primary/15">ب</Ar>
-        <Ar className="liquid-float-slow absolute start-6 top-1/2 text-3xl font-bold text-primary/10">ت</Ar>
-      </div>
-      <div className="relative flex h-11 items-center justify-between">
-        {step > 0 ? <Button variant="ghost" size="sm" onClick={() => go(step - 1)}><ChevronLeft />{t("Back")}</Button> : <span />}
+    <main className={`qaf-onboarding relative mx-auto flex w-full max-w-lg flex-col overflow-hidden bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] ${step === 0 ? "onboarding-welcome" : ""}`}>
+      <div className="relative z-10 flex h-11 shrink-0 items-center justify-between">
+        {step > 0 ? <Button variant="ghost" size="icon" aria-label={t("Back")} onClick={() => go(step - 1)}><ChevronLeft /></Button> : <span />}
         {skip && <Button variant="ghost" size="sm" onClick={skip}>{t("Skip")}</Button>}
       </div>
       {step === QUIZ_STEP ? <FirstQuiz level={o.level} onFinish={() => open(rec)} /> : <>
-        <div key={step} className="qaf-step-enter relative flex flex-1 flex-col items-center justify-center gap-5 text-center motion-reduce:animate-none">{body}</div>
-        <div className="mb-4 flex justify-center gap-1.5" aria-hidden>{Array.from({ length: ONBOARDING_STEPS }, (_, i) => <span key={i} className={`h-1.5 rounded-full transition-all ${i < step ? "w-4 bg-primary/60" : i === step ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />)}</div>
-        {primary ?? <Button className="h-14 rounded-full text-base font-semibold shadow-lg" disabled={step === 3 && !o.path} onClick={() => go(step + 1)}>{t("Continue")}<ChevronRight /></Button>}
+        <div key={step} className={`qaf-step-enter onboarding-step relative z-10 flex flex-1 flex-col items-center gap-5 text-center motion-reduce:animate-none ${step === 0 ? "justify-end" : "justify-start"}`}>{body}</div>
+        <div className="onboarding-footer relative z-10">
+          {primary ?? <Button className="h-14 w-full rounded-full text-base font-semibold" disabled={step === 3 && !o.path} onClick={() => go(step + 1)}>{t("Continue")}<ChevronRight /></Button>}
+          <div className="mt-5 flex justify-center gap-1.5" aria-hidden>{Array.from({ length: ONBOARDING_STEPS }, (_, i) => <span key={i} className={`h-1.5 rounded-full transition-all ${i === step ? "w-3 bg-primary" : "w-1.5 bg-border"}`} />)}</div>
+        </div>
       </>}
     </main>
   );

@@ -1,4 +1,5 @@
 # Onboarding and quiz adjustments
+- [x] Apply the October 17 reference treatment to welcome, first quiz and shared app surfaces; verified quiz-to-lesson flow, English/Arabic layouts, no horizontal overflow, 66 passing tests and fresh preview build OK. Installed native appearance still needs a rebuilt app.
 - [x] Add the existing matching illustration to Learn by listening and single-language path labels.
 - [x] Use three free quiz formats; update copy and migrate existing completion by matching format.
 - [x] Sample unique words for every quiz and 70% (rounded up) of each full Reading unit; 66 tests passed, latest preview build OK, and a complete six-target free quiz saved completion and opened Build the word without browser errors.

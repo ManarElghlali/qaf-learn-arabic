@@ -12,6 +12,7 @@
 - Word artwork is keyed by stable word ID in the illustration registry and rendered via WordIllustration, so Learn and Quiz match.
 - Home progress and Learn continuation come from the shared learning-summary module over saved completion IDs.
 - Shared styles and the Button component carry surfaces, sizes, safe areas and colors so screens stay coherent.
+- Onboarding artwork is imported from its asset directory; shared glass surfaces and button treatment live in global styles so visual refinements never change activity engines.
 - Home destinations use a shared disclosure component; only implemented lessons link to activities.
 - Every lesson has a stable word bank (own browser-safe module, non-overlapping IDs) and its own progress key in the lessons registry, selected by the lesson search param; in-unit navigation keeps that param.
 - unitState gates units (learn → quiz pass → test pass) with results in progress.units, so units stay independent.
