@@ -95,13 +95,20 @@ function Welcome() {
   }
 
   return (
-    <main className="qaf-onboarding mx-auto flex min-h-dvh w-full max-w-lg flex-col bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
-      <div className="flex h-11 items-center justify-between">
+    <main className="qaf-onboarding relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <span className="liquid-blob liquid-float-slow -top-16 -start-16 h-56 w-56 bg-accent" />
+        <span className="liquid-blob liquid-float top-1/3 -end-20 h-64 w-64 bg-stage-sky" />
+        <span className="liquid-blob liquid-float-slow -bottom-20 start-1/4 h-52 w-52 bg-stage-gold" />
+        <Ar className="liquid-float absolute end-8 top-24 text-4xl font-bold text-primary/15">ب</Ar>
+        <Ar className="liquid-float-slow absolute start-6 top-1/2 text-3xl font-bold text-primary/10">ت</Ar>
+      </div>
+      <div className="relative flex h-11 items-center justify-between">
         {step > 0 ? <Button variant="ghost" size="sm" onClick={() => go(step - 1)}><ChevronLeft />{t("Back")}</Button> : <span />}
         {skip && <Button variant="ghost" size="sm" onClick={skip}>{t("Skip")}</Button>}
       </div>
       {step === QUIZ_STEP ? <FirstQuiz level={o.level} onFinish={() => open(rec)} /> : <>
-        <div key={step} className="flex flex-1 animate-in fade-in flex-col items-center justify-center gap-5 text-center duration-300 motion-reduce:animate-none">{body}</div>
+        <div key={step} className="qaf-step-enter relative flex flex-1 flex-col items-center justify-center gap-5 text-center motion-reduce:animate-none">{body}</div>
         <p className="py-4 text-center text-xs text-muted-foreground" aria-live="polite">{t("Step {current} of {total}", { current: step + 1, total: ONBOARDING_STEPS })}</p>
         <div className="mb-4 flex justify-center gap-1.5" aria-hidden>{Array.from({ length: ONBOARDING_STEPS }, (_, i) => <span key={i} className={`h-1.5 rounded-full ${i < step ? "w-4 bg-primary/60" : i === step ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />)}</div>
         {primary ?? <Button className="h-14 rounded-full text-base" disabled={step === 3 && !o.path} onClick={() => go(step + 1)}>{t("Continue")}<ChevronRight /></Button>}
