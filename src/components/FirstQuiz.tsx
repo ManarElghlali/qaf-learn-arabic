@@ -4,6 +4,7 @@ import { Check, ChevronRight, RotateCcw, Star, Volume2, X } from "lucide-react";
 import { Ar } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { WordIllustration } from "@/components/WordIllustration";
+import achievement from "@/assets/onboarding/achievement.jpg";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { WORDS } from "@/lib/words";
 import { patchOnboarding, recordFirstCorrect, type Level } from "@/lib/onboarding";
@@ -37,11 +38,11 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
 
   if (!q) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 text-center">
-        <span className="grid h-20 w-20 place-items-center rounded-full bg-success-soft"><Check className="h-10 w-10 text-success" /></span>
+      <div className="onboarding-celebration relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-4 text-center">
+        <img src={achievement} alt="" width={768} height={768} loading="lazy" className="onboarding-achievement" />
         <h2 className="text-2xl font-bold">{t("You did it!")}</h2>
         <p className="max-w-xs text-muted-foreground">{t("You heard Arabic sounds and read your first word.")} <Ar className="text-xl text-primary">أَكَلَ</Ar>.</p>
-        <div className="mt-2 rounded-2xl border border-border p-3">
+        <div className="glass-card mt-2 rounded-2xl p-3">
           <p className="text-xs text-muted-foreground">{rating ? t("Thank you for your rating!") : t("Enjoying Qaf so far? (optional)")}</p>
           <div className="mt-1 flex justify-center gap-1">{[1, 2, 3, 4, 5].map((r) => (
             <Button variant="ghost" key={r} type="button" aria-label={t("Rate {rating} of 5", { rating: r })} aria-pressed={rating === r} onClick={() => { setRating(r); patchOnboarding({ rating: r }); }} className="grid h-11 w-11 place-items-center rounded-full">
@@ -66,14 +67,14 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
   const w = q.kind === "word" ? word(q.answer) : null;
 
   return (
-    <div className="flex flex-1 flex-col gap-4">
+    <div className="onboarding-first-quiz relative z-10 flex min-h-0 flex-1 flex-col gap-4">
       <div className="flex items-center gap-3 text-xs text-muted-foreground"><span>{t("Question {current} of {total}", { current: n + 1, total: qs.length })}</span><progress value={n} max={qs.length} aria-label={t("First quiz progress")} className="qaf-progress h-1.5 flex-1" /></div>
       <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-        <h2 className="text-lg font-bold">{q.kind === "sound" ? t("Which sound did you hear?") : t("Which word did you hear?")}</h2>
+        <h2 className="onboarding-heading w-full text-start text-2xl font-bold">{q.kind === "sound" ? t("Which sound did you hear?") : t("Which word did you hear?")}</h2>
         {w && <><WordIllustration word={w} className="w-28" /><p lang="en" dir="ltr" className="text-sm font-medium">{w.en}</p></>}
-        <Button aria-label={q.kind === "sound" ? t("Play the sound again") : t("Play the word again")} onClick={hear} className="h-16 w-16 rounded-full [&_svg]:size-7"><Volume2 /></Button>
+        <div className="onboarding-speaker"><Button aria-label={q.kind === "sound" ? t("Play the sound again") : t("Play the word again")} onClick={hear} className="h-16 w-16 rounded-full [&_svg]:size-7"><Volume2 /></Button></div>
       </div>
-      <div className="grid grid-cols-1 gap-2" aria-label={t("Answer choices")}>{q.choices.map((c) => {
+      <div className={`grid gap-3 ${q.kind === "sound" ? "grid-cols-3" : "grid-cols-1"}`} aria-label={t("Answer choices")}>{q.choices.map((c) => {
         const isRight = solved && c === q.answer, isWrong = wrong.includes(c);
         return (
           <Button key={c} variant="outline" aria-pressed={isRight || isWrong} disabled={solved || isWrong} onClick={() => choose(c)}
