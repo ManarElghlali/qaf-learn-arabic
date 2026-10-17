@@ -8,7 +8,7 @@ import { WordIllustration } from "@/components/WordIllustration";
 import { WORDS } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { completeOnboarding, ONBOARDING_STEPS, patchOnboarding, readOnboarding, recommend, saveStep, type Onboarding, type Recommendation } from "@/lib/onboarding";
-import { BookOpen, Check, ChevronLeft, ChevronRight, Headphones, Volume2 } from "lucide-react";
+import { BookOpen, Check, ChevronLeft, ChevronRight, Headphones, Sparkles, Sprout, Star, Volume2 } from "lucide-react";
 
 export const Route = createFileRoute("/welcome")({
   head: () => ({ meta: [
@@ -25,13 +25,26 @@ export const Route = createFileRoute("/welcome")({
 const QUIZ_STEP = 7;
 const LISTENING_WORD = WORDS.find((word) => word.ar === "أَكَلَ");
 
-function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
+function Choice({ selected, onClick, icon, title, hint }: { selected: boolean; onClick: () => void; icon: ReactNode; title: ReactNode; hint?: ReactNode }) {
   return (
     <Button variant="outline" type="button" role="radio" aria-checked={selected} onClick={onClick}
-      className={`flex min-h-16 w-full items-center gap-3 rounded-2xl p-4 text-start whitespace-normal transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selected ? "glass-card-selected border-2" : "glass-card"}`}>
-      <span className="min-w-0 flex-1">{children}</span>
-      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{selected && <Check className="h-3.5 w-3.5" />}</span>
+      className={`flex min-h-[4.5rem] w-full items-center gap-3.5 rounded-3xl p-4 text-start whitespace-normal transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selected ? "glass-card-selected border-2" : "glass-card"}`}>
+      <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl transition-colors ${selected ? "bg-primary/15 text-primary" : "bg-accent text-primary"}`}>{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-bold leading-snug">{title}</span>
+        {hint && <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{hint}</span>}
+      </span>
+      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-colors ${selected ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card/60"}`}>{selected && <Check className="h-3.5 w-3.5" />}</span>
     </Button>
+  );
+}
+
+function StepTitle({ children, hint }: { children: ReactNode; hint?: ReactNode }) {
+  return (
+    <div className="w-full text-start">
+      <h1 className="text-[1.75rem] font-extrabold leading-tight tracking-tight">{children}</h1>
+      {hint && <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{hint}</p>}
+    </div>
   );
 }
 
@@ -60,46 +73,87 @@ function Welcome() {
 
   let body: ReactNode = null, primary: ReactNode = null;
   if (step === 0) {
-    body = <><span className="glass-orb liquid-float grid h-36 w-36 place-items-center rounded-full"><Ar className="text-7xl font-bold text-primary">ق</Ar></span><Ar className="text-3xl font-bold text-primary">أَهْلًا وَسَهْلًا</Ar><h1 className="text-2xl font-bold">{t("Welcome to Qaf")}</h1><p className="max-w-xs text-muted-foreground">{t("Arabic Reading, calmly — one sound and one word at a time. No account needed.")}</p></>;
+    body = <>
+      <div className="relative grid place-items-center py-2">
+        <span className="glass-orb liquid-float grid h-44 w-44 place-items-center rounded-full">
+          <Ar className="text-8xl font-bold text-primary drop-shadow-sm">ق</Ar>
+        </span>
+        <Ar className="liquid-float-slow absolute -end-2 top-2 text-2xl font-bold text-primary/25">ب</Ar>
+        <Ar className="liquid-float absolute -start-3 bottom-4 text-xl font-bold text-primary/20">ت</Ar>
+        <span className="liquid-float-slow absolute end-6 bottom-0 h-3 w-3 rounded-full bg-stage-gold/70" />
+        <span className="liquid-float absolute start-8 top-0 h-2 w-2 rounded-full bg-primary/30" />
+      </div>
+      <div className="w-full text-start">
+        <Ar className="text-xl font-bold text-primary">أَهْلًا وَسَهْلًا</Ar>
+        <h1 className="mt-1 text-3xl font-extrabold leading-tight tracking-tight">{t("Arabic, one sound at a time.")}</h1>
+        <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted-foreground">{t("A new language, a bigger world. No account needed.")}</p>
+      </div>
+    </>;
+    primary = <Button className="h-14 rounded-full text-base font-semibold shadow-lg" onClick={() => go(1)}>{t("Let’s begin")}<ChevronRight /></Button>;
   } else if (step === 1) {
-    body = <><span className="glass-orb liquid-float-slow grid h-24 w-24 place-items-center rounded-full"><Ar className="text-5xl font-bold text-primary">ق</Ar></span><h1 className="text-2xl font-bold">{t("Choose your language")}</h1><p className="max-w-xs text-sm text-muted-foreground">{t("Select your preferred language for the app.")}</p>
+    body = <>
+      <StepTitle hint={t("Select your preferred language for the app.")}>{t("Choose your language")}</StepTitle>
       <div role="radiogroup" aria-label={t("App language")} className="grid w-full gap-3">
-        <Choice selected={language === "en"} onClick={() => setLanguage("en")}><span lang="en" dir="ltr" className="text-lg font-semibold">English</span></Choice>
-        <Choice selected={language === "ar"} onClick={() => setLanguage("ar")}><Ar className="text-2xl font-semibold">العربية</Ar></Choice>
-      </div></>;
+        <Choice selected={language === "en"} onClick={() => setLanguage("en")} icon={<span lang="en" dir="ltr" className="text-lg font-extrabold">A</span>} title={<span lang="en" dir="ltr" className="text-lg">English</span>} />
+        <Choice selected={language === "ar"} onClick={() => setLanguage("ar")} icon={<Ar className="text-xl font-bold">ع</Ar>} title={<Ar className="text-xl">العربية</Ar>} />
+      </div>
+    </>;
   } else if (step === 2) {
-    body = <><h1 className="text-2xl font-bold">{t("Learn by listening")}</h1><p className="max-w-xs text-muted-foreground">{t("Tap a sound to hear it. Tap the speaker to hear the whole word.")}</p>
-      {LISTENING_WORD && <WordIllustration word={LISTENING_WORD} className="onboarding-listening-art" />}
-      <div dir="rtl" className="flex gap-2">{["أَ", "كَ", "لَ"].map((u) => <Button key={u} variant="outline" aria-label={`Hear ${u}`} onClick={() => playUnit(u)} className="sound-button h-16 w-16 border-primary/20 bg-accent text-3xl text-primary"><Ar>{u}</Ar></Button>)}</div>
-      <Button variant="ghost" onClick={() => playWord("أَكَلَ")} className="h-14 gap-3 rounded-full text-primary"><Volume2 className="!h-6 !w-6" /><Ar className="text-3xl">أَكَلَ</Ar><span className="text-sm text-muted-foreground">{t("He ate")}</span></Button></>;
+    body = <>
+      <StepTitle hint={t("Tap a sound to hear it. Tap the speaker to hear the whole word.")}>{t("Learn by listening")}</StepTitle>
+      {LISTENING_WORD && <div className="glass-card rounded-3xl p-3"><WordIllustration word={LISTENING_WORD} className="onboarding-listening-art" /></div>}
+      <div dir="rtl" className="flex gap-2.5">{["أَ", "كَ", "لَ"].map((u) => <Button key={u} variant="outline" aria-label={`Hear ${u}`} onClick={() => playUnit(u)} className="sound-button glass-card h-16 w-16 rounded-2xl text-3xl text-primary"><Ar>{u}</Ar></Button>)}</div>
+      <Button variant="ghost" onClick={() => playWord("أَكَلَ")} className="h-14 gap-3 rounded-full text-primary"><Volume2 className="!h-6 !w-6" /><Ar className="text-3xl">أَكَلَ</Ar><span className="text-sm text-muted-foreground">{t("He ate")}</span></Button>
+    </>;
   } else if (step === 3) {
-    body = <><h1 className="text-2xl font-bold">{t("Choose your path")}</h1><p className="text-sm text-muted-foreground">{t("You can use both any time.")}</p>
+    body = <>
+      <StepTitle hint={t("You can use both or select one.")}>{t("Choose your path")}</StepTitle>
       <div role="radiogroup" aria-label="Learning path" className="grid w-full gap-3">
-        <Choice selected={o.path === "reading"} onClick={() => set({ path: "reading" })}><span className="flex items-center gap-2 font-bold"><BookOpen className="h-5 w-5 text-primary" />{t("Reading")}</span><span className="block text-xs text-muted-foreground">{t("Build and read whole words, with quizzes and reading tests.")}</span></Choice>
-        <Choice selected={o.path === "sounds"} onClick={() => set({ path: "sounds" })}><span className="flex items-center gap-2 font-bold"><Headphones className="h-5 w-5 text-primary" />{t("Sound Practice")}</span><span className="block text-xs text-muted-foreground">{t("Hear and repeat every letter with each vowel.")}</span></Choice>
-      </div></>;
+        <Choice selected={o.path === "reading"} onClick={() => set({ path: "reading" })} icon={<BookOpen className="h-6 w-6" />} title={t("Reading")} hint={t("Build and read whole words, with quizzes and reading tests.")} />
+        <Choice selected={o.path === "sounds"} onClick={() => set({ path: "sounds" })} icon={<Headphones className="h-6 w-6" />} title={t("Sound Practice")} hint={t("Hear and repeat every letter with each vowel.")} />
+      </div>
+    </>;
   } else if (step === 4) {
-    body = <><h1 className="text-2xl font-bold">{t("What is your goal?")}</h1><div role="radiogroup" aria-label={t("Goal")} className="grid w-full gap-3">
-      {([["read", "Learn to read Arabic"], ["sounds", "Improve Arabic letter sounds"], ["both", "Practise both"]] as const).map(([v, l]) => <Choice key={v} selected={o.goal === v} onClick={() => set({ goal: v })}><span className="font-semibold">{t(l)}</span></Choice>)}
-    </div></>;
+    body = <>
+      <StepTitle hint={t("This helps us personalise your experience.")}>{t("What is your goal?")}</StepTitle>
+      <div role="radiogroup" aria-label={t("Goal")} className="grid w-full gap-3">
+        <Choice selected={o.goal === "read"} onClick={() => set({ goal: "read" })} icon={<BookOpen className="h-6 w-6" />} title={t("Learn to read Arabic")} />
+        <Choice selected={o.goal === "sounds"} onClick={() => set({ goal: "sounds" })} icon={<Volume2 className="h-6 w-6" />} title={t("Improve Arabic letter sounds")} />
+        <Choice selected={o.goal === "both"} onClick={() => set({ goal: "both" })} icon={<Sparkles className="h-6 w-6" />} title={t("Practise both")} />
+      </div>
+    </>;
   } else if (step === 5) {
-    body = <><h1 className="text-2xl font-bold">{t("How familiar are you with Arabic reading?")}</h1><div role="radiogroup" aria-label={t("Experience")} className="grid w-full gap-3">
-      {([["beginner", "I’m a complete beginner"], ["letters", "I know the letters but need practice"], ["some", "I can read a little and want to improve"]] as const).map(([v, l]) => <Choice key={v} selected={o.level === v} onClick={() => set({ level: v })}><span className="font-semibold">{t(l)}</span></Choice>)}
-    </div></>;
+    body = <>
+      <StepTitle hint={t("Choose the level that best fits you.")}>{t("Where are you starting?")}</StepTitle>
+      <div role="radiogroup" aria-label={t("Experience")} className="grid w-full gap-3">
+        <Choice selected={o.level === "beginner"} onClick={() => set({ level: "beginner" })} icon={<Sprout className="h-6 w-6" />} title={t("I’m a complete beginner")} hint={t("I’ve never learned Arabic before.")} />
+        <Choice selected={o.level === "letters"} onClick={() => set({ level: "letters" })} icon={<BookOpen className="h-6 w-6" />} title={t("I know the letters but need practice")} hint={t("I can recognise the letters but want to improve.")} />
+        <Choice selected={o.level === "some"} onClick={() => set({ level: "some" })} icon={<Star className="h-6 w-6" />} title={t("I can read a little already")} hint={t("I can read some words and want to improve.")} />
+      </div>
+    </>;
   } else if (step === 6) {
-    body = <><h1 className="text-2xl font-bold">{t("Your starting point")}</h1>
-      <div className="glass-card w-full rounded-3xl p-5 text-start"><p className="text-xs text-muted-foreground">{t("Recommended")}</p><p className="text-lg font-bold">{t(rec.title)}</p><p className="mt-1 text-sm opacity-90">{t(rec.why)}</p></div>
-      {rec.alt && <Button variant="outline" className="h-12 w-full rounded-full" onClick={() => { if (rec.alt) open(rec.alt); }}>{t("Start with {lesson} instead", { lesson: t(rec.alt.title) })}</Button>}
-      <p className="text-xs text-muted-foreground">{t("You can change your answers later in Profile.")}</p></>;
-    primary = <div className="grid gap-2"><Button className="h-14 rounded-full text-base" onClick={() => go(QUIZ_STEP)}>{t("Try a 3-question first quiz")}<ChevronRight /></Button><Button variant="ghost" className="h-12 rounded-full" onClick={() => open(rec)}>{t("Go straight to {lesson}", { lesson: t(rec.title) })}</Button></div>;
+    body = <>
+      <StepTitle hint={t("Based on your answers, we recommend starting with:")}>{t("Your personal learning path")}</StepTitle>
+      <div className="glass-card w-full rounded-3xl p-5 text-start">
+        {LISTENING_WORD && <div className="mb-3 grid place-items-center"><WordIllustration word={LISTENING_WORD} className="onboarding-listening-art" /></div>}
+        <p className="text-xs font-semibold uppercase tracking-wide text-primary">{t("Recommended")}</p>
+        <p className="mt-0.5 text-lg font-bold">{t(rec.title)}</p>
+        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(rec.why)}</p>
+        <Button className="mt-4 h-12 w-full rounded-full font-semibold" onClick={() => open(rec)}>{t("Start this lesson")}<ChevronRight /></Button>
+      </div>
+      {rec.alt && <Button variant="outline" className="glass-card h-12 w-full rounded-full" onClick={() => { if (rec.alt) open(rec.alt); }}>{t("Start with {lesson} instead", { lesson: t(rec.alt.title) })}</Button>}
+      <p className="text-xs text-muted-foreground">{t("You can change your answers later in Profile.")}</p>
+    </>;
+    primary = <Button variant="ghost" className="h-12 rounded-full" onClick={() => go(QUIZ_STEP)}>{t("Try a 3-question first quiz")}<ChevronRight /></Button>;
   }
 
   return (
-    <main className="qaf-onboarding relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
+    <main className="qaf-onboarding relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]">
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <span className="liquid-blob liquid-float-slow -top-16 -start-16 h-56 w-56 bg-accent" />
-        <span className="liquid-blob liquid-float top-1/3 -end-20 h-64 w-64 bg-stage-sky" />
-        <span className="liquid-blob liquid-float-slow -bottom-20 start-1/4 h-52 w-52 bg-stage-gold" />
+        <span className="onb-corner -top-24 -start-24 h-72 w-72 bg-accent" />
+        <span className="onb-corner -bottom-28 -end-28 h-80 w-80 bg-accent" />
+        <span className="liquid-blob liquid-float-slow top-1/4 -end-20 h-56 w-56 bg-stage-sky" />
+        <span className="liquid-blob liquid-float -bottom-16 start-1/4 h-48 w-48 bg-stage-gold/60" />
         <Ar className="liquid-float absolute end-8 top-24 text-4xl font-bold text-primary/15">ب</Ar>
         <Ar className="liquid-float-slow absolute start-6 top-1/2 text-3xl font-bold text-primary/10">ت</Ar>
       </div>
@@ -109,9 +163,8 @@ function Welcome() {
       </div>
       {step === QUIZ_STEP ? <FirstQuiz level={o.level} onFinish={() => open(rec)} /> : <>
         <div key={step} className="qaf-step-enter relative flex flex-1 flex-col items-center justify-center gap-5 text-center motion-reduce:animate-none">{body}</div>
-        <p className="py-4 text-center text-xs text-muted-foreground" aria-live="polite">{t("Step {current} of {total}", { current: step + 1, total: ONBOARDING_STEPS })}</p>
-        <div className="mb-4 flex justify-center gap-1.5" aria-hidden>{Array.from({ length: ONBOARDING_STEPS }, (_, i) => <span key={i} className={`h-1.5 rounded-full ${i < step ? "w-4 bg-primary/60" : i === step ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />)}</div>
-        {primary ?? <Button className="h-14 rounded-full text-base" disabled={step === 3 && !o.path} onClick={() => go(step + 1)}>{t("Continue")}<ChevronRight /></Button>}
+        <div className="mb-4 flex justify-center gap-1.5" aria-hidden>{Array.from({ length: ONBOARDING_STEPS }, (_, i) => <span key={i} className={`h-1.5 rounded-full transition-all ${i < step ? "w-4 bg-primary/60" : i === step ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />)}</div>
+        {primary ?? <Button className="h-14 rounded-full text-base font-semibold shadow-lg" disabled={step === 3 && !o.path} onClick={() => go(step + 1)}>{t("Continue")}<ChevronRight /></Button>}
       </>}
     </main>
   );
