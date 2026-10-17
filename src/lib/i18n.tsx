@@ -176,6 +176,21 @@ export const ARABIC: Record<string, string> = {
   "Sound Practice · Fatha": "تدريب الأصوات · الفتحة"
 };
 
+Object.assign(ARABIC, {
+  "Arabic, one sound at a time.": "العربية، صوتًا واحدًا في كل مرة.",
+  "A new language, a bigger world. No account needed.": "لغة جديدة، عالم أكبر. لا حاجة إلى حساب.",
+  "Let’s begin": "هيّا نبدأ",
+  "You can use both or select one.": "يمكنك استخدام المسارين أو اختيار أحدهما.",
+  "This helps us personalise your experience.": "يساعدنا هذا على تخصيص تجربتك.",
+  "Where are you starting?": "من أين تبدأ؟",
+  "Choose the level that best fits you.": "اختر المستوى الأنسب لك.",
+  "I’ve never learned Arabic before.": "لم أتعلم العربية من قبل.",
+  "I can recognise the letters but want to improve.": "أتعرّف على الحروف لكن أريد التحسّن.",
+  "I can read some words and want to improve.": "أقرأ بعض الكلمات وأريد التحسّن.",
+  "Your personal learning path": "مسار التعلم الخاص بك",
+  "Based on your answers, we recommend starting with:": "بناءً على إجاباتك، نقترح أن تبدأ بـ:",
+  "Start this lesson": "ابدأ هذا الدرس",
+});
 Object.assign(ARABIC, {"Step {current} of {total}": "الخطوة {current} من {total}", "Letter {current} of {total}": "الحرف {current} من {total}", "Word {current} of {total}": "الكلمة {current} من {total}", "Question {current} of {total}": "السؤال {current} من {total}", "Start with {lesson} instead": "ابدأ بـ {lesson} بدلًا من ذلك", "Go straight to {lesson}": "انتقل مباشرة إلى {lesson}", "Hear {sound}": "استمع إلى {sound}", "Great job! You practised all {total} letters.": "أحسنت! تدربت على جميع الحروف وعددها {total}.", "Main navigation": "التنقل الرئيسي", "You heard Arabic sounds and read your first word.": "استمعت إلى أصوات العربية وقرأت كلمتك الأولى.", "Reading · Fatha & Kasra": "القراءة · الفتحة والكسرة"});
 
 Object.assign(ARABIC, {
