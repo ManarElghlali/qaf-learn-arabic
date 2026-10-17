@@ -4,7 +4,15 @@
 const files = import.meta.glob("../assets/audio/*.mp3", { eager: true, query: "?url", import: "default" }) as Record<string, string>;
 const stored = import.meta.glob("../assets/audio/*.mp3.asset.json", { eager: true, import: "default" }) as Record<string, { url: string }>;
 const key = (s: string) => Array.from(s).map((c) => (c.codePointAt(0) ?? 0).toString(16).padStart(4, "0")).join("-");
-const url = (kind: "w" | "u", text: string) => stored[`../assets/audio/${kind}-${key(text)}.mp3.asset.json`]?.url ?? files[`../assets/audio/${kind}-${key(text)}.mp3`];
+// Native builds set VITE_API_BASE to the published origin; pointer URLs are relative
+// ("/__l5e/...") and would otherwise resolve against the app's local origin and fail.
+const API_BASE = (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "";
+const absolute = (u: string) => (u.startsWith("/") && API_BASE ? API_BASE + u : u);
+// Prefer the bundled recording (works offline); fall back to the CDN pointer.
+const url = (kind: "w" | "u", text: string) => {
+  const base = `../assets/audio/${kind}-${key(text)}.mp3`;
+  return files[base] ?? (stored[`${base}.asset.json`] ? absolute(stored[`${base}.asset.json`]!.url) : undefined);
+};
 export const hasRecording = (kind: "w" | "u", text: string) => !!url(kind, text);
 
 let current: HTMLAudioElement | null = null;
@@ -90,7 +98,7 @@ export function playUnits(units: string[]) {
 }
 
 /** Every teacher recording URL, used to store them for offline use. */
-export const allRecordingUrls = () => [...new Set([...Object.values(stored).map((s) => s.url), ...Object.values(files)])];
+export const allRecordingUrls = () => [...new Set([...Object.values(stored).map((s) => absolute(s.url)), ...Object.values(files)])];
 
 /** Starts downloading recordings ahead of time so the first tap plays without delay. */
 export function preloadAudio(kind: "w" | "u", texts: string[]) {

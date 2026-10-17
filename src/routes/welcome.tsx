@@ -28,7 +28,7 @@ const LISTENING_WORD = WORDS.find((word) => word.ar === "أَكَلَ");
 function Choice({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <Button variant="outline" type="button" role="radio" aria-checked={selected} onClick={onClick}
-      className={`flex min-h-16 w-full items-center gap-3 rounded-2xl border-2 p-4 text-start whitespace-normal transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selected ? "border-primary bg-accent" : "border-border bg-card"}`}>
+      className={`flex min-h-16 w-full items-center gap-3 rounded-2xl p-4 text-start whitespace-normal transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${selected ? "glass-card-selected border-2" : "glass-card"}`}>
       <span className="min-w-0 flex-1">{children}</span>
       <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>{selected && <Check className="h-3.5 w-3.5" />}</span>
     </Button>
@@ -60,9 +60,9 @@ function Welcome() {
 
   let body: ReactNode = null, primary: ReactNode = null;
   if (step === 0) {
-    body = <><Ar className="text-8xl font-bold text-primary">ق</Ar><Ar className="text-3xl font-bold text-primary">أَهْلًا وَسَهْلًا</Ar><h1 className="text-2xl font-bold">{t("Welcome to Qaf")}</h1><p className="max-w-xs text-muted-foreground">{t("Arabic Reading, calmly — one sound and one word at a time. No account needed.")}</p></>;
+    body = <><span className="glass-orb liquid-float grid h-36 w-36 place-items-center rounded-full"><Ar className="text-7xl font-bold text-primary">ق</Ar></span><Ar className="text-3xl font-bold text-primary">أَهْلًا وَسَهْلًا</Ar><h1 className="text-2xl font-bold">{t("Welcome to Qaf")}</h1><p className="max-w-xs text-muted-foreground">{t("Arabic Reading, calmly — one sound and one word at a time. No account needed.")}</p></>;
   } else if (step === 1) {
-    body = <><Ar className="text-6xl font-bold text-primary">ق</Ar><h1 className="text-2xl font-bold">{t("Choose your language")}</h1><p className="max-w-xs text-sm text-muted-foreground">{t("Select your preferred language for the app.")}</p>
+    body = <><span className="glass-orb liquid-float-slow grid h-24 w-24 place-items-center rounded-full"><Ar className="text-5xl font-bold text-primary">ق</Ar></span><h1 className="text-2xl font-bold">{t("Choose your language")}</h1><p className="max-w-xs text-sm text-muted-foreground">{t("Select your preferred language for the app.")}</p>
       <div role="radiogroup" aria-label={t("App language")} className="grid w-full gap-3">
         <Choice selected={language === "en"} onClick={() => setLanguage("en")}><span lang="en" dir="ltr" className="text-lg font-semibold">English</span></Choice>
         <Choice selected={language === "ar"} onClick={() => setLanguage("ar")}><Ar className="text-2xl font-semibold">العربية</Ar></Choice>
@@ -88,20 +88,27 @@ function Welcome() {
     </div></>;
   } else if (step === 6) {
     body = <><h1 className="text-2xl font-bold">{t("Your starting point")}</h1>
-      <div className="w-full rounded-3xl bg-primary p-5 text-start text-primary-foreground"><p className="text-xs opacity-80">{t("Recommended")}</p><p className="text-lg font-bold">{t(rec.title)}</p><p className="mt-1 text-sm opacity-90">{t(rec.why)}</p></div>
+      <div className="glass-card w-full rounded-3xl p-5 text-start"><p className="text-xs text-muted-foreground">{t("Recommended")}</p><p className="text-lg font-bold">{t(rec.title)}</p><p className="mt-1 text-sm opacity-90">{t(rec.why)}</p></div>
       {rec.alt && <Button variant="outline" className="h-12 w-full rounded-full" onClick={() => { if (rec.alt) open(rec.alt); }}>{t("Start with {lesson} instead", { lesson: t(rec.alt.title) })}</Button>}
       <p className="text-xs text-muted-foreground">{t("You can change your answers later in Profile.")}</p></>;
     primary = <div className="grid gap-2"><Button className="h-14 rounded-full text-base" onClick={() => go(QUIZ_STEP)}>{t("Try a 3-question first quiz")}<ChevronRight /></Button><Button variant="ghost" className="h-12 rounded-full" onClick={() => open(rec)}>{t("Go straight to {lesson}", { lesson: t(rec.title) })}</Button></div>;
   }
 
   return (
-    <main className="qaf-onboarding mx-auto flex min-h-dvh w-full max-w-lg flex-col bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
-      <div className="flex h-11 items-center justify-between">
+    <main className="qaf-onboarding relative mx-auto flex min-h-dvh w-full max-w-lg flex-col overflow-hidden bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <span className="liquid-blob liquid-float-slow -top-16 -start-16 h-56 w-56 bg-accent" />
+        <span className="liquid-blob liquid-float top-1/3 -end-20 h-64 w-64 bg-stage-sky" />
+        <span className="liquid-blob liquid-float-slow -bottom-20 start-1/4 h-52 w-52 bg-stage-gold" />
+        <Ar className="liquid-float absolute end-8 top-24 text-4xl font-bold text-primary/15">ب</Ar>
+        <Ar className="liquid-float-slow absolute start-6 top-1/2 text-3xl font-bold text-primary/10">ت</Ar>
+      </div>
+      <div className="relative flex h-11 items-center justify-between">
         {step > 0 ? <Button variant="ghost" size="sm" onClick={() => go(step - 1)}><ChevronLeft />{t("Back")}</Button> : <span />}
         {skip && <Button variant="ghost" size="sm" onClick={skip}>{t("Skip")}</Button>}
       </div>
       {step === QUIZ_STEP ? <FirstQuiz level={o.level} onFinish={() => open(rec)} /> : <>
-        <div key={step} className="flex flex-1 animate-in fade-in flex-col items-center justify-center gap-5 text-center duration-300 motion-reduce:animate-none">{body}</div>
+        <div key={step} className="qaf-step-enter relative flex flex-1 flex-col items-center justify-center gap-5 text-center motion-reduce:animate-none">{body}</div>
         <p className="py-4 text-center text-xs text-muted-foreground" aria-live="polite">{t("Step {current} of {total}", { current: step + 1, total: ONBOARDING_STEPS })}</p>
         <div className="mb-4 flex justify-center gap-1.5" aria-hidden>{Array.from({ length: ONBOARDING_STEPS }, (_, i) => <span key={i} className={`h-1.5 rounded-full ${i < step ? "w-4 bg-primary/60" : i === step ? "w-6 bg-primary" : "w-1.5 bg-border"}`} />)}</div>
         {primary ?? <Button className="h-14 rounded-full text-base" disabled={step === 3 && !o.path} onClick={() => go(step + 1)}>{t("Continue")}<ChevronRight /></Button>}
