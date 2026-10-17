@@ -6,7 +6,7 @@ const stored = import.meta.glob("../assets/audio/*.mp3.asset.json", { eager: tru
 const key = (s: string) => Array.from(s).map((c) => (c.codePointAt(0) ?? 0).toString(16).padStart(4, "0")).join("-");
 // Native builds set VITE_API_BASE to the published origin; pointer URLs are relative
 // ("/__l5e/...") and would otherwise resolve against the app's local origin and fail.
-const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "";
+const API_BASE = (import.meta.env["VITE_API_BASE"] as string | undefined) ?? "";
 const absolute = (u: string) => (u.startsWith("/") && API_BASE ? API_BASE + u : u);
 // Prefer the bundled recording (works offline); fall back to the CDN pointer.
 const url = (kind: "w" | "u", text: string) => {
