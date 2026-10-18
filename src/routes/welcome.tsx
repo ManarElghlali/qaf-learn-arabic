@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { FirstQuiz } from "@/components/FirstQuiz";
 import { WordIllustration } from "@/components/WordIllustration";
 import qafSculpture from "@/assets/onboarding/qaf-sculpture.jpg";
-import readingBook from "@/assets/onboarding/reading-book.jpg";
+import readingBook from "@/assets/onboarding/open-book-badge.png";
 import { WORDS } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
 import { completeOnboarding, ONBOARDING_STEPS, patchOnboarding, readOnboarding, recommend, saveStep, type Onboarding, type Recommendation } from "@/lib/onboarding";
@@ -137,7 +137,7 @@ function Welcome() {
       {rec.alt && <Button variant="outline" className="glass-card h-12 w-full rounded-full" onClick={() => { if (rec.alt) open(rec.alt); }}>{t("Start with {lesson} instead", { lesson: t(rec.alt.title) })}</Button>}
       <p className="text-xs text-muted-foreground">{t("You can change your answers later in Profile.")}</p>
     </>;
-    primary = <Button variant="ghost" className="h-12 rounded-full" onClick={() => go(QUIZ_STEP)}>{t("Try a 3-question first quiz")}<ChevronRight /></Button>;
+    primary = <Button variant="outline" className="glass-card h-12 rounded-full font-semibold text-primary" onClick={() => go(QUIZ_STEP)}>{t("Try a 3-question first quiz")}<ChevronRight /></Button>;
   }
 
   return (

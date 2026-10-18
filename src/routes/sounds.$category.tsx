@@ -19,7 +19,7 @@ export const Route = createFileRoute("/sounds/$category")({
 });
 
 function Category() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { id } = Route.useLoaderData();
   const c = SOUND_CATEGORIES.find((x) => x.id === id);
   const sp = useSoundProgress();
@@ -38,7 +38,7 @@ function Category() {
           <div key={s.id} className={`flex flex-col items-center gap-1 rounded-3xl border border-border p-3 text-center ${c.accent}`}>
             <Ar className="text-3xl font-bold text-primary">{s.sample}</Ar>
             <Ar className="text-sm font-bold">{s.ar}</Ar>
-            <p className="text-[11px] font-semibold">{t(s.en)}</p>
+            {language === "en" && <p className="text-[11px] font-semibold">{t(s.en)}</p>}
             <p className="text-[10px] text-muted-foreground">{t(status)}</p>
             {canOpenSoundSet(s.id, access.premium)
               ? <Button asChild size="sm" variant="secondary" className="mt-1 w-full rounded-full"><Link to="/sounds/practice/$set" params={{ set: s.id }}>{n > 0 && n < LETTERS.length ? t("Continue") : n >= LETTERS.length ? t("Review") : t("Start")}</Link></Button>

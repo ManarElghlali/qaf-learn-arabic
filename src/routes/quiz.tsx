@@ -58,9 +58,9 @@ function QuizRoute() {
 function FreeQuizList({ done }: { done: number[] }) {
   const { t } = useLanguage();
   return (
-    <AppShell title={t("Free quizzes")}>
+    <AppShell title={t("Free quizzes")} singleScreen>
       <p className="mb-3 text-sm text-muted-foreground">{t("Three quizzes on your 10 free Fatha words. Each one opens after the one before it.")}</p>
-      <div className="space-y-2">{FREE_QUIZZES.map((fq) => {
+      <div className="free-quiz-list space-y-3">{FREE_QUIZZES.map((fq) => {
         const open = freeQuizOpen(fq.n, done);
         const body = <><span className="min-w-0"><span className="block text-sm font-bold">{t("Quiz {number}", { number: fq.n })}</span><span className="block text-xs text-muted-foreground">{t(fq.title)}</span></span>
           {done.includes(fq.n) ? <Check className="h-4 w-4 text-success" /> : open ? <ChevronRight className="h-4 w-4 text-primary" /> : <LockKeyhole className="h-4 w-4 text-muted-foreground" />}</>;

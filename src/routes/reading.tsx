@@ -33,7 +33,7 @@ const stages = [
 ];
 
 function Reading() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const p = useProgress();
   const summary = learningSummary(p.learned);
   const units = UNIT_ORDER.map((id) => unitState(p, id));
@@ -65,13 +65,13 @@ function Reading() {
         <h2 className="mb-3 text-sm font-bold">{completed ? t("Review your lesson") : started ? t("Continue Learning") : t("Start Learning")}</h2>
         <div className="grid grid-cols-[80px_minmax(0,1fr)] items-center gap-4">
           <img src={currentStage.image} alt={`${currentStage.en} ${currentStage.landmark}`} width={80} height={80} className="aspect-square w-20 rounded-2xl object-cover" />
-          <div className="min-w-0"><div className="flex items-start justify-between gap-2"><div><Ar className="block text-xl font-bold text-primary">{L.ar}</Ar><p className="text-[11px] text-muted-foreground">{t(L.en)}</p></div><span className="pt-2 text-[10px] text-muted-foreground">{cur.learned}/{cur.total}</span></div>
+          <div className="min-w-0"><div className="flex items-start justify-between gap-2"><div><Ar className="block text-xl font-bold text-primary">{L.ar}</Ar>{language === "en" && <p className="text-[11px] text-muted-foreground">{t(L.en)}</p>}</div><span className="pt-2 text-[10px] text-muted-foreground">{cur.learned}/{cur.total}</span></div>
             <Button asChild className="mt-2 h-11 w-full justify-between rounded-full px-4 text-xs"><Link to={stepRoute} search={{ lesson: cur.id }}><span>{actionLabel}</span><ArrowRight /></Link></Button>
           </div>
         </div>
         {cur.step === "learn" && started && <p className="mt-3 text-right text-[11px] text-muted-foreground">{t("Word {current} of {total}", { current: learningSummary(p[L.key], L.words).resumeIndex + 1, total: cur.total })}</p>}
       </section>
-      <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-bold">{t("Learning journey")}</h2><Ar className="text-base text-muted-foreground">رحلة التعلّم</Ar></div>
+      <div className="mb-3 flex items-center justify-between gap-2"><h2 className="text-sm font-bold">{t("Learning journey")}</h2>{language === "en" && <Ar className="text-base text-muted-foreground">رحلة التعلّم</Ar>}</div>
       <div className="space-y-3">{stages.map(s => <CurriculumDestination key={t(s.en)} {...s} status={stageStatus(s.lessons)} progress={p} />)}</div>
     </AppShell>
   );
