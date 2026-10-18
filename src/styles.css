@@ -323,7 +323,7 @@ html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-right { transform: rotate(180
   transform: rotate(-30deg);
 }
 .qaf-shell::before { inset-inline-end: -130px; top: 120px; opacity: .35; }
-.qaf-onboarding { height: 100dvh; min-height: 600px; isolation: isolate; gap: 12px; }
+.qaf-onboarding { height: min(100dvh, 760px); min-height: 0; isolation: isolate; gap: 12px; }
 .qaf-onboarding::before { bottom: -170px; inset-inline-start: -150px; }
 .qaf-onboarding::after { bottom: -115px; inset-inline-end: -155px; width: 300px; height: 300px; border-width: 48px; }
 .onboarding-step { min-height: 0; padding-top: 18px; }
@@ -348,10 +348,16 @@ html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-right { transform: rotate(180
 .onboarding-welcome::before { top: -160px; bottom: auto; }
 .onboarding-recommendation { background: var(--glass-selected); }
 .onboarding-recommendation > p { text-align: center; }
-.onboarding-book-art { width: 100%; height: 140px; object-fit: cover; border-radius: 16px; margin-bottom: 12px; }
+.onboarding-book-art { width: 156px; height: 132px; object-fit: contain; margin: 0 auto 12px; background: var(--stage-sage); border-radius: 50%; }
 .onboarding-listening-art { width: 184px; height: 184px; flex-shrink: 1; min-height: 80px; object-fit: contain; }
 .onboarding-speaker { padding: 20px; border: 1px solid var(--glass-border); border-radius: 50%; background: var(--glass-selected); box-shadow: inset 0 2px 5px var(--card), 0 0 0 10px color-mix(in oklch, var(--stage-sage) 60%, transparent); margin: 18px 0; }
-.onboarding-first-quiz > div:nth-child(2) { justify-content: space-evenly; }
+.onboarding-first-quiz > div:nth-child(2) { justify-content: center; gap: 20px; }
+.onboarding-first-quiz .onboarding-heading { max-width: none; text-align: center; }
+.onboarding-first-quiz .onboarding-speaker { margin: 0; }
+.home-paths { display: flex; flex: 1; min-height: 0; flex-direction: column; justify-content: center; }
+.home-paths .path-card { flex: 0 1 152px; min-height: 112px; }
+.free-quiz-list { display: flex; flex: 1; min-height: 0; flex-direction: column; justify-content: center; padding-bottom: 32px; }
+.free-quiz-list > * { min-height: 96px; }
 .onboarding-first-quiz .answer-button { height: 68px; padding-inline: 12px; box-shadow: var(--glass-shadow); }
 .onboarding-first-quiz .answer-button svg { right: 8px; width: 16px; }
 .onboarding-achievement { width: 220px; height: 220px; object-fit: contain; mix-blend-mode: multiply; }
@@ -386,6 +392,11 @@ html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-right { transform: rotate(180
   .onboarding-first-quiz .answer-button { height: 52px; }
   .onboarding-welcome-copy h1 { font-size: 26px; }
   .onboarding-welcome-copy p { font-size: 12px; }
+  .home-paths { gap: 8px; }
+  .home-paths .path-card { padding: 12px; min-height: 96px; flex-basis: 112px; }
+  .home-paths > p { padding: 10px; }
+  .free-quiz-list { padding-bottom: 0; }
+  .free-quiz-list > * { min-height: 76px; }
 }
 .qaf-step-enter { animation: qaf-step-in 320ms cubic-bezier(0.22, 1.2, 0.36, 1) both; }
 @keyframes qaf-step-in {
