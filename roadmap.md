@@ -78,4 +78,5 @@
 - [ ] Turn on free 5-check quota once store billing exists
 
 - [x] Free vs Premium gating (built and tested locally)
+- [x] Yearly price set to $45.99 (monthly $5.99); paywall, Terms and Arabic copy updated, savings badge now "Save 36%". Store product prices in App Store Connect / Google Play still need to be set to $45.99.
 - [ ] Sandbox purchase tests on iOS + Android (buy, restore, renew, cancel, expiry, offline) — blocked on Apple/Google developer accounts and store products
