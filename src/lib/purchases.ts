@@ -6,7 +6,7 @@ import { savePass, refreshAccess } from "@/lib/access";
 
 export const PRODUCTS = { monthly: "qaf_premium_monthly", yearly: "qaf_premium_yearly" } as const;
 export type Plan = keyof typeof PRODUCTS;
-export const FALLBACK_PRICE: Record<Plan, string> = { monthly: "$5.99 / month", yearly: "$39.99 / year" };
+export const FALLBACK_PRICE: Record<Plan, string> = { monthly: "$5.99 / month", yearly: "$45.99 / year" };
 const ANDROID_BASE_PLAN: Record<Plan, string> = { monthly: "monthly", yearly: "yearly" };
 
 export type QuotaStatus = { premium: boolean; used: number; limit: number; enforced: boolean; renews?: string; billingLive?: boolean; pass?: string };

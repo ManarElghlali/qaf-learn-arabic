@@ -49,14 +49,14 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
         </ul>
         {!canBuy ? <div className="rounded-2xl bg-accent p-4 text-center">
           <p className="font-semibold text-primary">{t("Premium is coming soon")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("$5.99/month or $39.99/year. For now you can keep learning the 10 free Fatha words, their 3 quizzes and the free Fatha sounds.")}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("$5.99/month or $45.99/year. For now you can keep learning the 10 free Fatha words, their 3 quizzes and the free Fatha sounds.")}</p>
           <Button className="mt-4 w-full rounded-2xl bg-primary py-3 font-semibold text-primary-foreground" onClick={onClose}>{t("Got it")}</Button>
         </div> : <>
         {(["monthly", "yearly"] as const).map((k) => (
           <Button variant="outline" key={k} onClick={() => setPlan(k)}
             className={`mb-3 flex w-full items-center justify-between rounded-2xl border-2 p-4 text-start ${plan === k ? "border-primary bg-accent" : "border-border"}`}>
             <span><span className="block font-semibold">{k === "monthly" ? t("Monthly") : t("Yearly")}</span><span className="text-sm text-muted-foreground">{prices[k] ?? FALLBACK_PRICE[k]}</span></span>
-            {k === "yearly" && <span className="rounded-full bg-primary px-2 py-1 text-xs text-primary-foreground">{t("Save 44%")}</span>}
+            {k === "yearly" && <span className="rounded-full bg-primary px-2 py-1 text-xs text-primary-foreground">{t("Save 36%")}</span>}
           </Button>
         ))}
         {store === false && <p className="mb-2 text-center text-xs text-muted-foreground">{t("Subscriptions are available in the Qaf app for iPhone and Android.")}</p>}
