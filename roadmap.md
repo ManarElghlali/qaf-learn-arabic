@@ -1,4 +1,5 @@
 # Onboarding and quiz adjustments
+- [ ] Fix October 29 onboarding/Home spacing, dedicated pre-recommendation quiz, audio targets and RTL; verify phone layouts and preserved progress.
 - [x] Apply October 18 marked fixes: compact screen spacing, single Arabic labels, prominent optional first-quiz action and clean 3D open-book badge. Verified onboarding-to-Learn, loaded Arabic labels, small-phone free quiz list, 66 passing tests and preview build OK. Installed apps require rebuilding.
 - [x] Apply the October 17 reference treatment to welcome, first quiz and shared app surfaces; verified quiz-to-lesson flow, English/Arabic layouts, no horizontal overflow, 66 passing tests and fresh preview build OK. Installed native appearance still needs a rebuilt app.
 - [x] Add the existing matching illustration to Learn by listening and single-language path labels.
