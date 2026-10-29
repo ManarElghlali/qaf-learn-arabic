@@ -19,7 +19,7 @@ workflows:
     instance_type: mac_mini_m2
     integrations:
       # Must match the API key integration name configured in Codemagic.
-      app_store_connect: Qaf App Store Connect
+      app_store_connect: Codemagic CI
     environment:
       node: 22
       xcode: latest
