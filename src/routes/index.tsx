@@ -31,9 +31,8 @@ function Home() {
   const sets = SOUND_CATEGORIES.flatMap((c) => c.sets);
   const setsDone = sets.filter((s) => setComplete(sp, s)).length;
   return (
-    <AppShell title="Qaf" singleScreen>
-      <div className="mb-5 text-center"><h2 className="text-lg font-bold text-primary">{t("Assalamu Alaikum!")}</h2><p className="text-xs text-muted-foreground">{t("Let's continue your Arabic learning journey")}</p></div>
-      <div className="home-paths space-y-4">
+    <AppShell title="Qaf" singleScreen greeting={<><h2 className="text-lg font-bold text-primary">{t("Assalamu Alaikum!")}</h2><p className="mt-1 text-xs text-muted-foreground">{t("Let's continue your Arabic learning journey")}</p></>}>
+      <div className="home-paths">
         <Link to="/reading" className="path-card flex items-center gap-4 rounded-3xl bg-primary p-5 text-primary-foreground shadow-sm">
           <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-primary-foreground/15"><BookOpen className="h-8 w-8 text-gold" /></span>
           <span className="min-w-0 flex-1"><Ar className="block text-2xl font-bold">القِرَاءَة</Ar>{language === "en" && <span className="block text-base font-bold">{t("Reading")}</span>}<span className="block text-xs opacity-80">{t("Learn to combine sounds and read words · {done}/{total} units", { done: unitsDone, total: UNIT_ORDER.length })}</span></span>

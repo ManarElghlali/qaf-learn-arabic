@@ -66,12 +66,12 @@ function Profile() {
         </select></label>
       <h2 className="mb-2 mt-7 text-base font-semibold">{t("Settings")}</h2>
       <div className="divide-y divide-border">
-        <label className="flex min-h-16 items-center justify-between gap-3 py-2 text-sm font-medium">{t("App language")}
+        <label className="qaf-profile-row min-h-16 py-2 text-sm font-medium"><span>{t("App language")}</span>
           <select aria-label={t("App language")} value={language} onChange={(e) => setLanguage(e.target.value === "ar" ? "ar" : "en")} className="h-11 rounded-xl border border-border bg-card px-3">
             <option value="en">English</option><option value="ar">العربية</option>
           </select>
         </label>
-        <div className="flex min-h-16 items-center justify-between gap-3 py-2">
+        <div className="qaf-profile-row min-h-16 py-2">
           <label htmlFor="reminder" className="flex items-center gap-3 text-sm font-medium"><Bell className="h-5 w-5" />{t("Daily reminder")}</label>
           <Switch id="reminder" checked={p.reminders} onCheckedChange={(on) => { if (on) setAsk(true); else { void disableReminders(); toast(t("Daily reminder turned off")); } }} />
         </div>
@@ -82,7 +82,7 @@ function Profile() {
           </div>
         )}
         {p.reminders && (
-          <label className="flex min-h-14 items-center justify-between text-sm font-medium">{t("Reminder time")}
+          <label className="qaf-profile-row min-h-14 text-sm font-medium"><span>{t("Reminder time")}</span>
             <input type="time" value={time} onChange={(e) => { setTime(e.target.value); void setReminderTime(e.target.value); }} className="h-11 rounded-xl border border-border bg-card px-3" /></label>
         )}
         <Button variant="ghost" onClick={() => setPay(true)} className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">

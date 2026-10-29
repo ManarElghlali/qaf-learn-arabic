@@ -18,7 +18,7 @@ const unitTabs = [
   { to: "/test", label: "Test", Icon: Mic, match: (p: string) => p.startsWith("/test") },
 ];
 
-export function AppShell({ title, children, singleScreen = false }: { title: string; children: ReactNode; singleScreen?: boolean }) {
+export function AppShell({ title, children, singleScreen = false, greeting }: { title: string; children: ReactNode; singleScreen?: boolean; greeting?: ReactNode }) {
   const { t } = useLanguage();
   const loc = useLocation();
   const path = loc.pathname;
@@ -26,11 +26,12 @@ export function AppShell({ title, children, singleScreen = false }: { title: str
   const lesson = (loc.search as { lesson?: string })?.lesson;
   const tabs = inUnit ? unitTabs : mainTabs;
   return (
-    <div className={`qaf-shell mx-auto flex w-full max-w-lg flex-col bg-background ${singleScreen ? "qaf-activity-shell" : ""}`}>
-      {title === "Qaf" ? <header className="qaf-header grid grid-cols-[44px_minmax(0,1fr)_44px] items-start gap-3 px-5 pb-4 sm:px-7">
+    <div className={`qaf-shell mx-auto flex w-full max-w-lg flex-col bg-background ${singleScreen ? "qaf-activity-shell" : ""} ${greeting ? "qaf-home-shell" : ""}`}>
+      {title === "Qaf" ? <header className="qaf-header grid grid-cols-[44px_minmax(0,1fr)_44px] items-center gap-3 px-5 pb-4 sm:px-7">
         <Button asChild variant="ghost" size="icon"><Link to="/profile" aria-label={t("Settings")} title={t("Settings")}><Settings /></Link></Button>
-        <div className="text-center"><Ar className="qaf-brand-symbol block font-bold text-primary">ق</Ar><h1 className="text-lg font-bold text-primary">Qaf<span className="text-gold">.</span></h1><p className="text-[11px] font-semibold text-primary">{t("Arabic Reading")}</p></div>
+        <div className="min-w-0 text-center"><div className="qaf-brand-lockup flex items-center justify-center gap-2"><Ar className="qaf-brand-symbol block font-bold text-primary">ق</Ar><div className="text-start"><h1 className="text-lg font-bold text-primary" dir="ltr">Qaf<span className="text-gold">.</span></h1><p className="text-[11px] font-semibold text-primary">{t("Arabic Reading")}</p></div></div></div>
         <Button asChild variant="ghost" size="icon"><Link to="/profile" aria-label={t("Profile")} title={t("Profile")}><User /></Link></Button>
+        {greeting && <div className="col-span-3 min-w-0 pt-3 text-center">{greeting}</div>}
       </header> : <header className="qaf-header sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b border-border/70 bg-background/95 px-5 pb-3 backdrop-blur sm:px-7">
         <h1 className="min-w-0 text-lg font-bold">{t(title)}</h1><Ar className="text-3xl font-bold text-primary">ق</Ar>
       </header>}
