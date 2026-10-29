@@ -9,7 +9,7 @@ import qafSculpture from "@/assets/onboarding/qaf-sculpture.jpg";
 import readingBook from "@/assets/onboarding/open-book-badge.png";
 import { WORDS } from "@/lib/words";
 import { playUnit, playWord, stopAudio } from "@/lib/audio";
-import { completeOnboarding, ONBOARDING_STEPS, patchOnboarding, readOnboarding, recommend, saveStep, type Onboarding, type Recommendation } from "@/lib/onboarding";
+import { completeOnboarding, ONBOARDING_STEPS, QUIZ_STEP, RECOMMENDATION_STEP, onboardingSkipStep, patchOnboarding, readOnboarding, recommend, saveStep, type Onboarding, type Recommendation } from "@/lib/onboarding";
 import { BookOpen, Check, ChevronLeft, ChevronRight, Headphones, Sparkles, Sprout, Star, Volume2 } from "lucide-react";
 
 export const Route = createFileRoute("/welcome")({
@@ -24,7 +24,6 @@ export const Route = createFileRoute("/welcome")({
   component: Welcome,
 });
 
-const QUIZ_STEP = 7;
 const LISTENING_WORD = WORDS.find((word) => word.ar === "أَكَلَ");
 
 function Choice({ selected, onClick, icon, title, hint }: { selected: boolean; onClick: () => void; icon?: ReactNode; title: ReactNode; hint?: ReactNode }) {
@@ -68,10 +67,9 @@ function Welcome() {
     if (r.to === "/learn") navigate({ to: "/learn", search: { lesson: r.lesson ?? "fatha" }, replace: true });
     else navigate({ to: "/sounds/practice/$set", params: { set: r.set ?? "fatha" }, replace: true });
   };
-  const finishHome = () => { completeOnboarding(); navigate({ to: "/", replace: true }); };
   const rec = recommend(o);
-  // Skip on an optional question moves on without saving an answer; skip on intro screens goes to the recommendation.
-  const skip = step === 1 || step === 4 || step === 5 ? () => go(step + 1) : step < 4 ? () => go(6) : step === QUIZ_STEP ? finishHome : null;
+  const skipTo = onboardingSkipStep(step);
+  const skip = skipTo === undefined ? null : () => go(skipTo);
 
   let body: ReactNode = null, primary: ReactNode = null;
   if (step === 0) {
@@ -124,7 +122,7 @@ function Welcome() {
         <Choice selected={o.level === "some"} onClick={() => set({ level: "some" })} icon={<Star className="h-6 w-6" />} title={t("I can read a little already")} hint={t("I can read some words and want to improve.")} />
       </div>
     </>;
-  } else if (step === 6) {
+  } else if (step === RECOMMENDATION_STEP) {
     body = <>
       <StepTitle hint={t("Based on your answers, we recommend starting with:")}>{t("Your personal learning path")}</StepTitle>
       <div className="onboarding-recommendation glass-card w-full rounded-3xl p-4 text-center">
@@ -132,21 +130,20 @@ function Welcome() {
         <p className="text-xs font-semibold uppercase tracking-wide text-primary">{t("Recommended")}</p>
         <p className="mt-0.5 text-lg font-bold">{t(rec.title)}</p>
         <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(rec.why)}</p>
-        <Button className="mt-4 h-12 w-full rounded-full font-semibold" onClick={() => open(rec)}>{t("Start this lesson")}<ChevronRight /></Button>
       </div>
       {rec.alt && <Button variant="outline" className="glass-card h-12 w-full rounded-full" onClick={() => { if (rec.alt) open(rec.alt); }}>{t("Start with {lesson} instead", { lesson: t(rec.alt.title) })}</Button>}
       <p className="text-xs text-muted-foreground">{t("You can change your answers later in Profile.")}</p>
     </>;
-    primary = <Button variant="outline" className="glass-card h-12 rounded-full font-semibold text-primary" onClick={() => go(QUIZ_STEP)}>{t("Try a 3-question first quiz")}<ChevronRight /></Button>;
+    primary = <Button className="h-14 rounded-full font-semibold" onClick={() => open(rec)}>{t("Start this lesson")}<ChevronRight /></Button>;
   }
 
   return (
-    <main className={`qaf-onboarding relative mx-auto flex w-full max-w-lg flex-col overflow-hidden bg-background px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] ${step === 0 ? "onboarding-welcome" : ""}`}>
+    <main className={`qaf-onboarding relative mx-auto flex w-full max-w-lg flex-col bg-background px-6 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] ${step === 0 ? "onboarding-welcome" : ""}`}>
       <div className="relative z-10 flex h-11 shrink-0 items-center justify-between">
         {step > 0 ? <Button variant="ghost" size="icon" aria-label={t("Back")} onClick={() => go(step - 1)}><ChevronLeft /></Button> : <span />}
         {skip && <Button variant="ghost" size="sm" onClick={skip}>{t("Skip")}</Button>}
       </div>
-      {step === QUIZ_STEP ? <FirstQuiz level={o.level} onFinish={() => open(rec)} /> : <>
+      {step === QUIZ_STEP ? <FirstQuiz level={o.level} onFinish={() => go(RECOMMENDATION_STEP)} /> : <>
         <div key={step} className={`qaf-step-enter onboarding-step relative z-10 flex flex-1 flex-col items-center gap-5 text-center motion-reduce:animate-none ${step === 0 ? "justify-end" : "justify-start"}`}>{body}</div>
         <div className="onboarding-footer relative z-10">
           {primary ?? <Button className="h-14 w-full rounded-full text-base font-semibold" disabled={step === 3 && !o.path} onClick={() => go(step + 1)}>{t("Continue")}<ChevronRight /></Button>}

@@ -38,7 +38,7 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
 
   if (!q) {
     return (
-      <div className="onboarding-celebration relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-4 text-center">
+      <div className="onboarding-celebration relative z-10 flex min-h-0 flex-1 flex-col items-center gap-4 text-center">
         <img src={achievement} alt="" width={768} height={768} loading="lazy" className="onboarding-achievement" />
         <h2 className="text-2xl font-bold">{t("You did it!")}</h2>
         <p className="max-w-xs text-muted-foreground">{t("You heard Arabic sounds and read your first word.")} <Ar className="text-xl text-primary">أَكَلَ</Ar>.</p>
@@ -67,19 +67,19 @@ export function FirstQuiz({ level, onFinish }: { level: Level | undefined; onFin
   const w = q.kind === "word" ? word(q.answer) : null;
 
   return (
-    <div className="onboarding-first-quiz relative z-10 flex min-h-0 flex-1 flex-col gap-4">
-      <div className="flex items-center gap-3 text-xs text-muted-foreground"><span>{t("Question {current} of {total}", { current: n + 1, total: qs.length })}</span><progress value={n} max={qs.length} aria-label={t("First quiz progress")} className="qaf-progress h-1.5 flex-1" /></div>
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 text-center">
-        <h2 className="onboarding-heading w-full text-start text-2xl font-bold">{q.kind === "sound" ? t("Which sound did you hear?") : t("Which word did you hear?")}</h2>
-        {w && <><WordIllustration word={w} className="w-28" /><p lang="en" dir="ltr" className="text-sm font-medium">{w.en}</p></>}
+    <div className="onboarding-first-quiz relative z-10 min-h-0 flex-1">
+      <div className="first-quiz-progress grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3 text-xs text-muted-foreground"><span>{t("Question {current} of {total}", { current: n + 1, total: qs.length })}</span><progress value={n} max={qs.length} aria-label={t("First quiz progress")} className="qaf-progress h-1.5 w-full" /></div>
+      <h2 className="onboarding-heading w-full text-2xl font-bold">{q.kind === "sound" ? t("Which sound did you hear?") : t("Which word did you hear?")}</h2>
+      <div className="first-quiz-media flex min-h-0 flex-col items-center justify-center gap-3 text-center">
+        {w && <><WordIllustration word={w} className="first-quiz-art w-28" /><p lang="en" dir="ltr" className="text-sm font-medium">{w.en}</p></>}
         <div className="onboarding-speaker"><Button aria-label={q.kind === "sound" ? t("Play the sound again") : t("Play the word again")} onClick={hear} className="h-16 w-16 rounded-full [&_svg]:size-7"><Volume2 /></Button></div>
       </div>
-      <div className={`grid gap-3 ${q.kind === "sound" ? "grid-cols-3" : "grid-cols-1"}`} aria-label={t("Answer choices")}>{q.choices.map((c) => {
+      <div className={`first-quiz-answers grid gap-3 ${q.kind === "sound" ? "grid-cols-3" : "grid-cols-1"}`} aria-label={t("Answer choices")}>{q.choices.map((c) => {
         const isRight = solved && c === q.answer, isWrong = wrong.includes(c);
         return (
           <Button key={c} variant="outline" aria-pressed={isRight || isWrong} disabled={solved || isWrong} onClick={() => choose(c)}
             className={`answer-button relative h-16 w-full border text-3xl disabled:opacity-100 ${isRight ? "border-primary bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground" : isWrong ? "border-destructive bg-error-soft text-destructive" : "border-border bg-card text-primary"}`}>
-            <Ar>{c}</Ar>{isRight && <Check className="absolute right-5 size-5" />}{isWrong && <X className="absolute right-5 size-5" />}
+            <Ar>{c}</Ar>{isRight && <Check className="absolute end-2 size-4" />}{isWrong && <X className="absolute end-2 size-4" />}
           </Button>
         );
       })}</div>

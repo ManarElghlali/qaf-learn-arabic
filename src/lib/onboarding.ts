@@ -4,8 +4,16 @@ const KEY = "qaf-onboarding-v1";
 export type Path = "reading" | "sounds";
 export type Goal = "read" | "sounds" | "both";
 export type Level = "beginner" | "letters" | "some";
-// welcome, language, listen, path, goal, level, recommendation, first quiz
+// welcome, language, listen, path, goal, level, first quiz, recommendation
 export const ONBOARDING_STEPS = 8;
+export const QUIZ_STEP = 6;
+export const RECOMMENDATION_STEP = 7;
+export function onboardingSkipStep(step: number): number | undefined {
+  if (step === 1 || step === 4 || step === 5) return step + 1;
+  if (step < 4) return QUIZ_STEP;
+  if (step === QUIZ_STEP) return RECOMMENDATION_STEP;
+  return undefined;
+}
 export type Onboarding = {
   completed: boolean; step: number; version?: number; completedAt?: string | undefined;
   path?: Path | undefined; goal?: Goal | undefined; level?: Level | undefined;
@@ -33,9 +41,10 @@ export function readOnboarding(): Onboarding {
     if (raw) {
       const o = JSON.parse(raw) as Record<string, unknown>;
       const savedStep = Math.max(Number(o["step"]) || 0, 0);
-      const step = Math.min(savedStep + (o["version"] !== 2 && savedStep > 0 ? 1 : 0), ONBOARDING_STEPS - 1);
+      const oldStep = Math.min(savedStep + (o["version"] !== 2 && o["version"] !== 3 && savedStep > 0 ? 1 : 0), ONBOARDING_STEPS - 1);
+      const step = o["version"] === 3 ? oldStep : oldStep === 6 ? RECOMMENDATION_STEP : oldStep === 7 ? QUIZ_STEP : oldStep;
       return {
-        completed: !!o["completed"], step, version: 2,
+        completed: !!o["completed"], step, version: 3,
         completedAt: typeof o["completedAt"] === "string" ? o["completedAt"] : undefined,
         path: pick(o["path"], PATHS), goal: pick(o["goal"], GOALS), level: pick(o["level"], LEVELS),
         firstQuizDone: !!o["firstQuizDone"],
@@ -49,7 +58,7 @@ export function readOnboarding(): Onboarding {
 }
 
 function saveOnboarding(o: Onboarding) {
-  try { localStorage.setItem(KEY, JSON.stringify({ ...o, version: 2 })); } catch { /* private mode: keep going in memory */ }
+  try { localStorage.setItem(KEY, JSON.stringify({ ...o, version: 3 })); } catch { /* private mode: keep going in memory */ }
   return o;
 }
 
