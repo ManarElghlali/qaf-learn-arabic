@@ -324,8 +324,8 @@ html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-right { transform: rotate(180
 }
 .qaf-shell::before { inset-inline-end: -130px; top: 120px; opacity: .35; }
 .qaf-onboarding { height: 100dvh; min-height: 100dvh; overflow-x: clip; overflow-y: auto; isolation: isolate; gap: 12px; }
-.qaf-onboarding::before { bottom: -170px; inset-inline-start: -150px; }
-.qaf-onboarding::after { bottom: -115px; inset-inline-end: -155px; width: 300px; height: 300px; border-width: 48px; }
+.qaf-onboarding::before { bottom: 0; inset-inline-start: 0; width: 88px; height: 88px; border-width: 18px; border-radius: 0 100% 0 0; transform: none; }
+.qaf-onboarding::after { bottom: 0; inset-inline-end: 0; width: 112px; height: 180px; border-width: 24px; border-radius: 100% 0 0 0; transform: none; }
 .onboarding-step { min-height: min-content; padding-block: 24px; justify-content: center; gap: 24px; }
 .onboarding-step > div[role="radiogroup"] { margin-top: 6px; }
 .onboarding-heading { color: var(--primary); max-width: 340px; line-height: 1.18; }
