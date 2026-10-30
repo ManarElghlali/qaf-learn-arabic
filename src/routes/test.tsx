@@ -111,7 +111,7 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
       refreshQuota();
       if ((res.status === 429 && data.limit === "quota") || data.limit === "premium_content") setPay(data.error ?? "You've used your free pronunciation checks.");
       if (!res.ok || !data.syllables) { setErrMsg(data.error ?? "Reading check failed. Please try again."); setSt("error"); return; }
-      const checked = readingResult(w.units, { heard: data.heard, syllables: data.syllables });
+      const checked = readingResult(w.units, { heard: data.heard ?? "", syllables: data.syllables });
       judge({ ...checked, correct: data.correct === true && checked.correct });
     } catch { setErrMsg("Couldn't reach the reading checker. Check your connection and try again."); setSt("error"); }
   };
