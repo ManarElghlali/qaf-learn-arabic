@@ -23,7 +23,7 @@ function Practice() {
   const access = useAccess();
   const hydrated = useHydrated();
   if (!hydrated || !access.loaded) return <AppShell title="Sound Practice"><div className="h-96" aria-busy="true" /></AppShell>;
-  if (!canOpenSoundSet(id, access.premium)) return <AppShell title="Sound Practice"><PremiumLocked what="This sound set" /></AppShell>;
+  if (!canOpenSoundSet(id, access.premium)) return <AppShell title="Sound Practice" singleScreen><PremiumLocked what="This sound set" /></AppShell>;
   return <PracticeSet id={id} />;
 }
 function PracticeSet({ id }: { id: string }) {

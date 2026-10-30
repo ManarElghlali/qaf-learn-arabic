@@ -16,6 +16,7 @@ import { useAccess, canOpenUnit, FREE_WORDS } from "@/lib/access";
 import { PremiumLocked } from "@/components/PremiumLock";
 import { touchStreak, update, useLoadedProgress, type Progress } from "@/lib/progress";
 import { recordingHasSignal } from "@/lib/recording-signal";
+import { readingResult } from "@/lib/reading-result";
 
 export const Route = createFileRoute("/test")({
   validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
@@ -42,7 +43,7 @@ function TestRoute() {
   const p = useLoadedProgress();
   const access = useAccess();
   if (!p || !access.loaded) return <AppShell title={t("Reading test")}><div className="h-96" aria-busy="true" /></AppShell>;
-  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Reading test")}><PremiumLocked what={t("The {lesson} reading test", { lesson: t(LESSONS[lesson].en) })} /></AppShell>;
+  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Reading test")} singleScreen><PremiumLocked what={t("The {lesson} reading test", { lesson: t(LESSONS[lesson].en) })} /></AppShell>;
   const s = unitState(p, lesson);
   if (!s.unlocked) return <AppShell title={t("Reading test")}><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
   return <Test key={`${lesson}-${access.premium}`} lesson={lesson} progress={p} free={!access.premium} />;
@@ -110,7 +111,8 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
       refreshQuota();
       if ((res.status === 429 && data.limit === "quota") || data.limit === "premium_content") setPay(data.error ?? "You've used your free pronunciation checks.");
       if (!res.ok || !data.syllables) { setErrMsg(data.error ?? "Reading check failed. Please try again."); setSt("error"); return; }
-      judge({ correct: !!data.correct, heard: data.heard ?? "", syllables: data.syllables });
+      const checked = readingResult(w.units, { heard: data.heard, syllables: data.syllables });
+      judge({ ...checked, correct: data.correct === true && checked.correct });
     } catch { setErrMsg("Couldn't reach the reading checker. Check your connection and try again."); setSt("error"); }
   };
 
