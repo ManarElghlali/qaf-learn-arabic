@@ -1,7 +1,8 @@
 # Onboarding and quiz adjustments
-- [ ] Reject silent reading recordings without advancing or spending AI checks; verify regression tests and microphone flow.
-- [ ] Fix subscription sheet spacing, enable native test-store controls only, and center Premium locks.
-- [ ] Bump iOS to 1.0 (4), Android build to 4, and verify affected layouts; physical StoreKit purchases require rebuilt TestFlight.
+- [x] Reject silent reading recordings before upload; browser microphone hold/release stayed on word 1 with 0 correct and 0 checker requests. Six signal/result tests passed; existing teacher speech passes decoding. Full suite: 74 passed.
+- [x] Fix subscription spacing with a portalled dialog, enable Codemagic native test-store controls only, and center Premium locks. Checked English/Arabic on 375×667, 390×844 and 430×932; no clipping or browser errors. Public billing remains off.
+- [x] Bump iOS to 1.0 (4) and Android build to 4; Codemagic configuration parses and preview build is clean.
+- [ ] Verify rebuilt TestFlight microphone sensitivity and actual StoreKit Subscribe/Restore — requires physical iPhone and configured store products; no store upload or production publish performed.
 - [x] Fix October 29 onboarding/Home spacing, dedicated pre-recommendation quiz, audio targets and RTL. Verified complete quiz/retry/celebration → recommendation → lesson, quiz Skip/Back, English/Arabic Home and Profile, 375×667 / 430×932 / 1280×1800 layouts with no quiz collisions or onboarding scroll space; 68 tests passed and preview build OK. Native safe areas/audio still need the rebuilt installed app.
 - [x] Apply October 18 marked fixes: compact screen spacing, single Arabic labels, prominent optional first-quiz action and clean 3D open-book badge. Verified onboarding-to-Learn, loaded Arabic labels, small-phone free quiz list, 66 passing tests and preview build OK. Installed apps require rebuilding.
 - [x] Apply the October 17 reference treatment to welcome, first quiz and shared app surfaces; verified quiz-to-lesson flow, English/Arabic layouts, no horizontal overflow, 66 passing tests and fresh preview build OK. Installed native appearance still needs a rebuilt app.
