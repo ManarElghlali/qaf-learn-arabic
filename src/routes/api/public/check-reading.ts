@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { syllablesOf } from "@/lib/reading-sounds";
+import { readingResult } from "@/lib/reading-result";
 export { syllablesOf } from "@/lib/reading-sounds";
 
 // Checks a learner's reading of ONE fully vocalised word, syllable by syllable
@@ -157,9 +158,7 @@ export const Route = createFileRoute("/api/public/check-reading")({
           const content = (JSON.parse(text) as { choices: { message: { content: string } }[] }).choices[0]?.message.content;
           if (!content) return json({ error: "Reading check returned no feedback. Please try again." }, 502);
           const j = JSON.parse(content) as { heard: string; syllables: { heard: string; correct: boolean }[] };
-          const syllables = target.map((t, i) => ({ target: t, heard: j.syllables[i]?.heard ?? "", correct: !!j.syllables[i]?.correct }));
-          const correct = j.syllables.length === target.length && syllables.every((s) => s.correct);
-          return json({ correct, heard: j.heard, syllables });
+          return json(readingResult(target, j));
         } catch {
           return json({ error: "Reading check failed. Please try again." }, 502);
         }

@@ -252,6 +252,8 @@ Object.assign(ARABIC, {
   "Reading check failed. Please try again.": "تعذر التحقق من القراءة. حاول مجددًا.",
   "Couldn't reach the reading checker. Check your connection and try again.": "تعذر الاتصال بخدمة التحقق من القراءة. تحقق من الاتصال وحاول مجددًا.",
   "That was too short. Hold the mic, read the word, then release.": "التسجيل قصير جدًا. اضغط على الميكروفون واقرأ الكلمة ثم ارفع إصبعك.",
+  "No speech detected. Hold the mic, read the word aloud, then release.": "لم يُكتشف صوت. اضغط على الميكروفون واقرأ الكلمة بصوت مسموع ثم ارفع إصبعك.",
+  "Couldn't read the recording. Please record the word again.": "تعذر قراءة التسجيل. سجّل الكلمة مجددًا.",
   "Free: {done}/{total} words, 3 quizzes, reading test": "مجاني: {done}/{total} كلمات، ٣ اختبارات واختبار قراءة",
   "Learn {done}/{total}": "تعلّم {done}/{total}",
   "Complete {lesson} first": "أكمل {lesson} أولًا",

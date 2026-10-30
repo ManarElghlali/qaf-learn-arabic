@@ -6,6 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { buy, FALLBACK_PRICE, restore, storeAvailable, storePrices, type Plan } from "@/lib/purchases";
 import { Button } from "@/components/ui/button";
 import { useAccess } from "@/lib/access";
+import * as Dialog from "@radix-ui/react-dialog";
 
 export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () => void; reason?: string | undefined }) {
   const { t } = useLanguage();
@@ -17,8 +18,12 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
   const { canBuy } = useAccess();
   useEffect(() => {
     if (!open) return;
-    void storeAvailable().then(setStore);
-    void storePrices().then(setPrices);
+    let active = true;
+    setStore(null);
+    setPrices({});
+    void storeAvailable().then((value) => { if (active) setStore(value); });
+    void storePrices().then((value) => { if (active) setPrices(value); });
+    return () => { active = false; };
   }, [open]);
   if (!open) return null;
 
@@ -35,14 +40,16 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40" onClick={onClose}>
-      <div className="w-full max-w-md rounded-t-3xl bg-card p-6 pb-[calc(2.5rem+env(safe-area-inset-bottom))]" onClick={(e) => e.stopPropagation()}>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">{t("Qaf Premium")}</h2>
-          <Button variant="ghost" size="icon" aria-label={t("Close")} onClick={onClose}><X className="h-5 w-5" /></Button>
+    <Dialog.Root open={open} onOpenChange={(value) => { if (!value && !busy) onClose(); }}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-foreground/40 backdrop-blur-sm" />
+        <Dialog.Content className="qaf-paywall fixed z-50 w-full max-w-md rounded-3xl border border-border bg-card text-foreground shadow-lg" aria-describedby={undefined} onEscapeKeyDown={(e) => { if (busy) e.preventDefault(); }}>
+        <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <Dialog.Title className="min-w-0 text-xl font-bold">{t("Qaf Premium")}</Dialog.Title>
+          <Button variant="ghost" size="icon" disabled={!!busy} aria-label={t("Close")} onClick={onClose}><X className="h-5 w-5" /></Button>
         </div>
         {reason && <p className="mb-4 rounded-2xl bg-accent p-3 text-sm text-muted-foreground">{t(reason)}</p>}
-        <ul className="mb-5 space-y-2 text-sm text-muted-foreground">
+        <ul className="mb-4 space-y-2 text-sm text-muted-foreground">
           {["Every Reading unit, word, quiz and reading test", "Every Sound Practice set", "Learn offline with downloaded lessons and audio", "100 AI pronunciation checks every billing month", "Cancel anytime in your store settings"].map((t) => (
             <li key={t} className="flex gap-2"><Check className="h-4 w-4 shrink-0 text-primary" />{translateText(t)}</li>
           ))}
@@ -54,9 +61,10 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
         </div> : <>
         {(["monthly", "yearly"] as const).map((k) => (
           <Button variant="outline" key={k} onClick={() => setPlan(k)}
-            className={`mb-3 flex w-full items-center justify-between rounded-2xl border-2 p-4 text-start ${plan === k ? "border-primary bg-accent" : "border-border"}`}>
-            <span><span className="block font-semibold">{k === "monthly" ? t("Monthly") : t("Yearly")}</span><span className="text-sm text-muted-foreground">{prices[k] ?? FALLBACK_PRICE[k]}</span></span>
-            {k === "yearly" && <span className="rounded-full bg-primary px-2 py-1 text-xs text-primary-foreground">{t("Save 36%")}</span>}
+            disabled={!!busy} aria-pressed={plan === k}
+            className={`mb-3 grid h-auto min-h-20 w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 whitespace-normal rounded-2xl border-2 p-4 text-start ${plan === k ? "border-primary bg-accent" : "border-border"}`}>
+            <span className="min-w-0"><span className="block font-semibold">{k === "monthly" ? t("Monthly") : t("Yearly")}</span><span className="text-sm text-muted-foreground">{prices[k] ?? FALLBACK_PRICE[k]}</span></span>
+            {k === "yearly" && <span className="shrink-0 rounded-full bg-primary px-2 py-1 text-xs text-primary-foreground">{t("Save 36%")}</span>}
           </Button>
         ))}
         {store === false && <p className="mb-2 text-center text-xs text-muted-foreground">{t("Subscriptions are available in the Qaf app for iPhone and Android.")}</p>}
@@ -69,7 +77,8 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
           {t("Payment is charged to your Apple ID or Google Play account. Subscriptions renew automatically unless cancelled at least 24 hours before the period ends.")}{" "}
           <Link to="/terms" className="underline" onClick={onClose}>{t("Terms of Use")}</Link> · <Link to="/privacy" className="underline" onClick={onClose}>{t("Privacy")}</Link>
         </p>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }

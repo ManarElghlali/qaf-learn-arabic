@@ -1,6 +1,6 @@
 import { useLanguage } from "@/lib/i18n";
 import { API_BASE, deviceId } from "@/lib/api";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useHydrated } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, LoaderCircle, Mic, Trophy, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import { quotaStatus, type QuotaStatus } from "@/lib/purchases";
 import { useAccess, canOpenUnit, FREE_WORDS } from "@/lib/access";
 import { PremiumLocked } from "@/components/PremiumLock";
 import { touchStreak, update, useLoadedProgress, type Progress } from "@/lib/progress";
+import { recordingHasSignal } from "@/lib/recording-signal";
+import { readingResult } from "@/lib/reading-result";
 
 export const Route = createFileRoute("/test")({
   validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
@@ -40,8 +42,9 @@ function TestRoute() {
   const { lesson } = Route.useSearch();
   const p = useLoadedProgress();
   const access = useAccess();
-  if (!p || !access.loaded) return <AppShell title={t("Reading test")}><div className="h-96" aria-busy="true" /></AppShell>;
-  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Reading test")}><PremiumLocked what={t("The {lesson} reading test", { lesson: t(LESSONS[lesson].en) })} /></AppShell>;
+  const hydrated = useHydrated();
+  if (!hydrated || !p || !access.loaded) return <AppShell title={t("Reading test")}><div className="h-96" aria-busy="true" /></AppShell>;
+  if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Reading test")} singleScreen><PremiumLocked what={t("The {lesson} reading test", { lesson: t(LESSONS[lesson].en) })} /></AppShell>;
   const s = unitState(p, lesson);
   if (!s.unlocked) return <AppShell title={t("Reading test")}><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
   return <Test key={`${lesson}-${access.premium}`} lesson={lesson} progress={p} free={!access.premium} />;
@@ -90,6 +93,15 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
     if (!w) return;
     setSt("analyzing");
     try {
+      // Silent compressed audio can be large; inspect decoded samples before spending a check.
+      let audible: boolean;
+      try { audible = await recordingHasSignal(blob); }
+      catch { setErrMsg(t("Couldn't read the recording. Please record the word again.")); setSt("error"); return; }
+      if (!audible) {
+        setHeard(""); setSyl([]);
+        setErrMsg(t("No speech detected. Hold the mic, read the word aloud, then release."));
+        setSt("error"); return;
+      }
       const type = blob.type.split(";")[0] || "audio/webm";
       const fd = new FormData();
       fd.append("expected", w.ar);
@@ -100,7 +112,8 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
       refreshQuota();
       if ((res.status === 429 && data.limit === "quota") || data.limit === "premium_content") setPay(data.error ?? "You've used your free pronunciation checks.");
       if (!res.ok || !data.syllables) { setErrMsg(data.error ?? "Reading check failed. Please try again."); setSt("error"); return; }
-      judge({ correct: !!data.correct, heard: data.heard ?? "", syllables: data.syllables });
+      const checked = readingResult(w.units, { heard: data.heard ?? "", syllables: data.syllables });
+      judge({ ...checked, correct: data.correct === true && checked.correct });
     } catch { setErrMsg("Couldn't reach the reading checker. Check your connection and try again."); setSt("error"); }
   };
 
@@ -122,7 +135,7 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
       lastMs.current = Date.now() - startedAt.current;
       if (autoStop.current) clearTimeout(autoStop.current);
       const blob = new Blob(chunks.current, { type: mr.mimeType || "audio/webm" });
-      if (Date.now() - startedAt.current < 400 || blob.size < 1000) { setErrMsg("That was too short. Hold the mic, read the word, then release."); setSt("error"); return; }
+      if (Date.now() - startedAt.current < 400) { setErrMsg(t("That was too short. Hold the mic, read the word, then release.")); setSt("error"); return; }
       void analyze(blob);
     };
     media.current = mr;

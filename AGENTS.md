@@ -32,6 +32,9 @@
 - Premium unlocks come only from a server-signed Ed25519 pass (QAF_PASS_PRIVATE_KEY) bound to the device hash; entitlements are written only by verify-receipt after store verification (iOS signed JWS chained to Apple Root G3, never bare transaction IDs; one phone per subscription).
 - The offline service worker is registered only for Premium via the guarded offline module (never dev/preview); free learners get caches cleared and OfflineGate.
 - check_limits.billing_live (or VITE_STORE_TESTING=1) gates Subscribe; otherwise the paywall shows "coming soon".
+- Codemagic native testing builds set VITE_STORE_TESTING=1 for store controls without enabling public web billing; receipt verification remains required for every unlock.
+- Reading recordings are decoded and signal-checked before upload; shared reading-result validation rejects empty transcripts/tiles on both client and server to prevent silent attempts advancing.
+- Paywalls use a portalled accessible dialog so lesson transforms and glass surfaces cannot clip the subscription controls; Premium locks fill the one-screen shell above navigation.
 
 - Interface translations and language persistence live only in src/lib/i18n.tsx through LanguageProvider/useLanguage; never translate stable curriculum IDs, Arabic teaching text, or audio lookup arguments. This keeps language changes independent of learning and billing state.
 - Onboarding persists a version alongside its existing key and migrates old numeric steps when steps are inserted or reordered; quiz completion/skip leads to recommendation without altering learning progress.

@@ -5,6 +5,9 @@ workflows:
     environment:
       node: 22
       java: 21
+      vars:
+        # Native test-store visibility only; public web billing remains off.
+        VITE_STORE_TESTING: "1"
       # Add a keystore in Codemagic (Team settings > Code signing) named qaf_keystore.
       android_signing: [qaf_keystore]
     scripts:
@@ -23,6 +26,9 @@ workflows:
     environment:
       node: 22
       xcode: latest
+      vars:
+        # TestFlight uses Apple's sandbox; do not enable billing_live for web.
+        VITE_STORE_TESTING: "1"
       # Connect your Apple Developer account in Codemagic first.
       ios_signing:
         distribution_type: app_store

@@ -418,6 +418,18 @@ html[dir="rtl"] .qaf-onboarding svg.lucide-chevron-right { transform: rotate(180
 .qaf-profile-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; }
 .qaf-profile-row > label, .qaf-profile-row > span { min-width: 0; }
 .qaf-profile-row input[type="time"] { direction: ltr; }
+.premium-lock { min-height: 0; width: 100%; max-width: 380px; margin-inline: auto; padding-block: 24px; overflow-y: auto; }
+.qaf-paywall {
+  inset-inline-start: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: calc(100% - 32px);
+  max-height: calc(100dvh - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom)));
+  overflow-y: auto; overscroll-behavior: contain; padding: 20px;
+}
+html[dir="rtl"] .qaf-paywall { transform: translate(50%, -50%); }
+@media (max-height: 700px) {
+  .qaf-paywall { padding: 16px; }
+  .qaf-paywall ul { font-size: 12px; line-height: 1.5; }
+}
 .qaf-step-enter { animation: qaf-step-in 320ms cubic-bezier(0.22, 1.2, 0.36, 1) both; }
 @keyframes qaf-step-in {
   from { opacity: 0; transform: translateY(14px) scale(0.985); }
