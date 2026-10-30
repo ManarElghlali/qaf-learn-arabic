@@ -1,4 +1,7 @@
 # Onboarding and quiz adjustments
+- [ ] Reject silent reading recordings without advancing or spending AI checks; verify regression tests and microphone flow.
+- [ ] Fix subscription sheet spacing, enable native test-store controls only, and center Premium locks.
+- [ ] Bump iOS to 1.0 (4), Android build to 4, and verify affected layouts; physical StoreKit purchases require rebuilt TestFlight.
 - [x] Fix October 29 onboarding/Home spacing, dedicated pre-recommendation quiz, audio targets and RTL. Verified complete quiz/retry/celebration → recommendation → lesson, quiz Skip/Back, English/Arabic Home and Profile, 375×667 / 430×932 / 1280×1800 layouts with no quiz collisions or onboarding scroll space; 68 tests passed and preview build OK. Native safe areas/audio still need the rebuilt installed app.
 - [x] Apply October 18 marked fixes: compact screen spacing, single Arabic labels, prominent optional first-quiz action and clean 3D open-book badge. Verified onboarding-to-Learn, loaded Arabic labels, small-phone free quiz list, 66 passing tests and preview build OK. Installed apps require rebuilding.
 - [x] Apply the October 17 reference treatment to welcome, first quiz and shared app surfaces; verified quiz-to-lesson flow, English/Arabic layouts, no horizontal overflow, 66 passing tests and fresh preview build OK. Installed native appearance still needs a rebuilt app.

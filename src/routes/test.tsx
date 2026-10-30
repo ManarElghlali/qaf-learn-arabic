@@ -15,6 +15,7 @@ import { quotaStatus, type QuotaStatus } from "@/lib/purchases";
 import { useAccess, canOpenUnit, FREE_WORDS } from "@/lib/access";
 import { PremiumLocked } from "@/components/PremiumLock";
 import { touchStreak, update, useLoadedProgress, type Progress } from "@/lib/progress";
+import { recordingHasSignal } from "@/lib/recording-signal";
 
 export const Route = createFileRoute("/test")({
   validateSearch: (s: Record<string, unknown>) => ({ lesson: parseLesson(s["lesson"]) }),
@@ -90,6 +91,15 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
     if (!w) return;
     setSt("analyzing");
     try {
+      // Silent compressed audio can be large; inspect decoded samples before spending a check.
+      let audible: boolean;
+      try { audible = await recordingHasSignal(blob); }
+      catch { setErrMsg(t("Couldn't read the recording. Please record the word again.")); setSt("error"); return; }
+      if (!audible) {
+        setHeard(""); setSyl([]);
+        setErrMsg(t("No speech detected. Hold the mic, read the word aloud, then release."));
+        setSt("error"); return;
+      }
       const type = blob.type.split(";")[0] || "audio/webm";
       const fd = new FormData();
       fd.append("expected", w.ar);
