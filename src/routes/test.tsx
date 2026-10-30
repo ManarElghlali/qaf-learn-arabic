@@ -1,6 +1,6 @@
 import { useLanguage } from "@/lib/i18n";
 import { API_BASE, deviceId } from "@/lib/api";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useHydrated } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Check, CircleAlert, LoaderCircle, Mic, Trophy, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,8 @@ function TestRoute() {
   const { lesson } = Route.useSearch();
   const p = useLoadedProgress();
   const access = useAccess();
-  if (!p || !access.loaded) return <AppShell title={t("Reading test")}><div className="h-96" aria-busy="true" /></AppShell>;
+  const hydrated = useHydrated();
+  if (!hydrated || !p || !access.loaded) return <AppShell title={t("Reading test")}><div className="h-96" aria-busy="true" /></AppShell>;
   if (!canOpenUnit(lesson, access.premium)) return <AppShell title={t("Reading test")} singleScreen><PremiumLocked what={t("The {lesson} reading test", { lesson: t(LESSONS[lesson].en) })} /></AppShell>;
   const s = unitState(p, lesson);
   if (!s.unlocked) return <AppShell title={t("Reading test")}><UnitLocked id={lesson} progress={p} need="unit" /></AppShell>;
@@ -134,7 +135,7 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
       lastMs.current = Date.now() - startedAt.current;
       if (autoStop.current) clearTimeout(autoStop.current);
       const blob = new Blob(chunks.current, { type: mr.mimeType || "audio/webm" });
-      if (Date.now() - startedAt.current < 400 || blob.size < 1000) { setErrMsg("That was too short. Hold the mic, read the word, then release."); setSt("error"); return; }
+      if (Date.now() - startedAt.current < 400) { setErrMsg(t("That was too short. Hold the mic, read the word, then release.")); setSt("error"); return; }
       void analyze(blob);
     };
     media.current = mr;

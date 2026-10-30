@@ -1,5 +1,5 @@
 import { useLanguage } from "@/lib/i18n";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useHydrated } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Volume2 } from "lucide-react";
 import { AppShell, Ar } from "@/components/AppShell";
@@ -34,6 +34,7 @@ function Learn() {
   const { lesson } = Route.useSearch();
   const L = LESSONS[lesson];
   const access = useAccess();
+  const hydrated = useHydrated();
   const free = !access.premium;
   const WORDS = free && lesson === "fatha" ? FREE_WORDS : L.words;
   const [pay, setPay] = useState(false);
@@ -45,6 +46,7 @@ function Learn() {
   useEffect(() => { setI(learningSummary(lessonLearned(readProgress(), lesson), WORDS).resumeIndex); return () => stopAudio(); }, [lesson]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setSelectedSound(null); stopAudio(); }, [i, lesson]);
   useEffect(() => { const ws = WORDS.slice(i, i + 2).filter(Boolean); preloadAudio("w", ws.map((x) => x.ar)); preloadAudio("u", ws.flatMap((x) => x.units)); }, [i, WORDS]);
+  if (!hydrated || !access.loaded) return <AppShell title={`${t(L.en)} · ${L.ar}`} singleScreen><div aria-busy="true" /></AppShell>;
   if (!w) return null;
   if (access.loaded && !canOpenUnit(lesson, access.premium)) return <AppShell title={`${t(L.en)} · ${L.ar}`} singleScreen><PremiumLocked what={t("The {lesson} unit", { lesson: t(L.en) })} /></AppShell>;
   if (lp && !unitState(lp, lesson).unlocked) return <AppShell title={`${t(L.en)} · ${L.ar}`}><UnitLocked id={lesson} progress={lp} need="unit" /></AppShell>;
