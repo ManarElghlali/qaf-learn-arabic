@@ -96,10 +96,19 @@ export async function savePass(pass: string | null | undefined, billingLive?: bo
 /** Subscription testing builds (TestFlight / Play internal testing) can buy with sandbox accounts before launch. */
 export const STORE_TESTING = import.meta.env["VITE_STORE_TESTING"] === "1";
 
+/** Installed iOS/Android apps always show store purchasing; the server still verifies every receipt. */
+export function isNativeApp(): boolean {
+  if (typeof window === "undefined") return false;
+  const c = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+  return !!c?.isNativePlatform?.();
+}
+
 export function useAccess(): Access & { canBuy: boolean } {
   const [a, setA] = useState<Access>(state);
   useEffect(() => { subs.add(setA); if (!state.loaded) void refreshAccess(); else setA({ ...state }); return () => { subs.delete(setA); }; }, []);
-  return { ...a, canBuy: a.billingLive || STORE_TESTING };
+  const [native, setNative] = useState(false);
+  useEffect(() => { setNative(isNativeApp()); }, []);
+  return { ...a, canBuy: native || a.billingLive || STORE_TESTING };
 }
 
 export function useFreeQuizzes() {
