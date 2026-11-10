@@ -6,7 +6,7 @@ import { BUNDLE_ID, PRODUCTS, verifyAppleJws, verifyAppleJwsWithRoot } from "@/l
 const key = nodeCrypto.createPrivateKey(chain.leafKey);
 const b64u = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url");
 const DAY = 86_400_000;
-const now = new Date("2026-11-10T12:00:00Z");
+const now = new Date("2030-01-15T12:00:00Z");
 const tx = (over: Record<string, unknown> = {}) => ({
   transactionId: "2000000111", originalTransactionId: "2000000100", bundleId: BUNDLE_ID, productId: PRODUCTS.monthly,
   purchaseDate: now.getTime() - 5 * DAY, expiresDate: now.getTime() + 25 * DAY, appAccountToken: "acc-1", ...over,
