@@ -67,7 +67,7 @@ export async function verifyAppleJwsWithRoots(jws: string, roots: Readonly<Recor
     const c = certs[i]!, issuer = certs[i + 1] ?? root, pos = POSITION[i];
     if (new Date(c.validFrom) > now) throw new Error(`bad_cert:not_yet_valid:${pos}:${c.validFrom}`);
     if (new Date(c.validTo) < now) throw new Error(`bad_cert:expired:${pos}:${c.validTo}`);
-    if (c !== root && !c.checkIssued(issuer)) throw new Error(`bad_cert:issuer_mismatch:${pos}:${cn(c.issuer)}!=${cn(issuer.subject)}`);
+    if (c !== root && typeof c.checkIssued === "function" && !c.checkIssued(issuer)) throw new Error(`bad_cert:issuer_mismatch:${pos}:${cn(c.issuer)}!=${cn(issuer.subject)}`);
     if (!c.verify(issuer.publicKey)) throw new Error(`bad_cert:chain_signature:${pos}`);
   }
   const sigBuf = Buffer.from(sig, "base64url");
