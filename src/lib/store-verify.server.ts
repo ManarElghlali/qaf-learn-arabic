@@ -11,7 +11,13 @@ export type Verified = { productId: string; original: string; start: Date; end: 
 /** Store says this subscription exists but is not active (expired, refunded, revoked). */
 export type Inactive = { inactive: string };
 
-const APPLE_ROOT_G3_SHA256 = "63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8c488c3653e9179";
+// Apple's published root certificates (apple.com/certificateauthority), pinned by SHA-256 of the full certificate.
+// StoreKit 2 currently chains to G3; G1 and G2 are recognized so a future Apple chain change can't silently lock out buyers.
+export const APPLE_ROOTS: Readonly<Record<string, string>> = {
+  b0b1730ecbc7ff4505142c49f1295e6eda6bcaed7e2c68c5be91b5a11001f024: "Apple Root CA (G1)",
+  c2b9b042dd57830e7d117dac55ac8ae19407d38e41d88f3215bc3a890444a050: "Apple Root CA - G2",
+  "63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8c488c3653e9179": "Apple Root CA - G3",
+};
 // Apple's marker extensions: only App Store receipt-signing certificates carry these, so a certificate
 // Apple issued for something else (e.g. a developer's Apple Pay key) can never sign a fake transaction.
 const LEAF_OID = Buffer.from("060a2a864886f76364060b01", "hex"); // 1.2.840.113635.100.6.11.1
@@ -22,42 +28,57 @@ type AppleTx = {
   purchaseDate: number; expiresDate?: number; revocationDate?: number; appAccountToken?: string;
 };
 
-/** Verifies a StoreKit 2 signed transaction (x5c chain up to Apple Root CA G3, then the ES256 signature) and returns its subscription state. */
+/** Verifies a StoreKit 2 signed transaction (x5c chain up to an Apple root CA, then the ES256 signature) and returns its subscription state. */
 export function verifyAppleJws(jws: string): Promise<Verified | Inactive> {
-  return verifyAppleJwsWithRoot(jws, APPLE_ROOT_G3_SHA256);
+  return verifyAppleJwsWithRoots(jws, APPLE_ROOTS);
 }
 
-/** Exported for tests only; production always pins Apple Root CA G3 via verifyAppleJws. */
-export async function verifyAppleJwsWithRoot(jws: string, rootSha256: string, now = new Date()): Promise<Verified | Inactive> {
+/** Exported for tests only; production always pins Apple's roots via verifyAppleJws. */
+export function verifyAppleJwsWithRoot(jws: string, rootSha256: string, now = new Date()): Promise<Verified | Inactive> {
+  return verifyAppleJwsWithRoots(jws, { [rootSha256]: "test root" }, now);
+}
+
+const cn = (dn: string) => /CN=([^\n,]+)/.exec(dn)?.[1]?.trim() ?? dn.replace(/\n/g, ", ");
+const POSITION = ["leaf", "intermediate", "root"] as const;
+
+/** Every failure throws a stable code followed by details, e.g. "bad_root:untrusted:<sha256>:<CN>". */
+export async function verifyAppleJwsWithRoots(jws: string, roots: Readonly<Record<string, string>>, now = new Date()): Promise<Verified | Inactive> {
   const parts = jws.trim().split(".");
-  if (parts.length !== 3 || parts.some((x) => !x)) throw new Error("bad_jws:format");
+  if (parts.length !== 3 || parts.some((x) => !x)) throw new Error(`bad_jws:format:${parts.length}_parts`);
   const [h, p, sig] = parts as [string, string, string];
   let header: { alg?: string; x5c?: unknown };
   try { header = JSON.parse(Buffer.from(h, "base64url").toString("utf8")); } catch { throw new Error("bad_jws:header_json"); }
-  if (header.alg !== "ES256") throw new Error(`bad_jws:alg_${String(header.alg)}`);
-  if (!Array.isArray(header.x5c) || header.x5c.length !== 3 || !header.x5c.every((c) => typeof c === "string")) throw new Error("bad_jws:x5c");
+  if (header.alg !== "ES256") throw new Error(`bad_jws:alg:${String(header.alg)}`);
+  if (!Array.isArray(header.x5c)) throw new Error("bad_jws:x5c_missing");
+  if (header.x5c.length !== 3) throw new Error(`bad_jws:x5c_length:${header.x5c.length}`);
+  if (!header.x5c.every((c) => typeof c === "string")) throw new Error("bad_jws:x5c_not_strings");
   const certs = (header.x5c as string[]).map((certB64, i) => {
     try { return new nodeCrypto.X509Certificate(Buffer.from(certB64, "base64")); }
-    catch (e) { throw new Error(`bad_cert:parse_${i}:${e instanceof Error ? e.message : e}`); }
+    catch (e) { throw new Error(`bad_cert:parse:${POSITION[i]}:${e instanceof Error ? e.message : e}`); }
   });
   const [leaf, intermediate, root] = certs as [nodeCrypto.X509Certificate, nodeCrypto.X509Certificate, nodeCrypto.X509Certificate];
   const fingerprint = root.fingerprint256.replace(/:/g, "").toLowerCase();
-  if (fingerprint !== rootSha256) throw new Error(`bad_root:${fingerprint}`);
-  if (!leaf.raw.includes(LEAF_OID)) throw new Error("bad_cert:leaf_not_app_store");
-  if (!intermediate.raw.includes(INTERMEDIATE_OID)) throw new Error("bad_cert:intermediate_not_apple_wwdr");
+  if (!roots[fingerprint]) throw new Error(`bad_root:untrusted:${fingerprint}:${cn(root.subject)}`);
+  if (!root.verify(root.publicKey)) throw new Error(`bad_root:not_self_signed:${roots[fingerprint]}`);
+  if (!leaf.raw.includes(LEAF_OID)) throw new Error(`bad_cert:leaf_not_app_store:${cn(leaf.subject)}`);
+  if (!intermediate.raw.includes(INTERMEDIATE_OID)) throw new Error(`bad_cert:intermediate_not_apple_wwdr:${cn(intermediate.subject)}`);
+  if (leaf.publicKey.asymmetricKeyType !== "ec") throw new Error(`bad_cert:leaf_key_type:${leaf.publicKey.asymmetricKeyType}`);
   for (let i = 0; i < certs.length; i++) {
-    const c = certs[i]!, issuer = certs[i + 1] ?? root;
-    if (new Date(c.validFrom) > now || new Date(c.validTo) < now) throw new Error(`bad_cert:expired_${i}:${c.validFrom}-${c.validTo}`);
-    if (!c.verify(issuer.publicKey)) throw new Error(`bad_cert:chain_${i}`);
+    const c = certs[i]!, issuer = certs[i + 1] ?? root, pos = POSITION[i];
+    if (new Date(c.validFrom) > now) throw new Error(`bad_cert:not_yet_valid:${pos}:${c.validFrom}`);
+    if (new Date(c.validTo) < now) throw new Error(`bad_cert:expired:${pos}:${c.validTo}`);
+    if (c !== root && typeof c.checkIssued === "function" && !c.checkIssued(issuer)) throw new Error(`bad_cert:issuer_mismatch:${pos}:${cn(c.issuer)}!=${cn(issuer.subject)}`);
+    if (!c.verify(issuer.publicKey)) throw new Error(`bad_cert:chain_signature:${pos}`);
   }
   const sigBuf = Buffer.from(sig, "base64url");
   const signedData = Buffer.from(`${h}.${p}`);
-  if (!nodeCrypto.verify("SHA256", signedData, { key: leaf.publicKey, dsaEncoding: "ieee-p1363" }, sigBuf)) throw new Error("bad_signature");
+  if (!nodeCrypto.verify("SHA256", signedData, { key: leaf.publicKey, dsaEncoding: "ieee-p1363" }, sigBuf)) throw new Error(`bad_signature:${sigBuf.length}_bytes`);
   let x: AppleTx;
   try { x = JSON.parse(Buffer.from(p, "base64url").toString("utf8")); } catch { throw new Error("bad_jws:payload_json"); }
-  if (x.bundleId !== BUNDLE_ID) throw new Error(`bad_bundle:${x.bundleId}`);
-  if (!KNOWN.has(x.productId)) throw new Error(`bad_product:${x.productId}`);
-  if (!x.originalTransactionId || !Number.isFinite(x.purchaseDate) || !Number.isFinite(x.expiresDate)) throw new Error("bad_jws:payload_fields");
+  if (x.bundleId !== BUNDLE_ID) throw new Error(`bad_bundle:${String(x.bundleId)}`);
+  if (!KNOWN.has(x.productId)) throw new Error(`bad_product:${String(x.productId)}`);
+  const missing = (["originalTransactionId", "purchaseDate", "expiresDate"] as const).filter((k) => k === "originalTransactionId" ? !x[k] : !Number.isFinite(x[k]));
+  if (missing.length) throw new Error(`bad_jws:payload_fields:${missing.join(",")}`);
   const expiry = new Date(x.expiresDate!);
   if (x.revocationDate || expiry <= now) return { inactive: `ios:${x.originalTransactionId}` };
   return { productId: x.productId, original: `ios:${x.originalTransactionId}`, account: x.appAccountToken ?? null, ...billingMonth(new Date(x.purchaseDate), expiry, now) };

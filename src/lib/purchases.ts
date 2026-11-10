@@ -51,8 +51,11 @@ async function verify(platform: "ios" | "android", t: Tx): Promise<boolean> {
   if (platform === "ios" && !t.jwsRepresentation) return false;
   const body = platform === "ios" ? { platform, jws: t.jwsRepresentation } : { platform, purchaseToken: t.purchaseToken };
   const res = await fetch(`${API_BASE}/api/public/verify-receipt`, { method: "POST", headers: { "Content-Type": "application/json", "x-qaf-device": deviceId() }, body: JSON.stringify(body) });
-  const data = (await res.json().catch(() => ({}))) as { premium?: boolean; error?: string; pass?: string };
-  if (!res.ok) throw new Error(data.error ?? "Couldn't confirm your purchase.");
+  const data = (await res.json().catch(() => ({}))) as { premium?: boolean; error?: string; code?: string; detail?: string; pass?: string };
+  if (!res.ok) {
+    console.error("[purchases] verify-receipt", res.status, data.code ?? "unknown", data.detail ?? "");
+    throw new Error(data.error ?? "Couldn't confirm your purchase.");
+  }
   if (data.premium && data.pass) await savePass(data.pass);
   return !!data.premium;
 }

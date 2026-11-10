@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import * as nodeCrypto from "node:crypto";
 import chain from "./fixtures-apple-chain.json";
-import { BUNDLE_ID, PRODUCTS, verifyAppleJws, verifyAppleJwsWithRoot } from "@/lib/store-verify.server";
+import appleRoots from "./fixtures-apple-roots.json";
+import { APPLE_ROOTS, BUNDLE_ID, PRODUCTS, verifyAppleJws, verifyAppleJwsWithRoot, verifyAppleJwsWithRoots } from "@/lib/store-verify.server";
 
 const key = nodeCrypto.createPrivateKey(chain.leafKey);
 const b64u = (o: object) => Buffer.from(JSON.stringify(o)).toString("base64url");
@@ -35,13 +36,27 @@ describe("Apple signed transaction", () => {
     await expect(check(sign(tx({ bundleId: "com.other.app" })))).rejects.toThrow("bad_bundle");
     await expect(check(sign(tx({ productId: "free_gems" })))).rejects.toThrow("bad_product");
   });
-  it("rejects a chain that does not end at Apple Root CA G3", async () => {
-    await expect(verifyAppleJws(sign(tx()))).rejects.toThrow("bad_root");
+  it("rejects a chain that does not end at an Apple root, naming the root it found", async () => {
+    await expect(verifyAppleJws(sign(tx()))).rejects.toThrow(`bad_root:untrusted:${chain.rootSha256}`);
+  });
+  it("recognizes Apple Root CA G1, G2 and G3 exactly as Apple publishes them", () => {
+    for (const g of ["G1", "G2", "G3"] as const) {
+      const fp = new nodeCrypto.X509Certificate(Buffer.from(appleRoots[g], "base64")).fingerprint256.replace(/:/g, "").toLowerCase();
+      expect(APPLE_ROOTS[fp], g).toBeDefined();
+    }
+    expect(Object.keys(APPLE_ROOTS)).toHaveLength(3);
+  });
+  it("accepts a chain to any recognized root, not only the first", async () => {
+    const roots = { ["0".repeat(64)]: "other", [chain.rootSha256]: "test root" };
+    await expect(verifyAppleJwsWithRoots(sign(tx()), roots, now)).resolves.toMatchObject({ productId: PRODUCTS.monthly });
+  });
+  it("names the certificate that is out of date", async () => {
+    await expect(verifyAppleJwsWithRoot(sign(tx()), chain.rootSha256, new Date("2200-01-01"))).rejects.toThrow("bad_cert:expired:leaf");
   });
   it("rejects a signing certificate that is not an App Store receipt certificate", async () => {
-    await expect(check(sign(tx(), [chain.unmarkedLeaf, chain.x5c[1]!, chain.x5c[2]!]))).rejects.toThrow("leaf_not_app_store");
+    await expect(check(sign(tx(), [chain.unmarkedLeaf, chain.x5c[1]!, chain.x5c[2]!]))).rejects.toThrow("bad_cert:leaf_not_app_store");
   });
   it("rejects a broken certificate chain", async () => {
-    await expect(check(sign(tx(), [chain.x5c[0]!, chain.x5c[0]!, chain.x5c[2]!]))).rejects.toThrow();
+    await expect(check(sign(tx(), [chain.x5c[0]!, chain.x5c[0]!, chain.x5c[2]!]))).rejects.toThrow(/^bad_cert:/);
   });
 });
