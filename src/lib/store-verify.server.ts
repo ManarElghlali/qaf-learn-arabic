@@ -15,7 +15,7 @@ const APPLE_ROOT_G3_SHA256 = "63343abfb89a6a03ebb57e9b3f5fa7be7c4f5c756f3017b3a8
 // Apple's marker extensions: only App Store receipt-signing certificates carry these, so a certificate
 // Apple issued for something else (e.g. a developer's Apple Pay key) can never sign a fake transaction.
 const LEAF_OID = Buffer.from("060a2a864886f76364060b01", "hex"); // 1.2.840.113635.100.6.11.1
-const INTERMEDIATE_OID = Buffer.from("060a2a864886f763640602 01".replace(/ /g, ""), "hex"); // 1.2.840.113635.100.6.2.1
+const INTERMEDIATE_OID = Buffer.from("060a2a864886f76364060201", "hex"); // 1.2.840.113635.100.6.2.1
 
 type AppleTx = {
   transactionId: string; originalTransactionId: string; bundleId: string; productId: string;
