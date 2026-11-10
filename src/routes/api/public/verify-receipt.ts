@@ -23,7 +23,7 @@ export const Route = createFileRoute("/api/public/verify-receipt")({
         const parsed = Body.safeParse(await request.json().catch(() => null));
         if (!parsed.success) {
           console.error("[verify-receipt] request rejected by schema", JSON.stringify(parsed.error.issues.map((i) => ({ path: i.path.join("."), code: i.code, message: i.message }))));
-          return json({ error: "Invalid purchase." }, 400);
+          return json({ error: "Invalid purchase.", code: "bad_request:schema", detail: parsed.error.issues.map((i) => `${i.path.join(".") || "body"}:${i.code}`).join(";") }, 400);
         }
         const { verifyApple, verifyAppleJws, verifyGoogle } = await import("@/lib/store-verify.server");
         const { signPass } = await import("@/lib/premium-pass.server");
@@ -37,8 +37,10 @@ export const Route = createFileRoute("/api/public/verify-receipt")({
             try {
               signed = await verifyAppleJws(b.jws);
             } catch (e) {
-              console.error("[verify-receipt] Apple JWS rejected:", e instanceof Error ? e.message : String(e), `(length ${b.jws.length})`);
-              return json({ error: "Invalid purchase." }, 400);
+              const detail = e instanceof Error ? e.message : String(e);
+              console.error("[verify-receipt] Apple JWS rejected:", detail, `(length ${b.jws.length})`);
+              // The code only describes Apple's public certificates and the submitted transaction, so it is safe to return.
+              return json({ error: "Invalid purchase.", code: detail.split(":")[0] + ":" + (detail.split(":")[1] ?? ""), detail }, 400);
             }
             // Apple's server is authoritative when its keys are configured (catches refunds and renewals);
             // otherwise, or if it is unreachable, use the transaction Apple signed.
@@ -61,15 +63,15 @@ export const Route = createFileRoute("/api/public/verify-receipt")({
           });
           if (error) {
             console.error("[verify-receipt] grant_entitlement failed:", error.code, error.message, error.details, error.hint);
-            if (/too_many_moves/.test(error.message)) return json({ error: "This subscription was moved to another phone too many times this month. Please contact support." }, 409);
+            if (/too_many_moves/.test(error.message)) return json({ error: "This subscription was moved to another phone too many times this month. Please contact support.", code: "entitlement:too_many_moves" }, 409);
             throw error;
           }
           return json({ premium: true, productId: v.productId, periodEnd: v.end.toISOString(), pass: await signPass(dev, v.end, v.productId) });
         } catch (e) {
           const msg = e instanceof Error ? e.message : "";
           console.error("[verify-receipt] failed:", msg, e instanceof Error ? e.stack : String(e));
-          if (msg === "not_configured") return json({ error: "Store purchases aren't set up yet." }, 503);
-          return json({ error: "Couldn't confirm your purchase right now. Please try Restore later." }, 502);
+          if (msg === "not_configured") return json({ error: "Store purchases aren't set up yet.", code: "store:not_configured" }, 503);
+          return json({ error: "Couldn't confirm your purchase right now. Please try Restore later.", code: "server:verification_failed" }, 502);
         }
       },
     },
