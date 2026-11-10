@@ -176,6 +176,33 @@ export type Database = {
         }
         Relationships: []
       }
+      receipt_diagnostics: {
+        Row: {
+          code: string
+          created_at: string
+          detail: string
+          id: number
+          platform: string
+          stage: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          detail: string
+          id?: never
+          platform: string
+          stage: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          detail?: string
+          id?: never
+          platform?: string
+          stage?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

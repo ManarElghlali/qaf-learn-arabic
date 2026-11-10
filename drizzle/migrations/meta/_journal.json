@@ -29,6 +29,13 @@
       "when": 1792060034908,
       "tag": "0003_premium_access_and_device_binding",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794319494333,
+      "tag": "0004_receipt_diagnostics",
+      "breakpoints": true
     }
   ]
 }

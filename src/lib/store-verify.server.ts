@@ -41,6 +41,18 @@ export function verifyAppleJwsWithRoot(jws: string, rootSha256: string, now = ne
 const cn = (dn: string) => /CN=([^\n,]+)/.exec(dn)?.[1]?.trim() ?? dn.replace(/\n/g, ", ");
 const POSITION = ["leaf", "intermediate", "root"] as const;
 
+/** ES256 via WebCrypto (raw r||s, as JWS uses). node:crypto.verify on the Workers runtime rejects KeyObject keys. */
+async function verifyEs256(leaf: nodeCrypto.X509Certificate, data: Uint8Array, sig: Uint8Array): Promise<boolean> {
+  if (sig.length !== 64) throw new Error(`bad_signature:length:${sig.length}_bytes`);
+  let spki: Uint8Array<ArrayBuffer>;
+  try { spki = new Uint8Array(leaf.publicKey.export({ type: "spki", format: "der" })); }
+  catch (e) { throw new Error(`bad_signature:key_export:${e instanceof Error ? e.message : e}`); }
+  let key: CryptoKey;
+  try { key = await crypto.subtle.importKey("spki", spki, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]); }
+  catch (e) { throw new Error(`bad_signature:key_import:${e instanceof Error ? e.message : e}`); }
+  return crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, Uint8Array.from(sig), Uint8Array.from(data));
+}
+
 /** Every failure throws a stable code followed by details, e.g. "bad_root:untrusted:<sha256>:<CN>". */
 export async function verifyAppleJwsWithRoots(jws: string, roots: Readonly<Record<string, string>>, now = new Date()): Promise<Verified | Inactive> {
   const parts = jws.trim().split(".");
@@ -72,7 +84,7 @@ export async function verifyAppleJwsWithRoots(jws: string, roots: Readonly<Recor
   }
   const sigBuf = Buffer.from(sig, "base64url");
   const signedData = Buffer.from(`${h}.${p}`);
-  if (!nodeCrypto.verify("SHA256", signedData, { key: leaf.publicKey, dsaEncoding: "ieee-p1363" }, sigBuf)) throw new Error(`bad_signature:${sigBuf.length}_bytes`);
+  if (!(await verifyEs256(leaf, signedData, sigBuf))) throw new Error(`bad_signature:mismatch:${sigBuf.length}_bytes`);
   let x: AppleTx;
   try { x = JSON.parse(Buffer.from(p, "base64url").toString("utf8")); } catch { throw new Error("bad_jws:payload_json"); }
   if (x.bundleId !== BUNDLE_ID) throw new Error(`bad_bundle:${String(x.bundleId)}`);
