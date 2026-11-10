@@ -44,13 +44,13 @@ const POSITION = ["leaf", "intermediate", "root"] as const;
 /** ES256 via WebCrypto (raw r||s, as JWS uses). node:crypto.verify on the Workers runtime rejects KeyObject keys. */
 async function verifyEs256(leaf: nodeCrypto.X509Certificate, data: Uint8Array, sig: Uint8Array): Promise<boolean> {
   if (sig.length !== 64) throw new Error(`bad_signature:length:${sig.length}_bytes`);
-  let spki: Uint8Array;
+  let spki: Uint8Array<ArrayBuffer>;
   try { spki = new Uint8Array(leaf.publicKey.export({ type: "spki", format: "der" })); }
   catch (e) { throw new Error(`bad_signature:key_export:${e instanceof Error ? e.message : e}`); }
   let key: CryptoKey;
   try { key = await crypto.subtle.importKey("spki", spki, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]); }
   catch (e) { throw new Error(`bad_signature:key_import:${e instanceof Error ? e.message : e}`); }
-  return crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, sig, data);
+  return crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, key, Uint8Array.from(sig), Uint8Array.from(data));
 }
 
 /** Every failure throws a stable code followed by details, e.g. "bad_root:untrusted:<sha256>:<CN>". */
