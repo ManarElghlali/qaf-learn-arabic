@@ -30,7 +30,7 @@ describe("Apple signed transaction", () => {
   });
   it("rejects an edited transaction", async () => {
     const [h, , s] = sign(tx()).split(".");
-    await expect(check(`${h}.${b64u(tx({ expiresDate: now.getTime() + 999 * DAY }))}.${s}`)).rejects.toThrow("bad_signature");
+    await expect(check(`${h}.${b64u(tx({ expiresDate: now.getTime() + 999 * DAY }))}.${s}`)).rejects.toThrow("bad_signature:mismatch");
   });
   it("rejects another app or an unknown product", async () => {
     await expect(check(sign(tx({ bundleId: "com.other.app" })))).rejects.toThrow("bad_bundle");

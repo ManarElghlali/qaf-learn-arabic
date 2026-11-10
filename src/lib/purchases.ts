@@ -79,12 +79,15 @@ export async function restore(): Promise<boolean> {
   await n.plugin.restorePurchases().catch(() => {});
   const { purchases } = await n.plugin.getPurchases({ productType: n.SUBS, onlyCurrentEntitlements: true });
   let ok = false;
+  let failure: unknown = null;
   for (const t of purchases as Tx[]) {
     if (t.productIdentifier && !Object.values(PRODUCTS).includes(t.productIdentifier as never)) continue;
-    if (await verify(n.platform, t).catch(() => false)) { ok = true; break; }
+    if (await verify(n.platform, t).catch((e) => { failure = e; return false; })) { ok = true; break; }
   }
   if (!ok) await savePass(null);
   setPremium(ok);
+  // Show the server's exact reason instead of "No active subscription found" when a purchase was refused.
+  if (!ok && failure) throw failure;
   return ok;
 }
 
