@@ -1,3 +1,8 @@
+# Reminders and store purchases
+- [x] Fix daily reminder activation: no exact-alarm settings detour on Android, localized text, valid times only, error feedback, start-up permission sync; web switch flow checked in preview.
+- [x] Treat cancelled Google/Apple purchase sheets as quiet cancellations; pending, store-unavailable and already-owned (auto-restore) handled. 93 tests passed.
+- [ ] Confirm reminders fire and a cancelled Play purchase stays quiet on real phones — needs rebuilt native apps.
+
 # Onboarding and quiz adjustments
 - [x] Reject silent reading recordings before upload; browser microphone hold/release stayed on word 1 with 0 correct and 0 checker requests. Six signal/result tests passed; existing teacher speech passes decoding. Full suite: 74 passed.
 - [x] Fix subscription spacing with a portalled dialog, enable Codemagic native test-store controls only, and center Premium locks. Checked English/Arabic on 375×667, 390×844 and 430×932; no clipping or browser errors. Public billing remains off.

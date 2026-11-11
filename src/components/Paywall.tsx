@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Check, LoaderCircle, X } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { buy, FALLBACK_PRICE, restore, storeAvailable, storePrices, type Plan } from "@/lib/purchases";
+import { buy, FALLBACK_PRICE, PurchaseError, restore, storeAvailable, storePrices, type Plan } from "@/lib/purchases";
 import { Button } from "@/components/ui/button";
 import { useAccess } from "@/lib/access";
 import * as Dialog from "@radix-ui/react-dialog";
@@ -34,8 +34,12 @@ export function Paywall({ open, onClose, reason }: { open: boolean; onClose: () 
       if (ok) { toast.success(t("Qaf Premium is active")); onClose(); }
       else toast(kind === "buy" ? t("Purchase not completed") : t("No active subscription found"));
     } catch (e) {
+      // Closing the Apple/Google sheet is a choice, not an error: stay quietly on the paywall.
+      if (e instanceof PurchaseError && e.kind === "cancelled") return;
+      if (e instanceof PurchaseError && e.kind === "pending") { toast(t("Your purchase is pending. Premium unlocks once the store confirms the payment.")); return; }
+      if (e instanceof PurchaseError && e.kind === "unavailable") { toast.error(t("The store isn't available right now. Check your connection and try again.")); return; }
       const m = e instanceof Error ? e.message : "";
-      if (!/cancel/i.test(m)) toast.error(m || t("Something went wrong. Please try again."));
+      toast.error(m || t("Something went wrong. Please try again."));
     } finally { setBusy(null); }
   };
 
