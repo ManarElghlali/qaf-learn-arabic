@@ -60,7 +60,8 @@ export function purchaseFailure(e: unknown): PurchaseFailure {
   return "other";
 }
 export class PurchaseError extends Error {
-  constructor(readonly kind: Exclude<PurchaseFailure, "owned">, message: string) { super(message); this.name = "PurchaseError"; }
+  readonly kind: Exclude<PurchaseFailure, "owned">;
+  constructor(kind: Exclude<PurchaseFailure, "owned">, message: string) { super(message); this.kind = kind; this.name = "PurchaseError"; }
 }
 
 type Tx = { transactionId: string; purchaseToken?: string; productIdentifier?: string; jwsRepresentation?: string };
