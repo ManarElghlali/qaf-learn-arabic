@@ -45,6 +45,24 @@ export async function storePrices(): Promise<Partial<Record<Plan, string>>> {
   } catch { return {}; }
 }
 
+/**
+ * Why the store refused a purchase. Google Play rejects a cancelled sheet with message "Purchase is not purchased"
+ * and code USER_CANCELED (no "cancel" in the message); Apple uses "User cancelled".
+ */
+export type PurchaseFailure = "cancelled" | "owned" | "pending" | "unavailable" | "other";
+export function purchaseFailure(e: unknown): PurchaseFailure {
+  const code = String((e as { code?: unknown } | null)?.code ?? "").toUpperCase();
+  const msg = e instanceof Error ? e.message : String((e as { message?: unknown } | null)?.message ?? e ?? "");
+  if (code === "USER_CANCELED" || code === "USER_CANCELLED" || /user cancel+ed/i.test(msg)) return "cancelled";
+  if (code === "ITEM_ALREADY_OWNED") return "owned";
+  if (code === "PURCHASE_STATE_2" || /pending/i.test(msg)) return "pending";
+  if (["BILLING_UNAVAILABLE", "SERVICE_UNAVAILABLE", "SERVICE_DISCONNECTED", "NETWORK_ERROR", "ITEM_UNAVAILABLE", "FEATURE_NOT_SUPPORTED"].includes(code)) return "unavailable";
+  return "other";
+}
+export class PurchaseError extends Error {
+  constructor(readonly kind: Exclude<PurchaseFailure, "owned">, message: string) { super(message); this.name = "PurchaseError"; }
+}
+
 type Tx = { transactionId: string; purchaseToken?: string; productIdentifier?: string; jwsRepresentation?: string };
 
 async function verify(platform: "ios" | "android", t: Tx): Promise<boolean> {
@@ -66,7 +84,17 @@ function setPremium(v: boolean) { update((p) => (p.premium === v ? p : { ...p, p
 export async function buy(plan: Plan): Promise<boolean> {
   const n = await native();
   if (!n) throw new Error("Subscriptions are available in the Qaf app for iPhone and Android.");
-  const t = (await n.plugin.purchaseProduct({ productIdentifier: PRODUCTS[plan], planIdentifier: ANDROID_BASE_PLAN[plan], productType: n.SUBS, appAccountToken: await accountToken() })) as Tx;
+  let t: Tx;
+  try {
+    t = (await n.plugin.purchaseProduct({ productIdentifier: PRODUCTS[plan], planIdentifier: ANDROID_BASE_PLAN[plan], productType: n.SUBS, appAccountToken: await accountToken() })) as Tx;
+  } catch (e) {
+    const kind = purchaseFailure(e);
+    console.error("[purchases] store refused", kind, (e as { code?: string }).code ?? "", e instanceof Error ? e.message : "");
+    // Already subscribed on this store account: unlock through the normal server-checked restore.
+    if (kind === "owned") return restore();
+    if (kind === "other") throw e;
+    throw new PurchaseError(kind, e instanceof Error ? e.message : kind);
+  }
   const ok = await verify(n.platform, t);
   setPremium(ok);
   return ok;
