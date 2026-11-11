@@ -142,6 +142,7 @@ function RootComponent() {
     };
     const t = setTimeout(() => sessionStorage.removeItem(KEY), 10000);
     void import("../lib/purchases").then((m) => m.quotaStatus());
+    void import("../lib/reminders").then((m) => m.syncReminders());
     window.addEventListener("vite:preloadError", recover);
     window.addEventListener("unhandledrejection", recover);
     return () => { clearTimeout(t); window.removeEventListener("vite:preloadError", recover); window.removeEventListener("unhandledrejection", recover); };

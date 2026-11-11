@@ -5,7 +5,7 @@ import { patchOnboarding, readOnboarding, type Goal, type Level } from "@/lib/on
 import { Bell, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import { disableReminders, enableReminders, reminderTime, setReminderTime } from "@/lib/reminders";
+import { disableReminders, enableReminders, reminderTime, setReminderTime, syncReminders } from "@/lib/reminders";
 import { Button } from "@/components/ui/button";
 import { AppShell } from "@/components/AppShell";
 import { Paywall } from "@/components/Paywall";
@@ -35,13 +35,24 @@ function Profile() {
   useEffect(() => { const o = readOnboarding(); setGoal(o.goal); setLevel(o.level); }, []);
   const [time, setTime] = useState("19:00");
   const [ask, setAsk] = useState(false);
+  const [asking, setAsking] = useState(false);
   useEffect(() => { setTime(reminderTime()); }, []);
   const turnOn = async () => {
-    setAsk(false);
+    if (asking) return;
+    setAsking(true);
     const r = await enableReminders(time);
+    setAsking(false);
+    setAsk(false);
+    setTime(reminderTime());
     if (r === "denied") toast(t("Notifications are blocked. You can allow them in your phone's settings."));
+    else if (r === "error") toast.error(t("Couldn't set the daily reminder. Please try again."));
     else if (r === "web-limited") toast(t("Reminder saved. Daily notifications are sent by the Qaf phone app."));
-    else toast.success(t("Daily reminder set for {time}", { time }));
+    else toast.success(t("Daily reminder set for {time}", { time: reminderTime() }));
+  };
+  const changeTime = async (value: string) => {
+    setTime(value);
+    if (!value) return; // field cleared mid-edit: keep the saved reminder as it is
+    if (!(await setReminderTime(value))) toast.error(t("Couldn't set the daily reminder. Please try again."));
   };
   const best = p.scores.length ? Math.max(...p.scores) : 0;
   return (
@@ -67,23 +78,23 @@ function Profile() {
       <h2 className="mb-2 mt-7 text-base font-semibold">{t("Settings")}</h2>
       <div className="divide-y divide-border">
         <label className="qaf-profile-row min-h-16 py-2 text-sm font-medium"><span>{t("App language")}</span>
-          <select aria-label={t("App language")} value={language} onChange={(e) => setLanguage(e.target.value === "ar" ? "ar" : "en")} className="h-11 rounded-xl border border-border bg-card px-3">
+          <select aria-label={t("App language")} value={language} onChange={(e) => { setLanguage(e.target.value === "ar" ? "ar" : "en"); void syncReminders(); }} className="h-11 rounded-xl border border-border bg-card px-3">
             <option value="en">English</option><option value="ar">العربية</option>
           </select>
         </label>
         <div className="qaf-profile-row min-h-16 py-2">
           <label htmlFor="reminder" className="flex items-center gap-3 text-sm font-medium"><Bell className="h-5 w-5" />{t("Daily reminder")}</label>
-          <Switch id="reminder" checked={p.reminders} onCheckedChange={(on) => { if (on) setAsk(true); else { void disableReminders(); toast(t("Daily reminder turned off")); } }} />
+          <Switch id="reminder" checked={p.reminders || ask} disabled={asking} onCheckedChange={(on) => { if (on) setAsk(true); else if (ask && !p.reminders) setAsk(false); else { setAsk(false); void disableReminders(); toast(t("Daily reminder turned off")); } }} />
         </div>
         {ask && (
           <div className="rounded-2xl border border-border bg-card p-4 text-sm">
             <p className="mb-3 text-muted-foreground">{t("Qaf will send one gentle notification a day to remind you to practise. We'll ask your phone for permission next. You can turn it off any time.")}</p>
-            <div className="flex gap-2"><Button onClick={() => void turnOn()} className="flex-1">{t("Allow reminders")}</Button><Button variant="outline" onClick={() => setAsk(false)} className="flex-1">{t("Not now")}</Button></div>
+            <div className="flex gap-2"><Button onClick={() => void turnOn()} disabled={asking} className="flex-1">{t("Allow reminders")}</Button><Button variant="outline" disabled={asking} onClick={() => setAsk(false)} className="flex-1">{t("Not now")}</Button></div>
           </div>
         )}
         {p.reminders && (
           <label className="qaf-profile-row min-h-14 text-sm font-medium"><span>{t("Reminder time")}</span>
-            <input type="time" value={time} onChange={(e) => { setTime(e.target.value); void setReminderTime(e.target.value); }} className="h-11 rounded-xl border border-border bg-card px-3" /></label>
+            <input type="time" value={time} onChange={(e) => void changeTime(e.target.value)} className="h-11 rounded-xl border border-border bg-card px-3" /></label>
         )}
         <Button variant="ghost" onClick={() => setPay(true)} className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
           <span className="flex items-center gap-3"><Crown className="h-5 w-5" />{p.premium ? t("Premium active") : t("Go Premium")}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
