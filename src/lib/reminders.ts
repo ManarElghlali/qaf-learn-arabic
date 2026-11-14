@@ -30,6 +30,20 @@ export function reminderNotification(time: string, language: Language) {
   };
 }
 
+export const TEST_REMINDER_ID = 1002;
+export const TEST_REMINDER_DELAY_MS = 5000;
+
+/** One-off notification a few seconds from now so learners can confirm reminders reach them. */
+export function testReminderNotification(now: number, language: Language) {
+  return {
+    id: TEST_REMINDER_ID,
+    title: translate(language, "Time for Arabic"),
+    body: translate(language, "This is a test reminder. Your daily reminders are working."),
+    schedule: { at: new Date(now + TEST_REMINDER_DELAY_MS), allowWhileIdle: true },
+    isExactNotification: false,
+  };
+}
+
 async function native() {
   const { Capacitor } = await import("@capacitor/core");
   if (!Capacitor.isNativePlatform()) return null;
@@ -51,7 +65,7 @@ function saveTime(time: string) {
   try { localStorage.setItem(TIME_KEY, time); } catch { /* ignore */ }
 }
 
-/** Call only from a user tap, after explaining why we ask. */
+/** Call only from a user tap (the Daily reminder switch); it asks the phone for permission directly. */
 export async function enableReminders(time = reminderTime()): Promise<ReminderResult> {
   if (!parseReminderTime(time)) time = reminderTime();
   saveTime(time);
@@ -74,6 +88,31 @@ export async function enableReminders(time = reminderTime()): Promise<ReminderRe
     return "web-limited";
   } catch (e) {
     console.error("[reminders] enable failed", e);
+    return "error";
+  }
+}
+
+export type TestReminderResult = "sent" | "denied" | "web-limited" | "error";
+
+/** Sends one test notification 5 seconds from now. Never changes the daily schedule. */
+export async function sendTestReminder(): Promise<TestReminderResult> {
+  try {
+    const LN = await native();
+    if (LN) {
+      const p = await LN.checkPermissions();
+      if (p.display !== "granted") return "denied";
+      await LN.cancel({ notifications: [{ id: TEST_REMINDER_ID }] }).catch(() => {});
+      await LN.schedule({ notifications: [testReminderNotification(Date.now(), readLanguage())] });
+      return "sent";
+    }
+    if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+      const n = testReminderNotification(Date.now(), readLanguage());
+      setTimeout(() => { try { new Notification(n.title, { body: n.body, icon: "/icon-192.png" }); } catch { /* ignore */ } }, TEST_REMINDER_DELAY_MS);
+      return "sent";
+    }
+    return "web-limited";
+  } catch (e) {
+    console.error("[reminders] test failed", e);
     return "error";
   }
 }

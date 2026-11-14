@@ -2,10 +2,10 @@ import { useLanguage } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { patchOnboarding, readOnboarding, type Goal, type Level } from "@/lib/onboarding";
-import { Bell, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
+import { Bell, BellRing, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
-import { disableReminders, enableReminders, reminderTime, setReminderTime, syncReminders } from "@/lib/reminders";
+import { disableReminders, enableReminders, reminderTime, sendTestReminder, setReminderTime, syncReminders } from "@/lib/reminders";
 import { Button } from "@/components/ui/button";
 import { AppShell } from "@/components/AppShell";
 import { Paywall } from "@/components/Paywall";
@@ -34,20 +34,29 @@ function Profile() {
   const [level, setLevel] = useState<Level | undefined>();
   useEffect(() => { const o = readOnboarding(); setGoal(o.goal); setLevel(o.level); }, []);
   const [time, setTime] = useState("19:00");
-  const [ask, setAsk] = useState(false);
   const [asking, setAsking] = useState(false);
+  const [testing, setTesting] = useState(false);
   useEffect(() => { setTime(reminderTime()); }, []);
   const turnOn = async () => {
     if (asking) return;
     setAsking(true);
     const r = await enableReminders(time);
     setAsking(false);
-    setAsk(false);
     setTime(reminderTime());
     if (r === "denied") toast(t("Notifications are blocked. You can allow them in your phone's settings."));
     else if (r === "error") toast.error(t("Couldn't set the daily reminder. Please try again."));
     else if (r === "web-limited") toast(t("Reminder saved. Daily notifications are sent by the Qaf phone app."));
     else toast.success(t("Daily reminder set for {time}", { time: reminderTime() }));
+  };
+  const testReminder = async () => {
+    if (testing) return;
+    setTesting(true);
+    const r = await sendTestReminder();
+    if (r === "sent") { toast.success(t("Test reminder on its way. It arrives in 5 seconds.")); setTimeout(() => setTesting(false), 5000); return; }
+    setTesting(false);
+    if (r === "denied") toast(t("Notifications are blocked. You can allow them in your phone's settings."));
+    else if (r === "web-limited") toast(t("Test reminders are sent by the Qaf phone app."));
+    else toast.error(t("Couldn't set the daily reminder. Please try again."));
   };
   const changeTime = async (value: string) => {
     setTime(value);
@@ -84,17 +93,16 @@ function Profile() {
         </label>
         <div className="qaf-profile-row min-h-16 py-2">
           <label htmlFor="reminder" className="flex items-center gap-3 text-sm font-medium"><Bell className="h-5 w-5" />{t("Daily reminder")}</label>
-          <Switch id="reminder" checked={p.reminders || ask} disabled={asking} onCheckedChange={(on) => { if (on) setAsk(true); else if (ask && !p.reminders) setAsk(false); else { setAsk(false); void disableReminders(); toast(t("Daily reminder turned off")); } }} />
+          <Switch id="reminder" checked={p.reminders} disabled={asking} aria-busy={asking} onCheckedChange={(on) => { if (on) void turnOn(); else { void disableReminders(); toast(t("Daily reminder turned off")); } }} />
         </div>
-        {ask && (
-          <div className="rounded-2xl border border-border bg-card p-4 text-sm">
-            <p className="mb-3 text-muted-foreground">{t("Qaf will send one gentle notification a day to remind you to practise. We'll ask your phone for permission next. You can turn it off any time.")}</p>
-            <div className="flex gap-2"><Button onClick={() => void turnOn()} disabled={asking} className="flex-1">{t("Allow reminders")}</Button><Button variant="outline" disabled={asking} onClick={() => setAsk(false)} className="flex-1">{t("Not now")}</Button></div>
-          </div>
-        )}
         {p.reminders && (
           <label className="qaf-profile-row min-h-14 text-sm font-medium"><span>{t("Reminder time")}</span>
             <input type="time" value={time} onChange={(e) => void changeTime(e.target.value)} className="h-11 rounded-xl border border-border bg-card px-3" /></label>
+        )}
+        {p.reminders && (
+          <Button variant="ghost" onClick={() => void testReminder()} disabled={testing} className="h-14 w-full justify-start gap-3 rounded-none px-0 text-sm font-medium">
+            <BellRing className="h-5 w-5" />{t("Send a test reminder")}
+          </Button>
         )}
         <Button variant="ghost" onClick={() => setPay(true)} className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
           <span className="flex items-center gap-3"><Crown className="h-5 w-5" />{p.premium ? t("Premium active") : t("Go Premium")}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseReminderTime, reminderNotification } from "@/lib/reminders";
+import { parseReminderTime, reminderNotification, REMINDER_ID, testReminderNotification } from "@/lib/reminders";
 import { purchaseFailure } from "@/lib/purchases";
 
 const pluginError = (message: string, code?: string) => Object.assign(new Error(message), code ? { code } : {});
@@ -17,6 +17,12 @@ describe("Daily reminder schedule", () => {
     expect(parseReminderTime("24:00")).toBeNull();
     expect(parseReminderTime("12:60")).toBeNull();
     expect(reminderNotification("", "en").schedule.on).toEqual({ hour: 19, minute: 0 });
+  });
+  it("sends the test reminder once, 5 seconds later, without replacing the daily one", () => {
+    const n = testReminderNotification(1_000_000, "en");
+    expect(n.schedule.at.getTime()).toBe(1_005_000);
+    expect(n.schedule).not.toHaveProperty("repeats");
+    expect(n.id).not.toBe(REMINDER_ID);
   });
   it("writes the notification in the app language", () => {
     expect(reminderNotification("19:00", "ar").title).toBe("حان وقت العربية");
