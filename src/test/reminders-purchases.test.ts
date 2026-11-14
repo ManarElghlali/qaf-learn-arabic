@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { parseReminderTime, reminderNotification, REMINDER_ID, testReminderNotification } from "@/lib/reminders";
-import { purchaseFailure } from "@/lib/purchases";
+import { ANDROID_BASE_PLAN, PRODUCTS, purchaseFailure } from "@/lib/purchases";
 
 const pluginError = (message: string, code?: string) => Object.assign(new Error(message), code ? { code } : {});
 
@@ -47,5 +47,16 @@ describe("Store purchase failures", () => {
   it("keeps real failures visible", () => {
     expect(purchaseFailure(pluginError("Purchase is not purchased", "DEVELOPER_ERROR"))).toBe("other");
     expect(purchaseFailure(pluginError("Invalid purchase: refund_cancelled"))).toBe("other");
+  });
+});
+
+describe("Google Play plan IDs", () => {
+  it("matches the Play Console yearly base plan", () => {
+    expect(PRODUCTS.yearly).toBe("qaf_premium_yearly");
+    expect(ANDROID_BASE_PLAN.yearly).toBe("qaf-premium-yearly");
+  });
+  it("matches the Play Console monthly base plan", () => {
+    expect(PRODUCTS.monthly).toBe("qaf_premium_monthly");
+    expect(ANDROID_BASE_PLAN.monthly).toBe("monthly");
   });
 });
