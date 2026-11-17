@@ -13,6 +13,7 @@ workflows:
     scripts:
       - npm install -g bun && bun install
       - bun run build:native
+      - npx cap sync android
       - cd android && ./gradlew bundleRelease
     artifacts:
       - android/app/build/outputs/**/*.aab
