@@ -2,6 +2,7 @@
 import { readProgress, update } from "./progress";
 import { readLanguage, translate, type Language } from "./i18n";
 import { withTimeout } from "./timeout";
+import { readReminderLog, recordReminderEvent, summarizePending, type ReminderEvent, type ScheduledSummary } from "./reminder-log";
 
 /** Plugin calls answer in milliseconds; the permission sheet waits for the learner, so it gets longer. */
 export const NATIVE_CALL_MS = 10_000;
@@ -71,6 +72,7 @@ async function schedule(time: string) {
   if (!LN) return false;
   await withTimeout(LN.cancel({ notifications: [{ id: REMINDER_ID }] }), NATIVE_CALL_MS, "cancel").catch(() => {});
   await withTimeout(LN.schedule({ notifications: [reminderNotification(time, readLanguage())] }), NATIVE_CALL_MS, "schedule");
+  recordReminderEvent("scheduled", "daily", time);
   return true;
 }
 
@@ -87,7 +89,7 @@ export async function enableReminders(time = reminderTime()): Promise<ReminderRe
     if (LN) {
       const current = await withTimeout(LN.checkPermissions(), NATIVE_CALL_MS, "checkPermissions");
       const p = current.display === "granted" ? current : await withTimeout(LN.requestPermissions(), PERMISSION_PROMPT_MS, "requestPermissions");
-      if (p.display !== "granted") return "denied";
+      if (p.display !== "granted") { recordReminderEvent("denied", "enable", p.display); return "denied"; }
       await schedule(time);
       update((s) => ({ ...s, reminders: true }));
       return "on";
@@ -100,7 +102,7 @@ export async function enableReminders(time = reminderTime()): Promise<ReminderRe
     update((s) => ({ ...s, reminders: true }));
     return "web-limited";
   } catch (e) {
-    console.error("[reminders] enable failed", e);
+    recordReminderEvent("error", "enable", e);
     return "error";
   }
 }
@@ -113,16 +115,18 @@ export async function sendTestReminder(): Promise<TestReminderResult> {
     const LN = await native();
     if (LN) {
       const p = await withTimeout(LN.checkPermissions(), NATIVE_CALL_MS, "checkPermissions");
-      if (p.display !== "granted") return "denied";
+      if (p.display !== "granted") { recordReminderEvent("denied", "test", p.display); return "denied"; }
       await withTimeout(LN.cancel({ notifications: [{ id: TEST_REMINDER_ID }] }), NATIVE_CALL_MS, "cancel").catch(() => {});
       const { Capacitor } = await import("@capacitor/core");
       if (Capacitor.getPlatform() === "android") {
         setTimeout(() => {
           LN.schedule({ notifications: [testReminderNotification(Date.now(), readLanguage(), "android")] })
-            .catch((e) => console.error("[reminders] test post failed", e));
+            .then(() => recordReminderEvent("scheduled", "test", "posted"))
+            .catch((e) => recordReminderEvent("error", "test post", e));
         }, TEST_REMINDER_DELAY_MS);
       } else {
         await withTimeout(LN.schedule({ notifications: [testReminderNotification(Date.now(), readLanguage())] }), NATIVE_CALL_MS, "schedule");
+        recordReminderEvent("scheduled", "test", "in 5 seconds");
       }
       return "sent";
     }
@@ -133,7 +137,7 @@ export async function sendTestReminder(): Promise<TestReminderResult> {
     }
     return "web-limited";
   } catch (e) {
-    console.error("[reminders] test failed", e);
+    recordReminderEvent("error", "test", e);
     return "error";
   }
 }
@@ -143,7 +147,7 @@ export async function disableReminders() {
   try {
     const LN = await native();
     if (LN) await withTimeout(LN.cancel({ notifications: [{ id: REMINDER_ID }] }), NATIVE_CALL_MS, "cancel");
-  } catch (e) { console.error("[reminders] cancel failed", e); }
+  } catch (e) { recordReminderEvent("error", "cancel", e); }
 }
 
 /** Returns false when the time is invalid or the phone refused to reschedule. */
@@ -151,7 +155,7 @@ export async function setReminderTime(time: string): Promise<boolean> {
   if (!parseReminderTime(time)) return false;
   saveTime(time);
   if (!readProgress().reminders) return true;
-  try { await schedule(time); return true; } catch (e) { console.error("[reminders] reschedule failed", e); return false; }
+  try { await schedule(time); return true; } catch (e) { recordReminderEvent("error", "reschedule", e); return false; }
 }
 
 /**
@@ -159,12 +163,75 @@ export async function setReminderTime(time: string): Promise<boolean> {
  * and refresh the schedule so it follows the saved time and app language.
  */
 export async function syncReminders() {
+  void listenForDeliveries();
   if (!readProgress().reminders) return;
   try {
     const LN = await native();
     if (!LN) return;
     const p = await withTimeout(LN.checkPermissions(), NATIVE_CALL_MS, "checkPermissions");
-    if (p.display !== "granted") { update((s) => ({ ...s, reminders: false })); return; }
+    if (p.display !== "granted") { recordReminderEvent("denied", "app start", p.display); update((s) => ({ ...s, reminders: false })); return; }
     await schedule(reminderTime());
-  } catch (e) { console.error("[reminders] sync failed", e); }
+  } catch (e) { recordReminderEvent("error", "app start", e); }
+}
+
+let listening = false;
+/** Notes each reminder the phone shows while Qaf is running, so the check panel can confirm delivery. */
+async function listenForDeliveries() {
+  if (listening) return;
+  listening = true;
+  try {
+    const LN = await native();
+    if (!LN) return;
+    await LN.addListener("localNotificationReceived", (n) => {
+      recordReminderEvent("delivered", n.id === TEST_REMINDER_ID ? "test" : n.id === REMINDER_ID ? "daily" : String(n.id), n.title ?? "");
+    });
+  } catch (e) { listening = false; recordReminderEvent("error", "listen", e); }
+}
+
+export type ReminderDiagnostics = {
+  platform: "ios" | "android" | "web";
+  permission: string;
+  exactAlarms: string | null;
+  switchOn: boolean;
+  savedTime: string;
+  scheduled: ScheduledSummary[];
+  onScreen: number | null;
+  log: ReminderEvent[];
+  problems: string[];
+};
+
+/** Read-only snapshot for the Notification check panel; never asks for permission or changes a schedule. */
+export async function collectReminderDiagnostics(): Promise<ReminderDiagnostics> {
+  const { Capacitor } = await import("@capacitor/core");
+  const platform = (Capacitor.isNativePlatform() ? Capacitor.getPlatform() : "web") as ReminderDiagnostics["platform"];
+  const out: ReminderDiagnostics = {
+    platform, permission: "unknown", exactAlarms: null, switchOn: readProgress().reminders, savedTime: reminderTime(),
+    scheduled: [], onScreen: null, log: [], problems: [],
+  };
+  const LN = await native().catch(() => null);
+  if (LN) {
+    try { out.permission = (await withTimeout(LN.checkPermissions(), NATIVE_CALL_MS, "checkPermissions")).display; }
+    catch (e) { recordReminderEvent("error", "check permission", e); }
+    try { out.scheduled = summarizePending((await withTimeout(LN.getPending(), NATIVE_CALL_MS, "getPending")).notifications); }
+    catch (e) { recordReminderEvent("error", "list scheduled", e); }
+    try { out.onScreen = (await withTimeout(LN.getDeliveredNotifications(), NATIVE_CALL_MS, "getDelivered")).notifications.length; }
+    catch { /* not supported on every OS version */ }
+    if (platform === "android") {
+      try { out.exactAlarms = (await withTimeout(LN.checkExactNotificationSetting(), NATIVE_CALL_MS, "exactSetting")).exact_alarm; }
+      catch { /* older plugin/OS: nothing to report */ }
+    }
+  } else if (typeof Notification !== "undefined") out.permission = Notification.permission === "default" ? "prompt" : Notification.permission;
+  out.log = readReminderLog();
+  out.problems = reminderProblems(out);
+  return out;
+}
+
+/** Plain-language findings shown at the top of the panel. Empty means everything looks right. */
+export function reminderProblems(d: Pick<ReminderDiagnostics, "platform" | "permission" | "switchOn" | "scheduled">): string[] {
+  const p: string[] = [];
+  if (d.platform === "web") return d.switchOn ? ["Daily notifications are sent by the Qaf phone app."] : [];
+  if (d.permission === "denied") p.push("Notifications are blocked. You can allow them in your phone's settings.");
+  if (d.switchOn && d.permission === "granted" && !d.scheduled.some((s) => s.id === REMINDER_ID)) p.push("The daily reminder is on but not scheduled on this phone. Turn the switch off and on again.");
+  if (!d.switchOn && d.scheduled.some((s) => s.id === REMINDER_ID)) p.push("A daily reminder is still scheduled although the switch is off.");
+  return p;
 }

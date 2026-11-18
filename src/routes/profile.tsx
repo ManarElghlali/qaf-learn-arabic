@@ -9,6 +9,7 @@ import { disableReminders, enableReminders, reminderTime, sendTestReminder, setR
 import { Button } from "@/components/ui/button";
 import { AppShell } from "@/components/AppShell";
 import { Paywall } from "@/components/Paywall";
+import { NotificationCheck } from "@/components/NotificationCheck";
 import { update, useProgress } from "@/lib/progress";
 import { WORDS } from "@/lib/words";
 
@@ -104,6 +105,7 @@ function Profile() {
             <BellRing className="h-5 w-5" />{t("Send a test reminder")}
           </Button>
         )}
+        <NotificationCheck />
         <Button variant="ghost" onClick={() => setPay(true)} className="h-16 w-full justify-between rounded-none px-0 text-sm font-medium">
           <span className="flex items-center gap-3"><Crown className="h-5 w-5" />{p.premium ? t("Premium active") : t("Go Premium")}</span><ChevronRight className="h-4 w-4 text-muted-foreground" />
         </Button>
