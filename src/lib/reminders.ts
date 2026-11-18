@@ -33,15 +33,20 @@ export function reminderNotification(time: string, language: Language) {
 export const TEST_REMINDER_ID = 1002;
 export const TEST_REMINDER_DELAY_MS = 5000;
 
-/** One-off notification a few seconds from now so learners can confirm reminders reach them. */
-export function testReminderNotification(now: number, language: Language) {
-  return {
+/**
+ * One-off notification a few seconds from now so learners can confirm reminders reach them.
+ * Android delivers inexact alarms up to an hour late (Android 12+), so there the app waits the
+ * 5 seconds itself and posts the notification immediately (no schedule).
+ */
+export function testReminderNotification(now: number, language: Language, platform: "ios" | "android" = "ios") {
+  const base: { id: number; title: string; body: string; isExactNotification: boolean; schedule?: { at: Date; allowWhileIdle: boolean } } = {
     id: TEST_REMINDER_ID,
     title: translate(language, "Time for Arabic"),
     body: translate(language, "This is a test reminder. Your daily reminders are working."),
-    schedule: { at: new Date(now + TEST_REMINDER_DELAY_MS), allowWhileIdle: true },
     isExactNotification: false,
   };
+  if (platform === "android") return base;
+  return { ...base, schedule: { at: new Date(now + TEST_REMINDER_DELAY_MS), allowWhileIdle: true } };
 }
 
 async function native() {
@@ -102,7 +107,15 @@ export async function sendTestReminder(): Promise<TestReminderResult> {
       const p = await LN.checkPermissions();
       if (p.display !== "granted") return "denied";
       await LN.cancel({ notifications: [{ id: TEST_REMINDER_ID }] }).catch(() => {});
-      await LN.schedule({ notifications: [testReminderNotification(Date.now(), readLanguage())] });
+      const { Capacitor } = await import("@capacitor/core");
+      if (Capacitor.getPlatform() === "android") {
+        setTimeout(() => {
+          LN.schedule({ notifications: [testReminderNotification(Date.now(), readLanguage(), "android")] })
+            .catch((e) => console.error("[reminders] test post failed", e));
+        }, TEST_REMINDER_DELAY_MS);
+      } else {
+        await LN.schedule({ notifications: [testReminderNotification(Date.now(), readLanguage())] });
+      }
       return "sent";
     }
     if (typeof Notification !== "undefined" && Notification.permission === "granted") {

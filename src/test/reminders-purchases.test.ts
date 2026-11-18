@@ -20,8 +20,13 @@ describe("Daily reminder schedule", () => {
   });
   it("sends the test reminder once, 5 seconds later, without replacing the daily one", () => {
     const n = testReminderNotification(1_000_000, "en");
-    expect(n.schedule.at.getTime()).toBe(1_005_000);
+    expect(n.schedule?.at.getTime()).toBe(1_005_000);
     expect(n.schedule).not.toHaveProperty("repeats");
+    expect(n.id).not.toBe(REMINDER_ID);
+  });
+  it("posts the Android test reminder immediately (the app waits 5 seconds), never as a late inexact alarm", () => {
+    const n = testReminderNotification(1_000_000, "en", "android");
+    expect(n).not.toHaveProperty("schedule");
     expect(n.id).not.toBe(REMINDER_ID);
   });
   it("writes the notification in the app language", () => {
