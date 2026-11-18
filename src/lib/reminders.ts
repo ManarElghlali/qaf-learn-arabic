@@ -1,6 +1,11 @@
 // Daily reminders: local notifications on the phone apps only (no push server, no cost).
 import { readProgress, update } from "./progress";
 import { readLanguage, translate, type Language } from "./i18n";
+import { withTimeout } from "./timeout";
+
+/** Plugin calls answer in milliseconds; the permission sheet waits for the learner, so it gets longer. */
+export const NATIVE_CALL_MS = 10_000;
+export const PERMISSION_PROMPT_MS = 60_000;
 
 const TIME_KEY = "qaf-reminder-time";
 export const REMINDER_ID = 1001;
@@ -27,6 +32,8 @@ export function reminderNotification(time: string, language: Language) {
     body: translate(language, "A few minutes of reading keeps your streak going."),
     schedule: { on: { hour: at.hour, minute: at.minute }, repeats: true, allowWhileIdle: true },
     isExactNotification: false,
+    // iPhone hides notifications from the open app unless asked; show the banner even while Qaf is open.
+    foreground: true,
   };
 }
 
@@ -39,11 +46,12 @@ export const TEST_REMINDER_DELAY_MS = 5000;
  * 5 seconds itself and posts the notification immediately (no schedule).
  */
 export function testReminderNotification(now: number, language: Language, platform: "ios" | "android" = "ios") {
-  const base: { id: number; title: string; body: string; isExactNotification: boolean; schedule?: { at: Date; allowWhileIdle: boolean } } = {
+  const base: { id: number; title: string; body: string; isExactNotification: boolean; foreground: boolean; schedule?: { at: Date; allowWhileIdle: boolean } } = {
     id: TEST_REMINDER_ID,
     title: translate(language, "Time for Arabic"),
     body: translate(language, "This is a test reminder. Your daily reminders are working."),
     isExactNotification: false,
+    foreground: true,
   };
   if (platform === "android") return base;
   return { ...base, schedule: { at: new Date(now + TEST_REMINDER_DELAY_MS), allowWhileIdle: true } };
@@ -61,8 +69,8 @@ export type ReminderResult = "on" | "denied" | "web-limited" | "error";
 async function schedule(time: string) {
   const LN = await native();
   if (!LN) return false;
-  await LN.cancel({ notifications: [{ id: REMINDER_ID }] }).catch(() => {});
-  await LN.schedule({ notifications: [reminderNotification(time, readLanguage())] });
+  await withTimeout(LN.cancel({ notifications: [{ id: REMINDER_ID }] }), NATIVE_CALL_MS, "cancel").catch(() => {});
+  await withTimeout(LN.schedule({ notifications: [reminderNotification(time, readLanguage())] }), NATIVE_CALL_MS, "schedule");
   return true;
 }
 
@@ -77,8 +85,8 @@ export async function enableReminders(time = reminderTime()): Promise<ReminderRe
   try {
     const LN = await native();
     if (LN) {
-      const current = await LN.checkPermissions();
-      const p = current.display === "granted" ? current : await LN.requestPermissions();
+      const current = await withTimeout(LN.checkPermissions(), NATIVE_CALL_MS, "checkPermissions");
+      const p = current.display === "granted" ? current : await withTimeout(LN.requestPermissions(), PERMISSION_PROMPT_MS, "requestPermissions");
       if (p.display !== "granted") return "denied";
       await schedule(time);
       update((s) => ({ ...s, reminders: true }));
@@ -104,9 +112,9 @@ export async function sendTestReminder(): Promise<TestReminderResult> {
   try {
     const LN = await native();
     if (LN) {
-      const p = await LN.checkPermissions();
+      const p = await withTimeout(LN.checkPermissions(), NATIVE_CALL_MS, "checkPermissions");
       if (p.display !== "granted") return "denied";
-      await LN.cancel({ notifications: [{ id: TEST_REMINDER_ID }] }).catch(() => {});
+      await withTimeout(LN.cancel({ notifications: [{ id: TEST_REMINDER_ID }] }), NATIVE_CALL_MS, "cancel").catch(() => {});
       const { Capacitor } = await import("@capacitor/core");
       if (Capacitor.getPlatform() === "android") {
         setTimeout(() => {
@@ -114,7 +122,7 @@ export async function sendTestReminder(): Promise<TestReminderResult> {
             .catch((e) => console.error("[reminders] test post failed", e));
         }, TEST_REMINDER_DELAY_MS);
       } else {
-        await LN.schedule({ notifications: [testReminderNotification(Date.now(), readLanguage())] });
+        await withTimeout(LN.schedule({ notifications: [testReminderNotification(Date.now(), readLanguage())] }), NATIVE_CALL_MS, "schedule");
       }
       return "sent";
     }
@@ -134,7 +142,7 @@ export async function disableReminders() {
   update((s) => ({ ...s, reminders: false }));
   try {
     const LN = await native();
-    if (LN) await LN.cancel({ notifications: [{ id: REMINDER_ID }] });
+    if (LN) await withTimeout(LN.cancel({ notifications: [{ id: REMINDER_ID }] }), NATIVE_CALL_MS, "cancel");
   } catch (e) { console.error("[reminders] cancel failed", e); }
 }
 
@@ -155,7 +163,7 @@ export async function syncReminders() {
   try {
     const LN = await native();
     if (!LN) return;
-    const p = await LN.checkPermissions();
+    const p = await withTimeout(LN.checkPermissions(), NATIVE_CALL_MS, "checkPermissions");
     if (p.display !== "granted") { update((s) => ({ ...s, reminders: false })); return; }
     await schedule(reminderTime());
   } catch (e) { console.error("[reminders] sync failed", e); }

@@ -40,8 +40,8 @@ function Profile() {
   const turnOn = async () => {
     if (asking) return;
     setAsking(true);
-    const r = await enableReminders(time);
-    setAsking(false);
+    let r: Awaited<ReturnType<typeof enableReminders>> = "error";
+    try { r = await enableReminders(time); } catch { r = "error"; } finally { setAsking(false); }
     setTime(reminderTime());
     if (r === "denied") toast(t("Notifications are blocked. You can allow them in your phone's settings."));
     else if (r === "error") toast.error(t("Couldn't set the daily reminder. Please try again."));
@@ -51,7 +51,7 @@ function Profile() {
   const testReminder = async () => {
     if (testing) return;
     setTesting(true);
-    const r = await sendTestReminder();
+    const r = await sendTestReminder().catch(() => "error" as const);
     if (r === "sent") { toast.success(t("Test reminder on its way. It arrives in 5 seconds.")); setTimeout(() => setTesting(false), 5000); return; }
     setTesting(false);
     if (r === "denied") toast(t("Notifications are blocked. You can allow them in your phone's settings."));

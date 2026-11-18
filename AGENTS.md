@@ -39,3 +39,4 @@
 - Interface translations and language persistence live only in src/lib/i18n.tsx through LanguageProvider/useLanguage; never translate stable curriculum IDs, Arabic teaching text, or audio lookup arguments. This keeps language changes independent of learning and billing state.
 - Onboarding persists a version alongside its existing key and migrates old numeric steps when steps are inserted or reordered; quiz completion/skip leads to recommendation without altering learning progress.
 - Sound Practice uses a paged three-column letter grid within the existing set route; all 28 letters, progress, audio and sequential completion remain in the existing sound-practice module.
+- Awaited native-plugin and store/server calls that keep a control disabled go through src/lib/timeout.ts withTimeout (or an abort timer), so buttons always unlock even when a plugin or network never answers.

@@ -8,7 +8,8 @@ const config: CapacitorConfig = {
   ios: { contentInset: "never" },
   android: { allowMixedContent: false },
   plugins: {
-    LocalNotifications: { iconColor: "#164C43" },
+    // iPhone: show reminders as a banner (no app-icon badge) even while Qaf is open.
+    LocalNotifications: { iconColor: "#164C43", presentationOptions: ["banner", "list", "sound"] },
   },
 };
 

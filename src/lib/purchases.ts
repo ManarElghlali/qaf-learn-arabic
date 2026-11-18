@@ -3,6 +3,11 @@
 import { API_BASE, deviceId } from "@/lib/api";
 import { update } from "@/lib/progress";
 import { savePass, refreshAccess } from "@/lib/access";
+import { withTimeout } from "@/lib/timeout";
+
+/** Store and server calls that keep the Subscribe/Restore buttons busy must always finish. */
+export const STORE_CALL_MS = 30_000;
+export const VERIFY_MS = 30_000;
 
 export const PRODUCTS = { monthly: "qaf_premium_monthly", yearly: "qaf_premium_yearly" } as const;
 export type Plan = keyof typeof PRODUCTS;
@@ -29,13 +34,13 @@ async function native() {
 }
 
 export async function storeAvailable(): Promise<boolean> {
-  try { const n = await native(); if (!n) return false; return (await n.plugin.isBillingSupported()).isBillingSupported; } catch { return false; }
+  try { const n = await native(); if (!n) return false; return (await withTimeout(n.plugin.isBillingSupported(), STORE_CALL_MS, "isBillingSupported")).isBillingSupported; } catch { return false; }
 }
 
 export async function storePrices(): Promise<Partial<Record<Plan, string>>> {
   try {
     const n = await native(); if (!n) return {};
-    const { products } = await n.plugin.getProducts({ productIdentifiers: Object.values(PRODUCTS), productType: n.SUBS });
+    const { products } = await withTimeout(n.plugin.getProducts({ productIdentifiers: Object.values(PRODUCTS), productType: n.SUBS }), STORE_CALL_MS, "getProducts");
     const out: Partial<Record<Plan, string>> = {};
     for (const p of products) {
       if (p.identifier === PRODUCTS.monthly) out.monthly = `${p.priceString} / month`;
@@ -69,7 +74,14 @@ type Tx = { transactionId: string; purchaseToken?: string; productIdentifier?: s
 async function verify(platform: "ios" | "android", t: Tx): Promise<boolean> {
   if (platform === "ios" && !t.jwsRepresentation) return false;
   const body = platform === "ios" ? { platform, jws: t.jwsRepresentation } : { platform, purchaseToken: t.purchaseToken };
-  const res = await fetch(`${API_BASE}/api/public/verify-receipt`, { method: "POST", headers: { "Content-Type": "application/json", "x-qaf-device": deviceId() }, body: JSON.stringify(body) });
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), VERIFY_MS);
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE}/api/public/verify-receipt`, { method: "POST", headers: { "Content-Type": "application/json", "x-qaf-device": deviceId() }, body: JSON.stringify(body), signal: ctrl.signal });
+  } catch {
+    throw new Error("Couldn't reach Qaf to confirm your purchase. Check your connection, then tap Restore purchase.");
+  } finally { clearTimeout(timer); }
   const data = (await res.json().catch(() => ({}))) as { premium?: boolean; error?: string; code?: string; detail?: string; pass?: string };
   if (!res.ok) {
     console.error("[purchases] verify-receipt", res.status, data.code ?? "unknown", data.detail ?? "");
@@ -105,8 +117,14 @@ export async function buy(plan: Plan): Promise<boolean> {
 export async function restore(): Promise<boolean> {
   const n = await native();
   if (!n) throw new Error("Restore works in the Qaf app for iPhone and Android.");
-  await n.plugin.restorePurchases().catch(() => {});
-  const { purchases } = await n.plugin.getPurchases({ productType: n.SUBS, onlyCurrentEntitlements: true });
+  await withTimeout(n.plugin.restorePurchases(), STORE_CALL_MS, "restorePurchases").catch(() => {});
+  let purchases: unknown[];
+  try {
+    ({ purchases } = await withTimeout(n.plugin.getPurchases({ productType: n.SUBS, onlyCurrentEntitlements: true }), STORE_CALL_MS, "getPurchases"));
+  } catch (e) {
+    console.error("[purchases] getPurchases failed", e instanceof Error ? e.message : e);
+    throw new PurchaseError("unavailable", "store_unreachable");
+  }
   let ok = false;
   let failure: unknown = null;
   for (const t of purchases as Tx[]) {
