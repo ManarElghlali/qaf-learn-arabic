@@ -1,36 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { syllablesOf } from "@/lib/reading-sounds";
 import { readingResult } from "@/lib/reading-result";
+import { cors as sharedCors, originAllowed, sha } from "@/lib/public-api.server";
+import { LIMIT_MSG, LIMIT_STATUS, gatewayFailureOutcome, shouldRetryGateway, usageOf } from "@/lib/check-guard";
 export { syllablesOf } from "@/lib/reading-sounds";
 
 // Checks a learner's reading of ONE fully vocalised word, syllable by syllable
 // (consonant + its exact short vowel), using an audio-capable model.
-// Public because the app has no accounts; it only accepts a short recording and a short Arabic word.
+// Public because the app has no accounts. CORS/Origin only stop casual browser misuse; the real
+// protection is server-side: begin_check (budget, kill switch, one active check per phone, quotas,
+// idempotency on the exact recording) before the paid call and finish_check after it.
 const MAX_BYTES = 512 * 1024;
 const MAX_MS = 6500;
-// Web app (same origin) plus the native app shells.
-const ORIGINS = new Set(["capacitor://localhost", "https://localhost", "http://localhost"]);
-function cors(request: Request): Record<string, string> {
-  const o = request.headers.get("origin") ?? "";
-  return ORIGINS.has(o) ? { "Access-Control-Allow-Origin": o, "Access-Control-Allow-Methods": "POST, OPTIONS", "Access-Control-Allow-Headers": "content-type, x-qaf-device", Vary: "Origin" } : {};
-}
-function originAllowed(request: Request): boolean {
-  const o = request.headers.get("origin");
-  if (!o) return true; // native HTTP clients
-  if (ORIGINS.has(o)) return true;
-  try { return new URL(o).host === new URL(request.url).host; } catch { return false; }
-}
-async function sha(s: string) {
-  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(b), (x) => x.toString(16).padStart(2, "0")).join("");
-}
-const LIMIT_MSG: Record<string, string> = {
-  quota: "You've used your free pronunciation checks. Lessons and quizzes stay open.",
-  daily: "You've reached today's pronunciation-check limit. Please try again tomorrow.",
-  premium_monthly: "You've used this month's 100 Premium pronunciation checks. They refresh with your next billing month.",
-  global: "The reading checker is resting for today. Please try again tomorrow.",
-  paused: "The reading checker is paused. Lessons and quizzes stay open.",
-};
+/** Abort the AI call after this long; the database treats a check as stuck after 45 s. */
+const AI_TIMEOUT_MS = 20_000;
+const cors = (request: Request) => sharedCors(request, "POST, OPTIONS");
 const MODEL = "google/gemini-3.1-flash-lite";
 
 const SYSTEM = `You are a strict Arabic reading teacher checking a beginner's pronunciation of ONE fully vocalised word.
@@ -70,13 +54,21 @@ function formatOf(mime: string): string {
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+type Admin = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
+
+async function settle(admin: Admin, requestId: string, outcome: "ok" | "failed" | "unknown", usage: { input: number; output: number } | null, result: unknown, failure: string | null) {
+  // Nulls mean "usage not reported" (charge the reserved estimate) / "no saved answer".
+  const args = { _request: requestId, _outcome: outcome, _input_tokens: usage?.input ?? null, _output_tokens: usage?.output ?? null, _result: result ?? null, _failure: failure };
+  const { error } = await admin.rpc("finish_check_tokens", args as never);
+  if (error) console.error("finish_check failed", error.message);
+}
 
 export const Route = createFileRoute("/api/public/check-reading")({
   server: {
     handlers: {
       OPTIONS: async ({ request }) => new Response(null, { status: 204, headers: cors(request) }),
       POST: async ({ request }) => {
-        const h = cors(request);
+        const h = { ...cors(request), "Cache-Control": "no-store" };
         const json = (b: unknown, status = 200) => Response.json(b, { status, headers: h });
         if (!originAllowed(request)) return json({ error: "Not allowed." }, 403);
         const device = request.headers.get("x-qaf-device") ?? "";
@@ -99,10 +91,15 @@ export const Route = createFileRoute("/api/public/check-reading")({
         const apiKey = process.env["LOVABLE_API_KEY"];
         if (!apiKey) return json({ error: "Reading check is not configured." }, 500);
 
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const dev = await sha(device);
+        // The exact recording identifies the request: a resend (double tap, network retry) replays the
+        // saved answer instead of paying for a second evaluation.
+        const audioHash = Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)), (x) => x.toString(16).padStart(2, "0")).join("");
+        const requestId = await sha(`${dev}:${expected}:${audioHash}`);
         try {
-          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
           const ip = request.headers.get("cf-connecting-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-          const dev = await sha(device);
           // Free devices may only check the 10 free Fatha words, even if the app is tampered with.
           const { FREE_WORD_TEXTS } = await import("@/lib/access");
           if (!FREE_WORD_TEXTS.includes(expected)) {
@@ -110,17 +107,21 @@ export const Route = createFileRoute("/api/public/check-reading")({
             if (sErr) throw sErr;
             if (!(st as { premium?: boolean }).premium) return json({ error: "This word is part of Qaf Premium.", limit: "premium_content" }, 403);
           }
-          const { data: gate, error: gErr } = await supabaseAdmin.rpc("consume_check", { _device: dev, _ip: await sha(ip) });
+          const { data: gate, error: gErr } = await supabaseAdmin.rpc("begin_check", { _request: requestId, _device: dev, _ip: await sha(ip), _word: expected });
           if (gErr) throw gErr;
-          const g = gate as { allowed: boolean; reason?: string };
-          if (!g.allowed) return json({ error: LIMIT_MSG[g.reason ?? ""] ?? LIMIT_MSG["daily"], limit: g.reason }, 429);
+          const g = gate as { allowed: boolean; reason?: string; result?: unknown };
+          if (!g.allowed) {
+            if (g.reason === "replay" && g.result) return json({ ...(g.result as object), replayed: true });
+            const reason = g.reason ?? "daily";
+            return json({ error: LIMIT_MSG[reason] ?? LIMIT_MSG["daily"], limit: reason }, LIMIT_STATUS[reason] ?? 429);
+          }
         } catch (err) {
           console.error("check limit failed", err);
           return json({ error: "Reading check is unavailable right now. Please try again." }, 503);
         }
 
         const target = syllablesOf(expected);
-        const data = btoa(Array.from(new Uint8Array(await file.arrayBuffer()), (b) => String.fromCharCode(b)).join(""));
+        const data = btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join(""));
         const body = JSON.stringify({
           model: MODEL,
           reasoning_effort: "minimal",
@@ -134,33 +135,57 @@ export const Route = createFileRoute("/api/public/check-reading")({
           response_format: { type: "json_schema", json_schema: { name: "reading_check", strict: true, schema: SCHEMA } },
         });
 
-        // One bounded, delayed retry for busy (429) or transient (5xx) responses.
+        // At most one replay, and only for a pre-execution rate limit (429). Ambiguous 5xx or timeouts are
+        // never resent automatically because the first call may already have been billed.
         let res: Response | null = null;
-        for (let attempt = 0; attempt < 2; attempt++) {
-          res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
-            body,
-          });
-          if (res.ok || attempt === 1 || !(res.status === 429 || res.status >= 500)) break;
-          const ra = Number(res.headers.get("retry-after"));
-          await sleep(Math.min(Number.isFinite(ra) && ra > 0 ? ra * 1000 : 1500, 4000));
+        let text = "";
+        const deadline = Date.now() + AI_TIMEOUT_MS;
+        try {
+          for (let attempt = 0; attempt < 2; attempt++) {
+            const ctl = new AbortController();
+            const timer = setTimeout(() => ctl.abort(), Math.max(1000, deadline - Date.now()));
+            try {
+              res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", "X-Lovable-AIG-SDK": "fetch" },
+                body, signal: ctl.signal,
+              });
+              text = await res.text();
+            } finally { clearTimeout(timer); }
+            if (!shouldRetryGateway(res.status, attempt)) break;
+            const ra = Number(res.headers.get("retry-after"));
+            const wait = Math.min(Number.isFinite(ra) && ra > 0 ? ra * 1000 : 1500, 4000);
+            if (Date.now() + wait > deadline - 3000) break;
+            await sleep(wait);
+          }
+        } catch (err) {
+          const timedOut = err instanceof Error && err.name === "AbortError";
+          await settle(supabaseAdmin, requestId, "unknown", null, null, timedOut ? "timeout" : "network");
+          return json({ error: timedOut ? "The reading checker took too long. Please try again." : "Reading check failed. Please try again." }, timedOut ? 504 : 502);
         }
-        if (!res) return json({ error: "Reading check failed. Please try again." }, 502);
-        const text = await res.text();
+        if (!res) {
+          await settle(supabaseAdmin, requestId, "unknown", null, null, "no_response");
+          return json({ error: "Reading check failed. Please try again." }, 502);
+        }
         if (!res.ok) {
           const busy = res.status === 429;
-          let message = busy ? "The reading checker is busy. Wait a moment, then try again." : "Reading check failed. Please try again.";
-          if (!busy) try { message = (JSON.parse(text) as { message?: string }).message ?? message; } catch { /* keep default */ }
-          return json({ error: message }, res.status);
+          await settle(supabaseAdmin, requestId, gatewayFailureOutcome(res.status), null, null, `gateway_${res.status}`);
+          console.error("AI gateway error", res.status, text.slice(0, 300));
+          return json({ error: busy ? "The reading checker is busy. Wait a moment, then try again." : "Reading check failed. Please try again." }, busy ? 429 : 502);
         }
+        let parsed: unknown = null;
+        try { parsed = JSON.parse(text); } catch { /* handled below */ }
+        const usage = usageOf(parsed);
         try {
-          const content = (JSON.parse(text) as { choices: { message: { content: string } }[] }).choices[0]?.message.content;
-          if (!content) return json({ error: "Reading check returned no feedback. Please try again." }, 502);
+          const content = (parsed as { choices: { message: { content: string } }[] }).choices[0]?.message.content;
+          if (!content) throw new Error("empty");
           const j = JSON.parse(content) as { heard: string; syllables: { heard: string; correct: boolean }[] };
-          return json(readingResult(target, j));
+          const result = readingResult(target, j);
+          await settle(supabaseAdmin, requestId, "ok", usage, result, null);
+          return json(result);
         } catch {
-          return json({ error: "Reading check failed. Please try again." }, 502);
+          await settle(supabaseAdmin, requestId, "unknown", usage, null, "bad_output");
+          return json({ error: "Reading check returned no feedback. Please try again." }, 502);
         }
       },
     },

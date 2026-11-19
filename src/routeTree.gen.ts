@@ -20,6 +20,7 @@ import { Route as TestRouteImport } from './routes/test'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as SoundsIndexRouteImport } from './routes/sounds.index'
 import { Route as SoundsCategoryRouteImport } from './routes/sounds.$category'
+import { Route as ApiPublicAdminMonitorRouteImport } from './routes/api/public/admin-monitor'
 import { Route as ApiPublicCheckReadingRouteImport } from './routes/api/public/check-reading'
 import { Route as ApiPublicCheckStatusRouteImport } from './routes/api/public/check-status'
 import { Route as ApiPublicVerifyReceiptRouteImport } from './routes/api/public/verify-receipt'
@@ -80,6 +81,11 @@ const SoundsCategoryRoute = SoundsCategoryRouteImport.update({
   path: '/sounds/$category',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicAdminMonitorRoute = ApiPublicAdminMonitorRouteImport.update({
+  id: '/api/public/admin-monitor',
+  path: '/api/public/admin-monitor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicCheckReadingRoute = ApiPublicCheckReadingRouteImport.update({
   id: '/api/public/check-reading',
   path: '/api/public/check-reading',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
   '/sounds/': typeof SoundsIndexRoute
+  '/api/public/admin-monitor': typeof ApiPublicAdminMonitorRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
   '/api/public/check-status': typeof ApiPublicCheckStatusRoute
   '/api/public/verify-receipt': typeof ApiPublicVerifyReceiptRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
   '/sounds': typeof SoundsIndexRoute
+  '/api/public/admin-monitor': typeof ApiPublicAdminMonitorRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
   '/api/public/check-status': typeof ApiPublicCheckStatusRoute
   '/api/public/verify-receipt': typeof ApiPublicVerifyReceiptRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/welcome': typeof WelcomeRoute
   '/sounds/$category': typeof SoundsCategoryRoute
   '/sounds/': typeof SoundsIndexRoute
+  '/api/public/admin-monitor': typeof ApiPublicAdminMonitorRoute
   '/api/public/check-reading': typeof ApiPublicCheckReadingRoute
   '/api/public/check-status': typeof ApiPublicCheckStatusRoute
   '/api/public/verify-receipt': typeof ApiPublicVerifyReceiptRoute
@@ -167,6 +176,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/sounds/$category'
     | '/sounds/'
+    | '/api/public/admin-monitor'
     | '/api/public/check-reading'
     | '/api/public/check-status'
     | '/api/public/verify-receipt'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/sounds/$category'
     | '/sounds'
+    | '/api/public/admin-monitor'
     | '/api/public/check-reading'
     | '/api/public/check-status'
     | '/api/public/verify-receipt'
@@ -201,6 +212,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/sounds/$category'
     | '/sounds/'
+    | '/api/public/admin-monitor'
     | '/api/public/check-reading'
     | '/api/public/check-status'
     | '/api/public/verify-receipt'
@@ -219,6 +231,7 @@ export interface RootRouteChildren {
   WelcomeRoute: typeof WelcomeRoute
   SoundsCategoryRoute: typeof SoundsCategoryRoute
   SoundsIndexRoute: typeof SoundsIndexRoute
+  ApiPublicAdminMonitorRoute: typeof ApiPublicAdminMonitorRoute
   ApiPublicCheckReadingRoute: typeof ApiPublicCheckReadingRoute
   ApiPublicCheckStatusRoute: typeof ApiPublicCheckStatusRoute
   ApiPublicVerifyReceiptRoute: typeof ApiPublicVerifyReceiptRoute
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SoundsCategoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/admin-monitor': {
+      id: '/api/public/admin-monitor'
+      path: '/api/public/admin-monitor'
+      fullPath: '/api/public/admin-monitor'
+      preLoaderRoute: typeof ApiPublicAdminMonitorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/check-reading': {
       id: '/api/public/check-reading'
       path: '/api/public/check-reading'
@@ -347,6 +367,7 @@ const rootRouteChildren: RootRouteChildren = {
   WelcomeRoute: WelcomeRoute,
   SoundsCategoryRoute: SoundsCategoryRoute,
   SoundsIndexRoute: SoundsIndexRoute,
+  ApiPublicAdminMonitorRoute: ApiPublicAdminMonitorRoute,
   ApiPublicCheckReadingRoute: ApiPublicCheckReadingRoute,
   ApiPublicCheckStatusRoute: ApiPublicCheckStatusRoute,
   ApiPublicVerifyReceiptRoute: ApiPublicVerifyReceiptRoute,

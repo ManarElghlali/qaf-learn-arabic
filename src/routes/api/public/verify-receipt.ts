@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { cors, deviceHeader, originAllowed, sha } from "@/lib/public-api.server";
+import { adminAuthorized, unauthorized } from "@/lib/admin-auth.server";
 
 // Premium is granted ONLY here, after Apple or Google confirms an active subscription.
 // A bare transaction number is never accepted: iOS must send Apple's signed transaction (JWS),
@@ -13,10 +14,11 @@ const Body = z.discriminatedUnion("platform", [
 
 type Admin = (typeof import("@/integrations/supabase/client.server"))["supabaseAdmin"];
 // Diagnostics hold only failure codes (certificate names, product/bundle IDs, store/server errors) —
-// never the device ID, purchase data or transaction numbers — so they can be listed publicly for tracing.
+// never the device ID, purchase data or transaction numbers. Reading them requires the admin token;
+// the database keeps at most 120 per hour so repeated invalid requests can't flood the table.
 async function record(admin: Admin, platform: string, stage: string, detail: string) {
   const code = detail.split(":").slice(0, 2).join(":").slice(0, 80);
-  const { error } = await admin.from("receipt_diagnostics").insert({ platform: platform.slice(0, 16), stage, code, detail: detail.slice(0, 600) });
+  const { error } = await admin.rpc("record_receipt_diagnostic", { _platform: platform, _stage: stage, _code: code, _detail: detail });
   if (error) console.error("[verify-receipt] diagnostic insert failed:", error.message);
 }
 
@@ -24,12 +26,14 @@ export const Route = createFileRoute("/api/public/verify-receipt")({
   server: {
     handlers: {
       OPTIONS: ({ request }) => new Response(null, { status: 204, headers: cors(request) }),
+      // Diagnostics are owner-only; see also /api/public/admin-monitor.
       GET: async ({ request }) => {
+        if (!(await adminAuthorized(request))) return unauthorized();
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { data, error } = await supabaseAdmin.from("receipt_diagnostics")
           .select("created_at, platform, stage, code, detail").order("created_at", { ascending: false }).limit(25);
-        if (error) return Response.json({ error: `Diagnostics unavailable: ${error.message}` }, { status: 500, headers: cors(request) });
-        return Response.json({ recent: data }, { headers: { ...cors(request), "Cache-Control": "no-store" } });
+        if (error) return Response.json({ error: "Diagnostics unavailable." }, { status: 500, headers: { "Cache-Control": "no-store" } });
+        return Response.json({ recent: data }, { headers: { "Cache-Control": "no-store" } });
       },
       POST: async ({ request }) => {
         const json = (b: unknown, status = 200) => Response.json(b, { status, headers: cors(request) });

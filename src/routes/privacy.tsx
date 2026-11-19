@@ -30,7 +30,7 @@ function Privacy() {
       <article lang="en" dir="ltr" className="space-y-6 text-sm leading-7 text-muted-foreground">
         <header>
           <h2 className="text-xl font-bold text-primary">Privacy Policy</h2>
-          <p className="mt-1 text-xs">Updated 15 October 2026</p>
+          <p className="mt-1 text-xs">Updated 19 November 2026</p>
           <p className="mt-3">This policy describes the current Qaf Learn Arabic experience. You can learn as a guest without creating an account.</p>
         </header>
         <section aria-labelledby="privacy-microphone">
@@ -41,7 +41,12 @@ function Privacy() {
         <section aria-labelledby="privacy-processing">
           <h3 id="privacy-processing" className="text-base font-semibold text-foreground">Third-party AI assessment</h3>
           <p>Speech samples are transmitted over HTTPS to Qaf’s pronunciation service, which forwards them through the Lovable AI Gateway to Google Gemini for grading. Assessment requires an internet connection. These services may also receive technical request information needed to operate and protect their systems.</p>
-          <p className="mt-2">Provider-side retention, processing locations and any use for service improvement are governed by the providers’ terms. Those details have not yet been independently confirmed for Qaf; we cannot promise zero retention by third parties. Contact us before using speech assessment if you need more information. Do not include sensitive personal information in recordings.</p>
+          <p className="mt-2">Provider-side retention, processing locations and any use for service improvement are governed by the providers’ terms. The Lovable AI Gateway lists this model and request type as zero data retention, but Google’s own handling has not been independently confirmed for Qaf, so we cannot promise zero retention by every third party. Contact us before using speech assessment if you need more information. Do not include sensitive personal information in recordings.</p>
+        </section>
+        <section aria-labelledby="privacy-server">
+          <h3 id="privacy-server" className="text-base font-semibold text-foreground">Limited data kept on Qaf’s servers</h3>
+          <p>To enforce check limits and prevent abuse without accounts, Qaf’s servers keep: a one-way hash of a random ID created by the app on your device; a one-way hash of your IP address; daily and lifetime check counts; and, for each pronunciation check, the target word, a fingerprint of the recording (not the recording itself), timing and an estimated processing cost. The written result of a check is kept for up to one hour so a resent recording isn’t charged twice; check records are deleted after 35 days and network counters after 7 days.</p>
+          <p className="mt-2">If you subscribe, Qaf stores the store’s subscription identifier, product and billing period linked to the hashed device ID so Premium can be confirmed and restored. Purchase failure logs contain only error codes, not your device ID or purchase data, and are deleted after 30 days. Payments are handled by Apple or Google; Qaf never receives your card details.</p>
         </section>
         <section aria-labelledby="privacy-local">
           <h3 id="privacy-local" className="text-base font-semibold text-foreground">Learning data on your device</h3>

@@ -36,6 +36,20 @@
       "when": 1794319494333,
       "tag": "0004_receipt_diagnostics",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795090871345,
+      "tag": "0005_ai_spending_and_check_requests",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795090921502,
+      "tag": "0006_finish_check_with_tokens",
+      "breakpoints": true
     }
   ]
 }

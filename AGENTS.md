@@ -24,7 +24,8 @@
 - Sound Practice and onboarding each keep their own module and storage key, so they never alter learning progress.
 - public/manifest.webmanifest is the only manifest; Vite manifest generation stays disabled.
 - Teacher audio is re-recorded/audited only via scripts/audio-audit (two AI listeners; results.json tracks status).
-- AI check limits are enforced only by service-role DB functions (consume_check, check_limits flags) so they change without app updates.
+- Paid AI checks go through service-role DB functions only: begin_check before the call (kill switch, USD budget, one active check per device, quotas, idempotency on the recording hash) and finish_check_tokens after it (cost from token usage; non-ok outcomes refund learner quota). Limits and prices live in check_limits so they change without app updates.
+- Owner monitoring (receipt diagnostics, spend report) requires the QAF_ADMIN_TOKEN bearer via src/lib/admin-auth.server.ts; endpoints stay closed when it is unset.
 - Reminders are scheduled only through src/lib/reminders.ts (local notifications, permission after explanation).
 - Native: `bun run build:native` runs a CAPACITOR=1 vite build and syncs .output/public to Capacitor; shells call the checker via VITE_API_BASE with CORS for capacitor/https localhost.
 - Codemagic iOS publishing uses a named App Store Connect integration for signing/upload and submits only to TestFlight, keeping credentials outside source and production release manual.

@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_spend_daily: {
+        Row: {
+          blocked_budget: number
+          day: string
+          failed: number
+          requests: number
+          reserved_credits: number
+          spent_credits: number
+          succeeded: number
+          updated_at: string
+        }
+        Insert: {
+          blocked_budget?: number
+          day: string
+          failed?: number
+          requests?: number
+          reserved_credits?: number
+          spent_credits?: number
+          succeeded?: number
+          updated_at?: string
+        }
+        Update: {
+          blocked_budget?: number
+          day?: string
+          failed?: number
+          requests?: number
+          reserved_credits?: number
+          spent_credits?: number
+          succeeded?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       check_daily_total: {
         Row: {
           count: number
@@ -53,6 +86,24 @@ export type Database = {
         }
         Relationships: []
       }
+      check_ip_free: {
+        Row: {
+          count: number
+          day: string
+          ip_hash: string
+        }
+        Insert: {
+          count?: number
+          day?: string
+          ip_hash: string
+        }
+        Update: {
+          count?: number
+          day?: string
+          ip_hash?: string
+        }
+        Relationships: []
+      }
       check_ip_usage: {
         Row: {
           count: number
@@ -73,40 +124,70 @@ export type Database = {
       }
       check_limits: {
         Row: {
+          active_timeout_seconds: number
+          ai_daily_budget_usd: number
+          ai_kill_switch: boolean
+          ai_monthly_budget_usd: number
           billing_live: boolean
+          credits_per_input_token: number
+          credits_per_output_token: number
           device_daily: number
           enabled: boolean
           enforce_free_quota: boolean
+          free_ip_daily: number
           free_lifetime: number
           global_daily: number
           id: boolean
           ip_daily: number
+          max_attempts_per_request: number
           max_moves_30d: number
           premium_monthly: number
+          reserve_credits_per_check: number
+          usd_per_credit: number
         }
         Insert: {
+          active_timeout_seconds?: number
+          ai_daily_budget_usd?: number
+          ai_kill_switch?: boolean
+          ai_monthly_budget_usd?: number
           billing_live?: boolean
+          credits_per_input_token?: number
+          credits_per_output_token?: number
           device_daily?: number
           enabled?: boolean
           enforce_free_quota?: boolean
+          free_ip_daily?: number
           free_lifetime?: number
           global_daily?: number
           id?: boolean
           ip_daily?: number
+          max_attempts_per_request?: number
           max_moves_30d?: number
           premium_monthly?: number
+          reserve_credits_per_check?: number
+          usd_per_credit?: number
         }
         Update: {
+          active_timeout_seconds?: number
+          ai_daily_budget_usd?: number
+          ai_kill_switch?: boolean
+          ai_monthly_budget_usd?: number
           billing_live?: boolean
+          credits_per_input_token?: number
+          credits_per_output_token?: number
           device_daily?: number
           enabled?: boolean
           enforce_free_quota?: boolean
+          free_ip_daily?: number
           free_lifetime?: number
           global_daily?: number
           id?: boolean
           ip_daily?: number
+          max_attempts_per_request?: number
           max_moves_30d?: number
           premium_monthly?: number
+          reserve_credits_per_check?: number
+          usd_per_credit?: number
         }
         Relationships: []
       }
@@ -125,6 +206,63 @@ export type Database = {
           count?: number
           device_id?: string
           period_start?: string
+        }
+        Relationships: []
+      }
+      check_requests: {
+        Row: {
+          attempts: number
+          created_at: string
+          device_id: string
+          failure: string | null
+          finished_at: string | null
+          ip_hash: string
+          period_start: string | null
+          premium: boolean
+          request_id: string
+          reserved_credits: number
+          result: Json | null
+          spend_day: string
+          spent_credits: number
+          started_at: string
+          status: string
+          word: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          device_id: string
+          failure?: string | null
+          finished_at?: string | null
+          ip_hash: string
+          period_start?: string | null
+          premium?: boolean
+          request_id: string
+          reserved_credits?: number
+          result?: Json | null
+          spend_day?: string
+          spent_credits?: number
+          started_at?: string
+          status: string
+          word: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          device_id?: string
+          failure?: string | null
+          finished_at?: string | null
+          ip_hash?: string
+          period_start?: string | null
+          premium?: boolean
+          request_id?: string
+          reserved_credits?: number
+          result?: Json | null
+          spend_day?: string
+          spent_credits?: number
+          started_at?: string
+          status?: string
+          word?: string
         }
         Relationships: []
       }
@@ -205,11 +343,59 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      ai_spend_overview: {
+        Row: {
+          blocked_budget: number | null
+          day: string | null
+          failed: number | null
+          requests: number | null
+          reserved_credits: number | null
+          spent_credits: number | null
+          spent_usd: number | null
+          succeeded: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      ai_spend_report: { Args: never; Returns: Json }
+      begin_check: {
+        Args: { _device: string; _ip: string; _request: string; _word: string }
+        Returns: Json
+      }
+      begin_check_core: {
+        Args: {
+          _device: string
+          _enforce_free: boolean
+          _ip: string
+          _request: string
+          _word: string
+        }
+        Returns: Json
+      }
       check_status: { Args: { _device: string }; Returns: Json }
       consume_check: { Args: { _device: string; _ip: string }; Returns: Json }
+      finish_check: {
+        Args: {
+          _credits: number
+          _failure: string
+          _outcome: string
+          _request: string
+          _result: Json
+        }
+        Returns: Json
+      }
+      finish_check_tokens: {
+        Args: {
+          _failure: string
+          _input_tokens: number
+          _outcome: string
+          _output_tokens: number
+          _request: string
+          _result: Json
+        }
+        Returns: Json
+      }
       grant_entitlement: {
         Args: {
           _device: string
@@ -221,7 +407,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      prune_check_data: { Args: never; Returns: undefined }
+      record_receipt_diagnostic: {
+        Args: {
+          _code: string
+          _detail: string
+          _platform: string
+          _stage: string
+        }
+        Returns: undefined
+      }
+      refund_check_quota: {
+        Args: { _device: string; _period: string; _premium: boolean }
+        Returns: undefined
+      }
       revoke_entitlement: { Args: { _original: string }; Returns: undefined }
+      settle_stale_checks: { Args: never; Returns: number }
     }
     Enums: {
       [_ in never]: never

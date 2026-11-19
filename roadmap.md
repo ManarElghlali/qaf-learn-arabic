@@ -1,3 +1,14 @@
+# Security and cost controls (Nov 19)
+- [x] Enforce the 5 free lifetime checks in the live app now (user said "Right now").
+- [x] AI spending budget ($50/month), daily cap, emergency off switch, admin report.
+- [x] Idempotent checks, one active check per phone, capped retries, refunds for failed AI calls, timeouts.
+- [x] Lock receipt diagnostics behind an admin key; cap diagnostic growth.
+- [x] Free-check cap per network; document device-ID limits.
+- [x] Subscription review (expiry, refund, revoke, restore, offline pass, transfers) and privacy disclosures.
+- [x] Tests: concurrency, budget shutdown, blocked diagnostics, subscriptions, pronunciation flow, build.
+- [ ] Publish remaining protections — waits on user approval (live site still shows purchase diagnostics until then).
+- [ ] Optional: set QAF_ADMIN_TOKEN secret to use the admin monitoring endpoints.
+
 # Reminders and store purchases
 - [x] Fix daily reminder activation: no exact-alarm settings detour on Android, localized text, valid times only, error feedback, start-up permission sync; web switch flow checked in preview.
 - [x] Treat cancelled Google/Apple purchase sheets as quiet cancellations; pending, store-unavailable and already-owned (auto-restore) handled. 93 tests passed.

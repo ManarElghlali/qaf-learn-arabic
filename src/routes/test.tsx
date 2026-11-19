@@ -107,7 +107,11 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
       fd.append("expected", w.ar);
       fd.append("durationMs", String(Math.max(1, Math.min(lastMs.current, 6000))));
       fd.append("file", new File([blob], type.includes("mp4") ? "reading.m4a" : "reading.webm", { type }));
-      const res = await fetch(`${API_BASE}/api/public/check-reading`, { method: "POST", body: fd, headers: { "x-qaf-device": deviceId() } });
+      // The server gives up on the AI after 20 s; never leave the mic stuck on "analyzing".
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), 35_000);
+      const res = await fetch(`${API_BASE}/api/public/check-reading`, { method: "POST", body: fd, headers: { "x-qaf-device": deviceId() }, signal: ctl.signal })
+        .finally(() => clearTimeout(timer));
       const data = (await res.json()) as { correct?: boolean; heard?: string; syllables?: Syllable[]; error?: string; limit?: string };
       refreshQuota();
       if ((res.status === 429 && data.limit === "quota") || data.limit === "premium_content") setPay(data.error ?? "You've used your free pronunciation checks.");
