@@ -2,11 +2,18 @@
 import { readProgress, update } from "./progress";
 import { readLanguage, translate, type Language } from "./i18n";
 import { withTimeout } from "./timeout";
-import { readReminderLog, recordReminderEvent, summarizePending, type ReminderEvent, type ScheduledSummary } from "./reminder-log";
+import { errorMessage, readReminderLog, recordReminderEvent, summarizePending, type ReminderEvent, type ScheduledSummary } from "./reminder-log";
 
 /** Plugin calls answer in milliseconds; the permission sheet waits for the learner, so it gets longer. */
-export const NATIVE_CALL_MS = 10_000;
-export const PERMISSION_PROMPT_MS = 60_000;
+export const NATIVE_CALL_MS = 3_000;
+export const PERMISSION_PROMPT_MS = 45_000;
+/** Each Notification check probe; all probes run at the same time. */
+export const DIAG_CALL_MS = 2_500;
+
+/** The app was built without the phone's notification module (native plugin not linked/synced). */
+export class ReminderBridgeMissing extends Error {
+  constructor() { super("LocalNotifications native plugin is not available in this build"); this.name = "ReminderBridgeMissing"; }
+}
 
 const TIME_KEY = "qaf-reminder-time";
 export const REMINDER_ID = 1001;
@@ -58,14 +65,25 @@ export function testReminderNotification(now: number, language: Language, platfo
   return { ...base, schedule: { at: new Date(now + TEST_REMINDER_DELAY_MS), allowWhileIdle: true } };
 }
 
+/**
+ * The phone's notification module, or null on the website. Throws ReminderBridgeMissing when running in the
+ * phone app without the native plugin (otherwise Capacitor silently falls back to the browser version).
+ */
 async function native() {
   const { Capacitor } = await import("@capacitor/core");
   if (!Capacitor.isNativePlatform()) return null;
+  if (!Capacitor.isPluginAvailable("LocalNotifications")) throw new ReminderBridgeMissing();
   const { LocalNotifications } = await import("@capacitor/local-notifications");
   return LocalNotifications;
 }
 
-export type ReminderResult = "on" | "denied" | "web-limited" | "error";
+export type ReminderResult = "on" | "denied" | "web-limited" | "unavailable" | "timeout" | "error";
+
+function failure(e: unknown): "unavailable" | "timeout" | "error" {
+  if (e instanceof ReminderBridgeMissing) return "unavailable";
+  if (e instanceof Error && e.name === "TimeoutError") return "timeout";
+  return "error";
+}
 
 async function schedule(time: string) {
   const LN = await native();
@@ -103,11 +121,11 @@ export async function enableReminders(time = reminderTime()): Promise<ReminderRe
     return "web-limited";
   } catch (e) {
     recordReminderEvent("error", "enable", e);
-    return "error";
+    return failure(e);
   }
 }
 
-export type TestReminderResult = "sent" | "denied" | "web-limited" | "error";
+export type TestReminderResult = "sent" | "denied" | "web-limited" | "unavailable" | "timeout" | "error";
 
 /** Sends one test notification 5 seconds from now. Never changes the daily schedule. */
 export async function sendTestReminder(): Promise<TestReminderResult> {
@@ -138,7 +156,7 @@ export async function sendTestReminder(): Promise<TestReminderResult> {
     return "web-limited";
   } catch (e) {
     recordReminderEvent("error", "test", e);
-    return "error";
+    return failure(e);
   }
 }
 
@@ -190,6 +208,8 @@ async function listenForDeliveries() {
 
 export type ReminderDiagnostics = {
   platform: "ios" | "android" | "web";
+  /** "ok" = native notification module linked; "missing" = phone app built without it. */
+  bridge: "ok" | "missing" | "n/a";
   permission: string;
   exactAlarms: string | null;
   switchOn: boolean;
@@ -197,41 +217,55 @@ export type ReminderDiagnostics = {
   scheduled: ScheduledSummary[];
   onScreen: number | null;
   log: ReminderEvent[];
+  /** Probes that failed or timed out this time, e.g. "permission: checkPermissions timed out". */
+  failures: string[];
   problems: string[];
 };
 
-/** Read-only snapshot for the Notification check panel; never asks for permission or changes a schedule. */
+/**
+ * Read-only snapshot for the Notification check panel; never asks for permission or changes a schedule.
+ * Never rejects and never takes much longer than DIAG_CALL_MS: every probe runs in parallel with its own limit.
+ */
 export async function collectReminderDiagnostics(): Promise<ReminderDiagnostics> {
-  const { Capacitor } = await import("@capacitor/core");
-  const platform = (Capacitor.isNativePlatform() ? Capacitor.getPlatform() : "web") as ReminderDiagnostics["platform"];
   const out: ReminderDiagnostics = {
-    platform, permission: "unknown", exactAlarms: null, switchOn: readProgress().reminders, savedTime: reminderTime(),
-    scheduled: [], onScreen: null, log: [], problems: [],
+    platform: "web", bridge: "n/a", permission: "unknown", exactAlarms: null, switchOn: false, savedTime: DEFAULT_REMINDER_TIME,
+    scheduled: [], onScreen: null, log: [], failures: [], problems: [],
   };
-  const LN = await native().catch(() => null);
-  if (LN) {
-    try { out.permission = (await withTimeout(LN.checkPermissions(), NATIVE_CALL_MS, "checkPermissions")).display; }
-    catch (e) { recordReminderEvent("error", "check permission", e); }
-    try { out.scheduled = summarizePending((await withTimeout(LN.getPending(), NATIVE_CALL_MS, "getPending")).notifications); }
-    catch (e) { recordReminderEvent("error", "list scheduled", e); }
-    try { out.onScreen = (await withTimeout(LN.getDeliveredNotifications(), NATIVE_CALL_MS, "getDelivered")).notifications.length; }
-    catch { /* not supported on every OS version */ }
-    if (platform === "android") {
-      try { out.exactAlarms = (await withTimeout(LN.checkExactNotificationSetting(), NATIVE_CALL_MS, "exactSetting")).exact_alarm; }
-      catch { /* older plugin/OS: nothing to report */ }
-    }
-  } else if (typeof Notification !== "undefined") out.permission = Notification.permission === "default" ? "prompt" : Notification.permission;
+  try { out.switchOn = readProgress().reminders; out.savedTime = reminderTime(); } catch { /* defaults */ }
+  try {
+    const { Capacitor } = await withTimeout(import("@capacitor/core"), DIAG_CALL_MS, "load");
+    out.platform = (Capacitor.isNativePlatform() ? Capacitor.getPlatform() : "web") as ReminderDiagnostics["platform"];
+    if (out.platform !== "web") {
+      out.bridge = Capacitor.isPluginAvailable("LocalNotifications") ? "ok" : "missing";
+      if (out.bridge === "ok") {
+        const { LocalNotifications: LN } = await withTimeout(import("@capacitor/local-notifications"), DIAG_CALL_MS, "load plugin");
+        const probes = [
+          ["permission", () => LN.checkPermissions().then((r) => { out.permission = r.display; })],
+          ["scheduled", () => LN.getPending().then((r) => { out.scheduled = summarizePending(r.notifications); })],
+          ["on screen", () => LN.getDeliveredNotifications().then((r) => { out.onScreen = r.notifications.length; })],
+          ...(out.platform === "android" ? [["exact timing", () => LN.checkExactNotificationSetting().then((r) => { out.exactAlarms = r.exact_alarm; })]] as const : []),
+        ] as const;
+        const results = await Promise.allSettled(probes.map(([name, run]) => withTimeout(run(), DIAG_CALL_MS, name)));
+        results.forEach((r, i) => { if (r.status === "rejected") out.failures.push(`${probes[i]![0]}: ${errorMessage(r.reason)}`); });
+      }
+    } else if (typeof Notification !== "undefined") out.permission = Notification.permission === "default" ? "prompt" : Notification.permission;
+  } catch (e) {
+    out.failures.push(`check: ${errorMessage(e)}`);
+  }
+  if (out.failures.length) recordReminderEvent("error", "notification check", out.failures.join("; "));
   out.log = readReminderLog();
   out.problems = reminderProblems(out);
   return out;
 }
 
 /** Plain-language findings shown at the top of the panel. Empty means everything looks right. */
-export function reminderProblems(d: Pick<ReminderDiagnostics, "platform" | "permission" | "switchOn" | "scheduled">): string[] {
+export function reminderProblems(d: Pick<ReminderDiagnostics, "platform" | "permission" | "switchOn" | "scheduled"> & Partial<Pick<ReminderDiagnostics, "bridge" | "failures">>): string[] {
   const p: string[] = [];
   if (d.platform === "web") return d.switchOn ? ["Daily notifications are sent by the Qaf phone app."] : [];
+  if (d.bridge === "missing") return ["This version of the app can't send notifications. Please update Qaf."];
+  if (d.failures?.length) p.push("Your phone didn't answer every check. Tap Refresh to try again.");
   if (d.permission === "denied") p.push("Notifications are blocked. You can allow them in your phone's settings.");
-  if (d.switchOn && d.permission === "granted" && !d.scheduled.some((s) => s.id === REMINDER_ID)) p.push("The daily reminder is on but not scheduled on this phone. Turn the switch off and on again.");
+  if (d.switchOn && d.permission === "granted" && !d.failures?.some((f) => f.startsWith("scheduled")) && !d.scheduled.some((s) => s.id === REMINDER_ID)) p.push("The daily reminder is on but not scheduled on this phone. Turn the switch off and on again.");
   if (!d.switchOn && d.scheduled.some((s) => s.id === REMINDER_ID)) p.push("A daily reminder is still scheduled although the switch is off.");
   return p;
 }

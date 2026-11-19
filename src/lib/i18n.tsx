@@ -303,7 +303,15 @@ Object.assign(ARABIC, {
   "Permission refused": "رُفض الإذن",
   "Daily notifications are sent by the Qaf phone app.": "تُرسل الإشعارات اليومية من تطبيق قاف على الهاتف.",
   "The daily reminder is on but not scheduled on this phone. Turn the switch off and on again.": "التذكير اليومي مفعّل لكنه غير مجدول على هذا الهاتف. أوقف المفتاح ثم شغّله مجددًا.",
-  "A daily reminder is still scheduled although the switch is off.": "ما زال تذكير يومي مجدولًا رغم إيقاف المفتاح."
+  "A daily reminder is still scheduled although the switch is off.": "ما زال تذكير يومي مجدولًا رغم إيقاف المفتاح.",
+  "Waiting for your phone…": "بانتظار هاتفك…",
+  "Your phone didn't respond. Please try again.": "لم يستجب هاتفك. حاول مجددًا.",
+  "This version of the app can't send notifications. Please update Qaf.": "هذا الإصدار من التطبيق لا يستطيع إرسال الإشعارات. يُرجى تحديث قاف.",
+  "Your phone didn't answer every check. Tap Refresh to try again.": "لم يُجب هاتفك عن كل الفحوصات. اضغط تحديث للمحاولة مجددًا.",
+  "The notification check couldn't finish.": "تعذّر إكمال فحص الإشعارات.",
+  "Notification module": "وحدة الإشعارات",
+  "Connected": "متصلة",
+  "Missing from this build": "غير موجودة في هذا الإصدار"
 });
 
 export function translate(language: Language, text: string, values: Record<string, string | number> = {}) {

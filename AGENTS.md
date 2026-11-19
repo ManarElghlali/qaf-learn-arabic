@@ -41,3 +41,4 @@
 - Sound Practice uses a paged three-column letter grid within the existing set route; all 28 letters, progress, audio and sequential completion remain in the existing sound-practice module.
 - Awaited native-plugin and store/server calls that keep a control disabled go through src/lib/timeout.ts withTimeout (or an abort timer), so buttons always unlock even when a plugin or network never answers.
 - Reminder events (scheduled/delivered/errors) are recorded only via src/lib/reminder-log.ts and read by the Profile Notification check panel, which never requests permission or changes schedules.
+- Codemagic runs scripts/native/verify-plugins.mjs after cap sync, so a phone build fails instead of shipping without the reminder or purchase plugin linked.

@@ -2,14 +2,14 @@ import { useLanguage } from "@/lib/i18n";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { patchOnboarding, readOnboarding, type Goal, type Level } from "@/lib/onboarding";
-import { Bell, BellRing, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
+import { BellRing, ChevronRight, Crown, RotateCcw, Shield } from "lucide-react";
 import { toast } from "sonner";
-import { Switch } from "@/components/ui/switch";
-import { disableReminders, enableReminders, reminderTime, sendTestReminder, setReminderTime, syncReminders } from "@/lib/reminders";
+import { reminderTime, sendTestReminder, setReminderTime, syncReminders } from "@/lib/reminders";
 import { Button } from "@/components/ui/button";
 import { AppShell } from "@/components/AppShell";
 import { Paywall } from "@/components/Paywall";
 import { NotificationCheck } from "@/components/NotificationCheck";
+import { ReminderToggle } from "@/components/ReminderToggle";
 import { update, useProgress } from "@/lib/progress";
 import { WORDS } from "@/lib/words";
 
@@ -35,20 +35,8 @@ function Profile() {
   const [level, setLevel] = useState<Level | undefined>();
   useEffect(() => { const o = readOnboarding(); setGoal(o.goal); setLevel(o.level); }, []);
   const [time, setTime] = useState("19:00");
-  const [asking, setAsking] = useState(false);
   const [testing, setTesting] = useState(false);
   useEffect(() => { setTime(reminderTime()); }, []);
-  const turnOn = async () => {
-    if (asking) return;
-    setAsking(true);
-    let r: Awaited<ReturnType<typeof enableReminders>> = "error";
-    try { r = await enableReminders(time); } catch { r = "error"; } finally { setAsking(false); }
-    setTime(reminderTime());
-    if (r === "denied") toast(t("Notifications are blocked. You can allow them in your phone's settings."));
-    else if (r === "error") toast.error(t("Couldn't set the daily reminder. Please try again."));
-    else if (r === "web-limited") toast(t("Reminder saved. Daily notifications are sent by the Qaf phone app."));
-    else toast.success(t("Daily reminder set for {time}", { time: reminderTime() }));
-  };
   const testReminder = async () => {
     if (testing) return;
     setTesting(true);
@@ -57,6 +45,8 @@ function Profile() {
     setTesting(false);
     if (r === "denied") toast(t("Notifications are blocked. You can allow them in your phone's settings."));
     else if (r === "web-limited") toast(t("Test reminders are sent by the Qaf phone app."));
+    else if (r === "unavailable") toast.error(t("This version of the app can't send notifications. Please update Qaf."));
+    else if (r === "timeout") toast.error(t("Your phone didn't respond. Please try again."));
     else toast.error(t("Couldn't set the daily reminder. Please try again."));
   };
   const changeTime = async (value: string) => {
@@ -92,10 +82,7 @@ function Profile() {
             <option value="en">English</option><option value="ar">العربية</option>
           </select>
         </label>
-        <div className="qaf-profile-row min-h-16 py-2">
-          <label htmlFor="reminder" className="flex items-center gap-3 text-sm font-medium"><Bell className="h-5 w-5" />{t("Daily reminder")}</label>
-          <Switch id="reminder" checked={p.reminders} disabled={asking} aria-busy={asking} onCheckedChange={(on) => { if (on) void turnOn(); else { void disableReminders(); toast(t("Daily reminder turned off")); } }} />
-        </div>
+        <ReminderToggle on={p.reminders} time={time} onTimeSaved={setTime} />
         {p.reminders && (
           <label className="qaf-profile-row min-h-14 text-sm font-medium"><span>{t("Reminder time")}</span>
             <input type="time" value={time} onChange={(e) => void changeTime(e.target.value)} className="h-11 rounded-xl border border-border bg-card px-3" /></label>
