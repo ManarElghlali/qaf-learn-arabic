@@ -64,3 +64,20 @@ describe("admin access", () => {
     expect(await adminAuthorized(req("Bearer " + t))).toBe(true);
   });
 });
+
+describe("shared-network limit message", () => {
+  it("explains the shared Wi-Fi limit in English with mobile data, tomorrow and optional Premium", async () => {
+    const { NETWORK_LIMIT_MSG } = await import("@/lib/check-guard");
+    const { translate } = await import("@/lib/i18n");
+    const en = translate("en", NETWORK_LIMIT_MSG);
+    expect(en).toBe(LIMIT_MSG["network"]);
+    for (const part of ["Wi-Fi", "mobile data", "tomorrow", "Premium is also an option"]) expect(en).toContain(part);
+  });
+  it("shows the same guidance in Arabic", async () => {
+    const { NETWORK_LIMIT_MSG } = await import("@/lib/check-guard");
+    const { translate } = await import("@/lib/i18n");
+    const ar = translate("ar", NETWORK_LIMIT_MSG);
+    expect(ar).not.toBe(NETWORK_LIMIT_MSG);
+    for (const part of ["الواي فاي", "بيانات الهاتف", "غدًا", "بريميوم"]) expect(ar).toContain(part);
+  });
+});

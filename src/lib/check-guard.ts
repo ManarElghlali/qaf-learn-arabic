@@ -1,11 +1,15 @@
 // Pure, browser-safe rules for the paid pronunciation checker (server enforces them via
 // begin_check / finish_check in the database; these helpers only classify and phrase outcomes).
 
+/** Shown when the free-check cap for one Wi-Fi/network is reached; translated in i18n ARABIC. */
+export const NETWORK_LIMIT_MSG =
+  "Today's free checks are shared by everyone on this Wi-Fi or network, and the limit has been reached. Try switching to mobile data, or come back tomorrow. If you'd like more checks, Premium is also an option.";
+
 /** Reasons begin_check can refuse a check, mapped to learner-facing messages and HTTP statuses. */
 export const LIMIT_MSG: Record<string, string> = {
   quota: "You've used your free pronunciation checks. Lessons and quizzes stay open.",
   daily: "You've reached today's pronunciation-check limit. Please try again tomorrow.",
-  network: "Too many free checks from this network today. Please try again tomorrow or go Premium.",
+  network: NETWORK_LIMIT_MSG,
   premium_monthly: "You've used this month's 100 Premium pronunciation checks. They refresh with your next billing month.",
   global: "The reading checker is resting for today. Please try again tomorrow.",
   budget: "The reading checker is resting for now. Lessons and quizzes stay open.",

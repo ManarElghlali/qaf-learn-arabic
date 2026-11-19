@@ -259,6 +259,7 @@ Object.assign(ARABIC, {
   "Couldn't reach the reading checker. Check your connection and try again.": "تعذر الاتصال بخدمة التحقق من القراءة. تحقق من الاتصال وحاول مجددًا.",
   "That was too short. Hold the mic, read the word, then release.": "التسجيل قصير جدًا. اضغط على الميكروفون واقرأ الكلمة ثم ارفع إصبعك.",
   "No speech detected. Hold the mic, read the word aloud, then release.": "لم يُكتشف صوت. اضغط على الميكروفون واقرأ الكلمة بصوت مسموع ثم ارفع إصبعك.",
+  "Today's free checks are shared by everyone on this Wi-Fi or network, and the limit has been reached. Try switching to mobile data, or come back tomorrow. If you'd like more checks, Premium is also an option.": "يتشارك كل من يستخدم شبكة الواي فاي أو الإنترنت نفسها التحققات المجانية اليومية، وقد بلغت هذه الشبكة الحد اليوم. جرّب التبديل إلى بيانات الهاتف، أو عُد غدًا. وإن رغبت في المزيد من التحققات، فاشتراك بريميوم خيار متاح أيضًا.",
   "Couldn't read the recording. Please record the word again.": "تعذر قراءة التسجيل. سجّل الكلمة مجددًا.",
   "Free: {done}/{total} words, 3 quizzes, reading test": "مجاني: {done}/{total} كلمات، ٣ اختبارات واختبار قراءة",
   "Learn {done}/{total}": "تعلّم {done}/{total}",

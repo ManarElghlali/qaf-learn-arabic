@@ -6,7 +6,8 @@
 - [x] Free-check cap per network; document device-ID limits.
 - [x] Subscription review (expiry, refund, revoke, restore, offline pass, transfers) and privacy disclosures.
 - [x] Tests: concurrency, budget shutdown, blocked diagnostics, subscriptions, pronunciation flow, build.
-- [ ] Publish remaining protections — waits on user approval (live site still shows purchase diagnostics until then).
+- [x] Shared-network limit message in English and Arabic (option A).
+- [ ] Publish remaining protections — waits on explicit user approval (live site still shows purchase diagnostics until then); after publishing, recheck that the live diagnostics address refuses access.
 - [ ] Optional: set QAF_ADMIN_TOKEN secret to use the admin monitoring endpoints.
 
 # Reminders and store purchases

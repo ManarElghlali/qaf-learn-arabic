@@ -1,4 +1,5 @@
 import { useLanguage } from "@/lib/i18n";
+import { NETWORK_LIMIT_MSG } from "@/lib/check-guard";
 import { API_BASE, deviceId } from "@/lib/api";
 import { createFileRoute, useHydrated } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
@@ -115,6 +116,8 @@ function Test({ lesson, progress, free }: { lesson: ReturnType<typeof parseLesso
       const data = (await res.json()) as { correct?: boolean; heard?: string; syllables?: Syllable[]; error?: string; limit?: string };
       refreshQuota();
       if ((res.status === 429 && data.limit === "quota") || data.limit === "premium_content") setPay(data.error ?? "You've used your free pronunciation checks.");
+      // The shared-network limit is explained in the learner's language.
+      if (data.limit === "network") { setErrMsg(t(NETWORK_LIMIT_MSG)); setSt("error"); return; }
       if (!res.ok || !data.syllables) { setErrMsg(data.error ?? "Reading check failed. Please try again."); setSt("error"); return; }
       const checked = readingResult(w.units, { heard: data.heard ?? "", syllables: data.syllables });
       judge({ ...checked, correct: data.correct === true && checked.correct });
